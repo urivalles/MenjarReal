@@ -1,5 +1,5 @@
 // El build calcula una versió a partir del contingut per detectar cada canvi.
-const BUILD_VERSION = '75839ea21b6dacb2';
+const BUILD_VERSION = '8b86f373dc6ab2eb';
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `realfood-shell-${encodeURIComponent(new URL(SCOPE).pathname)}-`;
 const CACHE_NAME = CACHE_PREFIX + BUILD_VERSION;

@@ -101,6 +101,7 @@ html { overscroll-behavior-y: contain; }
     font-size: 2rem;
     color: var(--clr-primary);
 }
+.logo-icon { display: block; flex-shrink: 0; border-radius: .65rem; }
 
 .nav-links {
     list-style: none;
