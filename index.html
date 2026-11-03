@@ -21,7 +21,7 @@
 <body>
     <div class="app-container">
         <!-- Sidebar Navigation -->
-        <nav class="sidebar">
+        <nav class="sidebar" aria-label="Apartats de MenjarReal">
             <div class="logo">
                 <i class='bx bx-leaf'></i>
                 <span>MenjarReal</span>
@@ -33,15 +33,15 @@
                 </li>
                 <li data-target="fridge-view">
                     <i class='bx bx-fridge'></i>
-                    <span>La Meva Nevera</span>
+                    <span>Nevera</span>
                 </li>
                 <li data-target="planner-view">
                     <i class='bx bx-calendar-event'></i>
-                    <span>Planificador</span>
+                    <span>Menú</span>
                 </li>
                 <li data-target="shopping-view">
                     <i class='bx bx-cart-alt'></i>
-                    <span>Llista de la Compra</span>
+                    <span>Compra</span>
                 </li>
                 <li data-target="tips-view">
                     <i class='bx bx-heart'></i>
@@ -54,12 +54,14 @@
         <main class="main-content">
             <!-- Header -->
             <header>
-                <h1 id="page-title">El meu receptari</h1>
-                <div class="header-actions">
-                    <button type="button" class="btn-outline" id="install-app-btn" aria-controls="install-help" aria-expanded="false">Instal·la al mòbil</button>
-                    <button type="button" class="btn-outline" id="open-data-btn">Còpia de seguretat</button>
-                    <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
-                </div>
+                <div><p class="mobile-brand">MenjarReal</p><h1 id="page-title">El meu receptari</h1></div>
+                <details class="app-options" id="app-options">
+                    <summary>Opcions</summary>
+                    <div class="header-actions">
+                        <button type="button" class="btn-outline" id="open-data-btn">Les meves dades i còpies</button>
+                        <button type="button" class="btn-outline" id="install-app-btn" aria-controls="install-help" aria-expanded="false">Instal·la al mòbil</button>
+                    </div>
+                </details>
             </header>
 
             <p id="app-connection-status" class="app-notice" role="status" hidden>Sense connexió. Pots continuar amb les dades d’aquest dispositiu. Les fotos per enllaç i les fonts externes poden no estar disponibles.</p>
@@ -86,6 +88,7 @@
                         <h2>Menjar bé, sense complicar-te</h2>
                         <p>Els teus plats de sempre i idees noves per provar. Dinars i sopars fàcils, amb ingredients corrents.</p>
                         <p class="collection-summary" id="collection-summary" aria-live="polite"></p>
+                        <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
                     </div>
                     <div class="filters">
                         <div class="collection-filters" role="group" aria-label="Col·lecció de receptes">
@@ -133,16 +136,23 @@
                 <section id="fridge-view" class="view">
                     <div class="fridge-header">
                         <h2>Què tens a la nevera?</h2>
-                        <p>Afegeix els ingredients que tens per a trobar receptes que els aprofitin.</p>
+                        <p>Afegeix el que tens i veuràs quines receptes ho aprofiten. No cal tenir tots els ingredients del plat.</p>
                     </div>
-                    <div class="add-ingredient-form">
-                        <input type="text" id="ingredient-input" placeholder="Ex: Ous, Tomàquet, Pollastre...">
-                        <button class="btn-primary" id="add-ingredient-btn">Afegir</button>
-                    </div>
+                    <form class="add-ingredient-form" id="fridge-add-form">
+                        <label class="sr-only" for="ingredient-input">Ingredients que tens</label>
+                        <input type="text" id="ingredient-input" placeholder="Ex.: ous i tomàquet" enterkeyhint="done" autocomplete="off" maxlength="1000" aria-describedby="fridge-input-help">
+                        <button type="submit" class="btn-primary" id="add-ingredient-btn">Afegeix</button>
+                    </form>
+                    <p class="planner-help" id="fridge-input-help">Separa els aliments amb comes o «i». Prem Afegeix o la tecla d’enviar del teclat.</p>
                     <div class="ingredients-container" id="ingredients-list">
                         <!-- Ingredients will be injected here by JS -->
                     </div>
                     <p id="fridge-status" class="planner-feedback" role="status"></p>
+                    <div class="fridge-suggestions">
+                        <h3>Què puc cuinar amb això?</h3>
+                        <p id="fridge-recipe-summary" class="planner-help" role="status"></p>
+                        <div id="fridge-recipes" class="fridge-recipe-list"></div>
+                    </div>
                 </section>
 
                 <!-- PLANNER VIEW -->
@@ -319,7 +329,7 @@
                         <div class="form-group"><label for="shopping-quantity">Quantitat · opcional</label><input id="shopping-quantity" maxlength="500" placeholder="Ex.: 1 kg"></div>
                         <button type="submit" class="btn-primary">Afegeix</button>
                     </form>
-                    <div class="shopping-toolbar"><p id="shopping-summary" role="status"></p><button type="button" id="shopping-clear-bought" class="btn-outline">Treu els comprats</button><button type="button" id="shopping-undo" class="btn-outline" hidden>Desfés l’últim canvi</button></div>
+                    <div class="shopping-toolbar"><p id="shopping-summary" role="status"></p><button type="button" id="shopping-clear-bought" class="btn-outline">Treu els comprats</button><button type="button" id="shopping-clear-all" class="btn-outline btn-danger-outline">Buida la llista</button><button type="button" id="shopping-undo" class="btn-outline" hidden>Desfés l’últim canvi</button></div>
                     <p id="shopping-status" class="planner-feedback" role="status"></p>
                     <div class="shopping-list-container" id="shopping-list-container">
                         <!-- Shopping list will be generated by JS -->

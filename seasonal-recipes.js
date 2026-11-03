@@ -1,3 +1,177 @@
+// Fotografies reals de referencia. Credits i variants visibles a cada fitxa.
+const recipePhotos = {
+  "101": {
+    "image": "photos/recipe-101.jpg",
+    "photoCredit": {
+      "author": "Miansari66",
+      "source": "https://commons.wikimedia.org/wiki/File:Palak_Paneer.JPG",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "note": "Espinacs especiats amb paneer; la nostra versi? se serveix amb arr?s."
+    }
+  },
+  "102": {
+    "image": "photos/recipe-102.jpg",
+    "photoCredit": {
+      "author": "Senjuti Dey",
+      "source": "https://commons.wikimedia.org/wiki/File:Egg_soup_restaurant_style.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Sopa de verdures amb ou; la nostra versi? tamb? porta cigrons."
+    }
+  },
+  "103": {
+    "image": "photos/recipe-103.jpg",
+    "photoCredit": {
+      "author": "Miscellaneous contributor",
+      "source": "https://commons.wikimedia.org/wiki/File:Baked_Tofu_with_Potatoes_and_Broccoli.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Tofu al forn amb patata i br?quil."
+    }
+  },
+  "104": {
+    "image": "photos/recipe-104.jpg",
+    "photoCredit": {
+      "author": "Einladung_zum_Essen",
+      "source": "https://commons.wikimedia.org/wiki/File:Seitan-vegetables-Pixabay.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "note": "Seitan amb verdures; la guarnici? pot variar."
+    }
+  },
+  "105": {
+    "image": "photos/recipe-105.jpg",
+    "photoCredit": {
+      "author": "Tiia Monto",
+      "source": "https://commons.wikimedia.org/wiki/File:Baked_cod_fillet.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Filets de peix blanc al forn; la nostra versi? ?s de llu? amb guarnici?."
+    }
+  },
+  "106": {
+    "image": "photos/recipe-106.jpg",
+    "photoCredit": {
+      "author": "Yaron Koren",
+      "source": "https://commons.wikimedia.org/wiki/File:Green_shakshuka_from_Oren%27s_Hummus.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "note": "Ous amb verdures verdes; presentaci? de refer?ncia."
+    }
+  },
+  "107": {
+    "image": "photos/recipe-107.jpg",
+    "photoCredit": {
+      "author": "Petar Milošević",
+      "source": "https://commons.wikimedia.org/wiki/File:Grilled_salmon.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Salm? a la planxa amb patates; la nostra guarnici? inclou xampinyons."
+    }
+  },
+  "108": {
+    "image": "photos/recipe-108.jpg",
+    "photoCredit": {
+      "author": "Josefine Stenudd from Gothenburg, Sweden",
+      "source": "https://commons.wikimedia.org/wiki/File:Marinated_tofu,_broccoli,_potatoes,_onions_(3084642155).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "note": "Tofu marinat amb br?quil, patata i ceba."
+    }
+  },
+  "201": {
+    "image": "photos/recipe-201.jpg",
+    "photoCredit": {
+      "author": "BrokenSphere",
+      "source": "https://commons.wikimedia.org/wiki/File:Tofu_with_spinach_and_mushrooms.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "note": "Tofu amb espinacs i bolets; refer?ncia dels ingredients, amb una preparaci? diferent del saag."
+    }
+  },
+  "202": {
+    "image": "photos/recipe-202.jpg",
+    "photoCredit": {
+      "author": "Whoisjohngalt",
+      "source": "https://commons.wikimedia.org/wiki/File:Bowl_of_lentil_soup_with_green_and_red_lentils.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Guisat de llenties; la nostra variant inclou carbassa i espinacs."
+    }
+  },
+  "203": {
+    "image": "photos/recipe-203.jpg",
+    "photoCredit": {
+      "author": "Kari Sullivan from Austin, TX",
+      "source": "https://commons.wikimedia.org/wiki/File:Spinach-Chickpea_Curry_(3117324894).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "note": "Cigrons amb espinacs; la nostra versi? tamb? porta xampinyons."
+    }
+  },
+  "204": {
+    "image": "photos/recipe-204.jpg",
+    "photoCredit": {
+      "author": "Thriving Vegetarian",
+      "source": "https://commons.wikimedia.org/wiki/File:Collard_Greens_and_White_Bean_Soup.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "note": "Sopa de mongeta blanca i fulles verdes; la nostra variant porta porro."
+    }
+  },
+  "205": {
+    "image": "photos/recipe-205.jpg",
+    "photoCredit": {
+      "author": "Miscellaneous contributor",
+      "source": "https://commons.wikimedia.org/wiki/File:Baked_Tofu_with_Broccoli_and_Rice.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Tofu amb br?quil i arr?s; la nostra versi? afegeix bolets."
+    }
+  },
+  "206": {
+    "image": "photos/recipe-206.jpg",
+    "photoCredit": {
+      "author": "Cajsa Lilliehook from Portland",
+      "source": "https://commons.wikimedia.org/wiki/File:Hungarian_Mushroom_Omelette_(8414795810).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "note": "Truita de bolets; la nostra recepta afegeix espinacs i no porta salsa cremosa."
+    }
+  },
+  "207": {
+    "image": "photos/recipe-207.jpg",
+    "photoCredit": {
+      "author": "Mack Male from Edmonton, AB, Canada",
+      "source": "https://commons.wikimedia.org/wiki/File:Baked_Cod_%26_Lentils_(38881075884).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "note": "Peix blanc al forn amb llenties; la nostra versi? afegeix coliflor i no porta crosta."
+    }
+  },
+  "208": {
+    "image": "photos/recipe-208.jpg",
+    "photoCredit": {
+      "author": "HaJunkiyada",
+      "source": "https://commons.wikimedia.org/wiki/File:Liat_Portal_for_Foodie_Disorder_-_Grilled_chicken_with_rice_and_vegetables.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Pollastre amb arr?s i verdures; la nostra versi? fa servir pit i br?quil."
+    }
+  },
+  "301": {
+    "image": "photos/recipe-301.jpg",
+    "photoCredit": {
+      "author": "Karen and Brad Emerson",
+      "source": "https://commons.wikimedia.org/wiki/File:Peanut_noodles_(4260867491).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "note": "Noodles amb cacauet; la foto no inclou l?ou ferrat."
+    }
+  }
+};
+
 // Preparacions pròpies adaptades a les preferències personals. Les fonts són
 // inspiració culinària: els seus càlculs nutricionals no s'apliquen a les variants.
 const recipeSources = {

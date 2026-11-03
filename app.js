@@ -69,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ingredientInput = document.getElementById('ingredient-input');
     const addIngredientBtn = document.getElementById('add-ingredient-btn');
     const ingredientsList = document.getElementById('ingredients-list');
+    const fridgeRecipeList = document.getElementById('fridge-recipes');
+    const fridgeRecipeSummary = document.getElementById('fridge-recipe-summary');
     
     // Planner DOM
     const plannerGrid = document.querySelector('.planner-grid');
@@ -133,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shoppingStatus = document.getElementById('shopping-status');
     const shoppingSummary = document.getElementById('shopping-summary');
     const shoppingClearBought = document.getElementById('shopping-clear-bought');
+    const shoppingClearAll = document.getElementById('shopping-clear-all');
     const shoppingUndoBtn = document.getElementById('shopping-undo');
     const shoppingModal = document.getElementById('shopping-item-modal');
     const shoppingEditForm = document.getElementById('shopping-edit-form');
@@ -142,30 +145,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeShoppingBtn = document.getElementById('close-shopping-item');
 
     // --- Navigation Logic ---
+    const scrollPositions = new Map();
+    let activeView = 'recipes-view';
+    const viewTitles = { 'recipes-view': 'El meu receptari', 'fridge-view': 'La meva nevera',
+        'planner-view': 'El menú de la setmana', 'shopping-view': 'Llista de la compra', 'tips-view': 'Consells' };
+    function showView(targetId, updateHistory = false) {
+        if (!Object.hasOwn(viewTitles, targetId)) targetId = 'recipes-view';
+        scrollPositions.set(activeView, window.scrollY || 0);
+        navLinks.forEach(link => {
+            const active = link.getAttribute('data-target') === targetId;
+            link.classList.toggle('active', active);
+            if (active) link.setAttribute('aria-current', 'page');
+            else link.removeAttribute('aria-current');
+        });
+        views.forEach(view => view.classList.toggle('active-view', view === document.getElementById(targetId)));
+        pageTitle.textContent = viewTitles[targetId];
+        document.getElementById('app-options').open = false;
+        activeView = targetId;
+        if (updateHistory && window.location?.hash !== '#' + targetId) window.history?.pushState(null, '', '#' + targetId);
+        window.scrollTo?.({ top: scrollPositions.get(targetId) || 0, behavior: 'instant' });
+    }
     navLinks.forEach(link => {
         link.setAttribute('role', 'button');
         link.setAttribute('tabindex', '0');
         link.setAttribute('aria-label', link.querySelector('span').textContent);
+        link.setAttribute('aria-controls', link.getAttribute('data-target'));
         link.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 link.click();
             }
         });
-        link.addEventListener('click', () => {
-            // Remove active from all
-            navLinks.forEach(l => l.classList.remove('active'));
-            views.forEach(v => v.classList.remove('active-view'));
-            
-            // Add active to clicked
-            link.classList.add('active');
-            const targetId = link.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active-view');
-            
-            // Update Title
-            pageTitle.textContent = link.querySelector('span').textContent;
-        });
+        link.addEventListener('click', () => showView(link.getAttribute('data-target'), true));
     });
+    window.addEventListener('popstate', () => showView(window.location?.hash.slice(1)));
+    window.addEventListener('hashchange', () => showView(window.location?.hash.slice(1)));
 
     // --- Recipes Logic ---
     function collectionLabel(recipe) {
@@ -176,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function coverHtml(recipe, large = false) {
         const className = large ? 'modal-img' : 'recipe-img';
         if (recipe.image) {
-            return `<div class="${className} recipe-photo-wrap"><span class="photo-fallback" aria-hidden="true">🍽️</span><img class="recipe-photo" src="${escapeHtml(recipe.image)}" alt="${escapeHtml(recipe.title)}" loading="${large ? 'eager' : 'lazy'}" referrerpolicy="no-referrer"></div>`;
+            return `<div class="${className} recipe-photo-wrap"><span class="photo-fallback" aria-hidden="true">🍽️</span><img class="recipe-photo" src="${escapeHtml(recipe.image)}" alt="${escapeHtml(recipe.photoCredit?.note || recipe.title)}" loading="${large ? 'eager' : 'lazy'}" decoding="async" referrerpolicy="no-referrer"></div>`;
         }
         if (recipe.emoji) {
             return `<div class="${className} recipe-cover" aria-hidden="true"><span>${escapeHtml(recipe.emoji)}</span></div>`;
@@ -363,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modalBody.innerHTML = `
             ${coverHtml(recipe, true)}
+            ${recipe.photoCredit ? `<p class="photo-credit">Foto de referència: ${escapeHtml(recipe.photoCredit.note)}<br>
+                <a href="${escapeHtml(recipe.photoCredit.source)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.author)} · Wikimedia Commons</a> ·
+                <a href="${escapeHtml(recipe.photoCredit.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.license)}</a>. Imatge reduïda; retall visual a les targetes.</p>` : ''}
             <span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
             <h2 class="modal-title" id="recipe-detail-title">${escapeHtml(recipe.title)}</h2>
             <p>${escapeHtml(recipe.description)}</p>
@@ -373,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             <div class="modal-section">
                 <h4>Ingredients</h4>
+                ${myFridge.length ? '<p class="planner-help">En verd, els ingredients que has anotat a la nevera. Comprova què et falta de la resta abans de cuinar.</p>' : ''}
                 <ul class="modal-ingredients-list">
                     ${recipe.ingredients.map(ing => {
                         // Highlight if in fridge
@@ -704,11 +722,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const next = bought.reduce((list, item) => shoppingListEngine.remove(list, item.id), shoppingList);
         commitShopping(next, `${bought.length} elements comprats eliminats. Pots desfer aquest canvi.`, true);
     });
+    shoppingClearAll.addEventListener('click', () => {
+        if (!confirm('Vols buidar tota la llista de la compra? El menú es conservarà. Podràs desfer aquest canvi.')) return;
+        commitShopping(shoppingListEngine.empty(), 'Llista buidada. El menú es conserva. Pots desfer-ho o tornar-hi a passar els ingredients del menú.', true);
+    });
 
     function renderShopping() {
         const bought = shoppingList.items.filter(item => item.checked).length;
         shoppingSummary.textContent = `${shoppingList.items.length - bought} pendents · ${bought} comprats`;
         shoppingClearBought.disabled = !bought;
+        shoppingClearAll.disabled = !shoppingList.items.length && !shoppingList.dismissed.length;
         shoppingUndoBtn.hidden = !shoppingUndo;
         shoppingContainer.innerHTML = '';
         if (!shoppingList.items.length) {
@@ -750,6 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fridge Logic ---
     function renderFridge() {
         ingredientsList.innerHTML = '';
+        renderFridgeRecipes();
         if (myFridge.length === 0) {
             ingredientsList.innerHTML = '<p style="color: var(--clr-text-muted); width: 100%; text-align: center;">La teva nevera està buida.</p>';
             return;
@@ -774,26 +798,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function addIngredient() {
+    function renderFridgeRecipes() {
+        fridgeRecipeList.innerHTML = '';
+        if (!myFridge.length) {
+            fridgeRecipeSummary.textContent = 'Afegeix aliments per veure receptes relacionades aquí mateix.';
+            return;
+        }
+        const matches = recipeCatalog.select({ useFridge: true, fridge: myFridge, adopted: adoptedRecipes });
+        fridgeRecipeSummary.textContent = matches.length
+            ? `${matches.length} receptes aprofiten algun dels teus aliments. Les que més en fan servir apareixen primer. Pot faltar-te la resta d’ingredients.`
+            : 'Encara no hi ha coincidències al receptari. Prova noms senzills, com «ou», «tomàquet» o «tofu».';
+        matches.forEach(recipe => {
+            const row = document.createElement('article');
+            row.className = 'fridge-recipe';
+            row.innerHTML = `${coverHtml(recipe)}<div><h4>${escapeHtml(recipe.title)}</h4>
+                <p>${escapeHtml(recipe.time)} · Aprofita: ${recipe.ingredients.filter(hasIngredient).map(ingredient => escapeHtml(recipeCatalog.ingredientName(ingredient))).join(', ')}</p>
+                <button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta i què em falta</button></div>`;
+            fridgeRecipeList.appendChild(row);
+        });
+        bindPhotoFallback(fridgeRecipeList);
+        fridgeRecipeList.querySelectorAll('.fridge-open-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id))));
+    }
+
+    function addIngredient(event) {
+        event?.preventDefault();
         const val = ingredientInput.value.trim();
         if (val) {
-            // Split by comma if user pastes a list
-            const items = val.split(',').map(i => i.trim()).filter(i => i);
+            const myFridgeBeforeAdd = myFridge.length;
+            const items = val.split(/[,;\n]+|\s+i\s+/i).map(i => i.trim()).filter(Boolean);
             const next = [...myFridge];
             items.forEach(item => {
                 // Capitalize first letter
                 const formatted = item.charAt(0).toUpperCase() + item.slice(1).toLowerCase();
-                if (!next.includes(formatted)) {
+                if (!next.some(food => recipeCatalog.normalize(food) === recipeCatalog.normalize(formatted))) {
                     next.push(formatted);
                 }
             });
-            if (saveFridge(next)) ingredientInput.value = '';
-        }
+            if (saveFridge(next)) {
+                ingredientInput.value = '';
+                const added = next.length - myFridgeBeforeAdd;
+                document.getElementById('fridge-status').textContent = added ? `${added} ${added === 1 ? 'aliment afegit' : 'aliments afegits'}. A sota tens les receptes que els aprofiten.` : 'Aquests aliments ja eren a la nevera.';
+            }
+        } else document.getElementById('fridge-status').textContent = 'Escriu almenys un aliment abans d’afegir-lo.';
     }
 
     addIngredientBtn.addEventListener('click', addIngredient);
-    ingredientInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addIngredient();
+    document.getElementById('fridge-add-form').addEventListener('submit', addIngredient);
+    ingredientInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.isComposing) addIngredient(e);
     });
 
     function saveFridge(next) {
@@ -989,5 +1041,6 @@ document.addEventListener('DOMContentLoaded', () => {
     filterRecipes();
     renderFridge();
     renderPlanner();
+    showView(window.location?.hash.slice(1));
     if (appData.warning) { catalogNotice.hidden = false; catalogNotice.textContent = appData.warning; }
 });

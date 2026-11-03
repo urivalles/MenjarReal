@@ -1,5 +1,5 @@
 // El build calcula una versió a partir del contingut per detectar cada canvi.
-const BUILD_VERSION = '55f1a4203f65a696';
+const BUILD_VERSION = '75839ea21b6dacb2';
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `realfood-shell-${encodeURIComponent(new URL(SCOPE).pathname)}-`;
 const CACHE_NAME = CACHE_PREFIX + BUILD_VERSION;
@@ -8,7 +8,13 @@ const APP_FILES = [
     'seasonal-recipes.js', 'recipe-catalog.js', 'weekly-planner.js',
     'shopping-list.js', 'app-data.js', 'app.js', 'pwa.js', 'manifest.webmanifest',
     'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
-    'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'
+    'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
+    'photos/recipe-101.jpg', 'photos/recipe-102.jpg', 'photos/recipe-103.jpg',
+    'photos/recipe-104.jpg', 'photos/recipe-105.jpg', 'photos/recipe-106.jpg',
+    'photos/recipe-107.jpg', 'photos/recipe-108.jpg', 'photos/recipe-201.jpg',
+    'photos/recipe-202.jpg', 'photos/recipe-203.jpg', 'photos/recipe-204.jpg',
+    'photos/recipe-205.jpg', 'photos/recipe-206.jpg', 'photos/recipe-207.jpg',
+    'photos/recipe-208.jpg', 'photos/recipe-301.jpg'
 ];
 const APP_URLS = new Set(APP_FILES.map(file => new URL(file, SCOPE).href));
 const INDEX_URL = new URL('index.html', SCOPE).href;
@@ -35,7 +41,7 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     url.search = ''; url.hash = '';
     if (!APP_URLS.has(url.href)) return;
-    // Només la carcassa coneguda; fotos externes i dades de l'usuari no es cachen.
+    // Carcassa i fotos locals conegudes; fotos externes i dades personals queden fora.
     const target = event.request.mode === 'navigate' ? INDEX_URL : url.href;
     event.respondWith((async () => {
         const cache = await caches.open(CACHE_NAME);

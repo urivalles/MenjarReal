@@ -3,7 +3,7 @@ const recipeCatalog = (() => {
     const recipes = [
         ...defaultRecipes.map(recipe => ({ ...recipe, collection: 'legacy' })),
         ...seasonalRecipes
-    ];
+    ].map(recipe => ({ ...recipe, ...recipePhotos[recipe.id] }));
     const builtInIds = new Set(recipes.map(recipe => recipe.id));
 
     function customRecipe(value) {
@@ -49,7 +49,12 @@ const recipeCatalog = (() => {
     const ingredientName = ingredient => typeof ingredient === 'string' ? ingredient : ingredient.item;
 
     function matchesIngredient(ingredient, food) {
-        const words = value => normalize(value).replace(/[^a-z0-9]+/g, ' ').trim();
+        const singular = { ous: 'ou', tomaquets: 'tomaquet', patates: 'patata', pastanagues: 'pastanaga',
+            cebes: 'ceba', cigrons: 'cigro', llenties: 'llentia', mongetes: 'mongeta',
+            xampinyons: 'xampinyo', bolets: 'bolet', carbassons: 'carbasso',
+            pebrots: 'pebrot', espinacs: 'espinac', bledes: 'bleda', pèsols: 'pesol', pesols: 'pesol' };
+        const words = value => normalize(value).replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/)
+            .map(word => singular[word] || word).join(' ');
         const candidate = words(food);
         return Boolean(candidate && ` ${words(ingredientName(ingredient))} `.includes(` ${candidate} `));
     }
