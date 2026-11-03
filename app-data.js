@@ -87,7 +87,7 @@ const appData = (() => {
         if (typeof text !== 'string' || text.length > 12000000) throw new Error('La còpia és massa gran o no és un fitxer de text vàlid.');
         let value;
         try { value = JSON.parse(text); } catch { throw new Error('El fitxer no és una còpia JSON vàlida.'); }
-        if (!value || value.format !== 'realfood-personal-backup' || value.version !== 1) throw new Error('Aquest fitxer no és una còpia compatible de RealFood.');
+        if (!value || value.format !== 'realfood-personal-backup' || value.version !== 1) throw new Error('Aquest fitxer no és una còpia compatible de MenjarReal.');
         return validate(value.data);
     }
 
