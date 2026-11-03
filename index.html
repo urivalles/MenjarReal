@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; upgrade-insecure-requests">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#059669">
+    <meta name="description" content="El teu receptari personal, menú setmanal, nevera i llista de la compra.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RealFood">
+    <title>RealFood personal</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
+    <link rel="stylesheet" href="icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class='bx bx-leaf'></i>
+                <span>RealFood</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-target="recipes-view">
+                    <i class='bx bx-restaurant'></i>
+                    <span>Receptes</span>
+                </li>
+                <li data-target="fridge-view">
+                    <i class='bx bx-fridge'></i>
+                    <span>La Meva Nevera</span>
+                </li>
+                <li data-target="planner-view">
+                    <i class='bx bx-calendar-event'></i>
+                    <span>Planificador</span>
+                </li>
+                <li data-target="shopping-view">
+                    <i class='bx bx-cart-alt'></i>
+                    <span>Llista de la Compra</span>
+                </li>
+                <li data-target="tips-view">
+                    <i class='bx bx-heart'></i>
+                    <span>Consells</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header>
+                <h1 id="page-title">El meu receptari</h1>
+                <div class="header-actions">
+                    <button type="button" class="btn-outline" id="install-app-btn" aria-controls="install-help" aria-expanded="false">Instal·la al mòbil</button>
+                    <button type="button" class="btn-outline" id="open-data-btn">Còpia de seguretat</button>
+                    <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
+                </div>
+            </header>
+
+            <p id="app-connection-status" class="app-notice" role="status" hidden>Sense connexió. Pots continuar amb les dades d’aquest dispositiu. Les fotos per enllaç i les fonts externes poden no estar disponibles.</p>
+            <div id="app-update-notice" class="app-notice app-update" role="status" hidden>
+                <p>Hi ha una versió nova. Desa els formularis oberts abans d’actualitzar.</p>
+                <button type="button" id="update-app-btn" class="btn-outline">Actualitza l’app</button>
+            </div>
+            <section id="install-help" class="install-help" aria-labelledby="install-help-title" hidden>
+                <h2 id="install-help-title">RealFood al teu mòbil</h2>
+                <p><strong>Android:</strong> obre aquesta web amb Chrome i, al menú ⋮, tria «Instal·la l’aplicació» o «Afegeix a la pantalla d’inici».</p>
+                <p><strong>iPhone:</strong> obre aquesta web amb Safari, toca Compartir i tria «Afegeix a la pantalla d’inici»; activa «Obre com a app» si apareix.</p>
+                <p>Obre-la un primer cop amb connexió. Després podràs consultar receptes i fer servir el menú, la nevera i la compra sense internet. Les fotos per enllaç i les fonts externes necessiten connexió.</p>
+                <p>Les dades es guarden en aquest dispositiu. Si ja n’has introduït en un altre navegador o a l’ordinador, trasllada-les amb «Còpia de seguretat».</p>
+                <p id="install-status" class="planner-feedback" role="status"></p>
+            </section>
+
+            <!-- Views -->
+            <div class="views">
+                
+                <!-- RECIPES VIEW -->
+                <section id="recipes-view" class="view active-view">
+                    <div class="collection-intro">
+                        <span class="eyebrow">TEMPORADA I REBOST</span>
+                        <h2>Menjar bé, sense complicar-te</h2>
+                        <p>Els teus plats de sempre i idees noves per provar. Dinars i sopars fàcils, amb ingredients corrents.</p>
+                        <p class="collection-summary" id="collection-summary" aria-live="polite"></p>
+                    </div>
+                    <div class="filters">
+                        <div class="collection-filters" role="group" aria-label="Col·lecció de receptes">
+                            <button class="collection-chip active" data-collection="all" aria-pressed="true">Tot el receptari</button>
+                            <button class="collection-chip" data-collection="mine" aria-pressed="false">Les meves</button>
+                            <button class="collection-chip" data-collection="pantry" aria-pressed="false">Nevera buida</button>
+                            <button class="collection-chip" data-collection="recommended" aria-pressed="false">Descobrir</button>
+                            <button class="collection-chip" data-collection="legacy" aria-pressed="false">Exemples anteriors</button>
+                        </div>
+                        <div class="search-bar">
+                            <i class='bx bx-search'></i>
+                            <input type="search" id="search-recipe" aria-label="Cerca per plat o ingredient" placeholder="Cerca un plat o un ingredient...">
+                        </div>
+                        <div class="filter-chips">
+                            <button class="chip active" data-filter="all" aria-pressed="true">Tota dificultat</button>
+                            <button class="chip" data-filter="Fàcil" aria-pressed="false">Fàcils</button>
+                            <button class="chip" data-filter="Mitjana" aria-pressed="false">Mitjanes</button>
+                            <button class="chip" data-filter="Difícil" aria-pressed="false">Difícils</button>
+                            <button class="chip accent" id="filter-by-fridge-btn">
+                                <i class='bx bx-fridge'></i> Usar Nevera
+                            </button>
+                        </div>
+                        <div class="practical-filters">
+                            <label for="season-filter">Temporada
+                                <select id="season-filter">
+                                    <option value="all">Totes les temporades</option>
+                                    <option value="Tardor">Tardor</option>
+                                    <option value="Hivern">Hivern</option>
+                                    <option value="Primavera">Primavera</option>
+                                    <option value="Estiu">Estiu</option>
+                                </select>
+                            </label>
+                            <label><input type="checkbox" id="quick-filter"> Màxim 30 min totals</label>
+                        </div>
+                        <p class="recipe-results" id="recipe-results" role="status"></p>
+                    </div>
+                    <aside id="pantry-help" class="app-notice" hidden><strong>Sense res preparat i la nevera gairebé buida?</strong> Aquí tens receptes teves amb una base de rebost i complements senzills, com ous. «Nevera buida» és una col·lecció: no comprova què tens al rebost. Desactiva «Usar Nevera» si vols veure-les totes.</aside>
+                    <p class="catalog-notice" id="catalog-notice" role="status" hidden></p>
+                    <div class="recipes-grid" id="recipes-container">
+                        <!-- Recipes will be injected here by JS -->
+                    </div>
+                </section>
+
+                <!-- FRIDGE VIEW -->
+                <section id="fridge-view" class="view">
+                    <div class="fridge-header">
+                        <h2>Què tens a la nevera?</h2>
+                        <p>Afegeix els ingredients que tens per a trobar receptes que els aprofitin.</p>
+                    </div>
+                    <div class="add-ingredient-form">
+                        <input type="text" id="ingredient-input" placeholder="Ex: Ous, Tomàquet, Pollastre...">
+                        <button class="btn-primary" id="add-ingredient-btn">Afegir</button>
+                    </div>
+                    <div class="ingredients-container" id="ingredients-list">
+                        <!-- Ingredients will be injected here by JS -->
+                    </div>
+                    <p id="fridge-status" class="planner-feedback" role="status"></p>
+                </section>
+
+                <!-- PLANNER VIEW -->
+                <section id="planner-view" class="view">
+                    <div class="planner-header">
+                        <div><span class="eyebrow">LA TEVA SETMANA, AL TEU RITME</span><h2>Què mengem aquesta setmana?</h2></div>
+                        <div class="planner-header-actions">
+                            <button class="btn-primary" id="generate-planner-btn">Suggereix una setmana</button>
+                            <button class="btn-outline" id="planner-to-shopping-btn">Passa els ingredients a la compra</button>
+                            <button class="btn-outline" id="clear-planner-btn">Buida el menú</button>
+                        </div>
+                    </div>
+                    <div class="planner-settings">
+                        <div class="planner-setting">
+                            <label for="planner-cooking">Com vols cuinar?</label>
+                            <select id="planner-cooking">
+                                <option value="0">Dia a dia · prioritzar plats diferents</option>
+                                <option value="1">Batch cooking per a 1 dia</option>
+                                <option value="2">Batch cooking per a 2 dies</option>
+                                <option value="3">Batch cooking per a 3 dies</option>
+                                <option value="4">Batch cooking per a 4 dies</option>
+                            </select>
+                        </div>
+                        <div class="planner-setting">
+                            <label for="planner-people">Persones per àpat</label>
+                            <input id="planner-people" type="number" min="1" max="8" value="1" inputmode="numeric">
+                        </div>
+                        <div class="planner-setting">
+                            <label for="planner-max-time">Temps màxim per recepta</label>
+                            <select id="planner-max-time"><option value="0">Sense límit</option><option value="20">20 minuts</option><option value="30">30 minuts</option><option value="45">45 minuts</option><option value="60">60 minuts</option></select>
+                        </div>
+                        <div class="planner-setting">
+                            <label class="planner-check"><input id="planner-season-enabled" type="checkbox" checked> Aplicar temporada</label>
+                            <select id="planner-season" aria-label="Estació del menú">
+                                <option value="auto">Estació actual</option><option value="Hivern">Hivern</option><option value="Primavera">Primavera</option><option value="Estiu">Estiu</option><option value="Tardor">Tardor</option>
+                            </select>
+                        </div>
+                        <label class="planner-check"><input id="planner-fridge" type="checkbox"> Prioritzar els aliments de la meva nevera</label>
+                        <p id="planner-mode-help" class="planner-help"></p>
+                    </div>
+                    <p class="planner-help">Suggereix només receptes de «Les meves». Alterna plats i fonts de proteïna; les racions són orientatives. Pots fixar un àpat, menjar fora o aprofitar restes i regenerar la resta.</p>
+                    <p class="planner-help" id="planner-pool-info"></p>
+                    <p class="planner-feedback" id="planner-status" role="status" aria-live="polite"></p>
+                    <div class="planner-grid">
+                        <!-- Days will be generated by JS -->
+                    </div>
+                    <section id="planner-batch-summary" class="planner-batch-summary" aria-labelledby="planner-batch-title" hidden>
+                        <h3 id="planner-batch-title">Preparacions i racions</h3>
+                        <p class="planner-help">Agrupem les repeticions proposades en cada bloc. Un canvi individual pot deixar una preparació addicional. Consulta a cada recepta què pots deixar preparat.</p>
+                        <div id="planner-preparations"></div>
+                    </section>
+                </section>
+
+                <!-- CONSELLS PERSONALS -->
+                <section id="tips-view" class="view" aria-labelledby="tips-title">
+                    <div class="collection-intro">
+                        <span class="eyebrow">UNA PAUSA PER ESCOLTAR-TE</span>
+                        <h2 id="tips-title">Consells per als moments difícils</h2>
+                        <p>Recordatoris personals per cuidar-te quan hi ha cansament, estrès o ganes de picar. No cal fer-ho perfecte.</p>
+                    </div>
+
+                    <div class="tips-pause" aria-labelledby="tips-now-title">
+                        <h3 id="tips-now-title">Tinc impuls de menjar ara</h3>
+                        <ol>
+                            <li><strong>Canvia d’escena.</strong> Aixeca’t si et va bé, deixa la pantalla i fes tres respiracions tranquil·les.</li>
+                            <li><strong>Observa què necessites.</strong> Gana, set, descans, avorriment o una mica de calma? Si tens set, beu aigua. No cal encertar-ho a la primera.</li>
+                            <li><strong>Si tens gana, menja.</strong> Encara que no sigui l’hora prevista. La pausa és una ajuda, no una prova que hagis de superar per poder menjar.</li>
+                        </ol>
+                    </div>
+
+                    <nav class="tips-shortcuts" aria-label="Situacions dels consells">
+                        <a href="#tips-sofa">Sofà i picoteig</a><a href="#tips-meals">Durant els àpats</a><a href="#tips-sport">Després de l’esport</a><a href="#tips-reset">Dies imperfectes</a>
+                    </nav>
+
+                    <section class="tips-section" aria-labelledby="tips-sofa">
+                        <h3 id="tips-sofa">Sofà, avorriment i picoteig</h3>
+                        <div class="tips-grid">
+                            <article class="tip-card">
+                                <span class="tip-origin">Recordatori personal</span>
+                                <h4>Fes una petita pausa del sofà</h4>
+                                <p>Si notes que menges per inèrcia, prova de canviar d’activitat: estirar-te suaument, endreçar una cosa, dutxar-te o sortir una estona. També pots descansar sense haver d’estar fent coses tota l’estona.</p>
+                            </article>
+                            <article class="tip-card">
+                                <span class="tip-origin">Recordatori personal</span>
+                                <h4>Deixa una opció senzilla a mà</h4>
+                                <p>Si tens gana o vols berenar, tria fruita sencera. Si necessites més, acompanya-la de iogurt natural o d’una torrada amb ou o hummus. No cal omplir-te de fruita ni d’aigua per evitar un àpat que necessites.</p>
+                            </article>
+                            <article class="tip-card">
+                                <span class="tip-origin">Recordatori personal</span>
+                                <h4>Si et ve de gust alguna cosa cruixent</h4>
+                                <p>Una opció són les crispetes casolanes, amb poc oli i sense sucre afegit, servides en un bol. Si tens gana de debò, un snack lleuger pot quedar curt: també pots fer un berenar més complet.</p>
+                            </article>
+                            <article class="tip-card">
+                                <span class="tip-origin">Les meves preferències</span>
+                                <h4>Posa fàcil el que vols escollir</h4>
+                                <p>A casa vull evitar recórrer a patates de bossa, brioixeria i begudes ensucrades. Deixo alternatives senzilles a mà. Això no exclou la patata al forn, els llegums cuits ni els sucres propis de la fruita i la llet.</p>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="tips-section" aria-labelledby="tips-meals">
+                        <h3 id="tips-meals">Abans i durant els àpats</h3>
+                        <div class="tips-grid">
+                            <article class="tip-card">
+                                <span class="tip-origin">Recordatori personal</span>
+                                <h4>Un got d’aigua, si et ve de gust</h4>
+                                <p>Pots deixar un got a taula i beure abans o durant l’àpat. És un recordatori d’hidratació; no serveix per substituir menjar ni cal forçar-te a beure per omplir l’estómac.</p>
+                            </article>
+                            <article class="tip-card">
+                                <span class="tip-origin">Recordatori personal</span>
+                                <h4>Menja amb una mica més de presència</h4>
+                                <p>Abans de començar, abaixa les espatlles i fes unes respiracions còmodes. Durant l’àpat, deixa els coberts algun cop, assaboreix i observa com et trobes. Si pots, aparta la pantalla. No cal convertir cada mos en una obligació de meditar.</p>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="tips-section" aria-labelledby="tips-sport">
+                        <h3 id="tips-sport">Després de fer esport</h3>
+                        <p class="tips-section-intro">El cansament i la gana poden aparèixer junts. Una ració que et va bé un dia pot quedar curta després d’un entrenament més exigent.</p>
+                        <div class="tips-grid">
+                            <article class="tip-card">
+                                <span class="tip-origin">Recordatori personal</span>
+                                <h4>Baixa el ritme i rehidrata’t</h4>
+                                <p>Acaba amb calma, beu aigua de manera regular i segons la set, i prova uns minuts de respiració o meditació si t’ajuden. Si has suat, reposar líquids és part de recuperar-te. No cal beure grans quantitats de cop ni ajornar menjar per meditar.</p>
+                            </article>
+                            <article class="tip-card tip-card-highlight">
+                                <span class="tip-origin complement">Consell afegit · Recuperació</span>
+                                <h4>1. Decideix el sopar abans d’entrenar</h4>
+                                <p>Deixa’l preparat amb una font de proteïna i d’hidrats, a més de verdura: per exemple, tofu amb arròs o peix amb patata. Arribar amb el sopar resolt estalvia decisions quan estàs cansat.</p>
+                            </article>
+                            <article class="tip-card tip-card-highlight">
+                                <span class="tip-origin complement">Consell afegit · Recuperació</span>
+                                <h4>2. Tingues un pla si torna la gana</h4>
+                                <p>Si a les onze tens gana, pots menjar un snack previst, com iogurt natural amb plàtan o pa integral amb ou. Si es repeteix, revisa si el sopar o el que menges durant el dia és suficient per a l’activitat.</p>
+                            </article>
+                        </div>
+                        <p class="tips-source">Orientació de recuperació: <a href="https://www.hprc-online.org/nutrition/performance-nutrition/refuel-rehydrate-recover" target="_blank" rel="noopener noreferrer">HPRC · Reposar energia, líquids i recuperar-se</a>. Exemples adaptats a les teves preferències.</p>
+                    </section>
+
+                    <section class="tips-section" aria-labelledby="tips-reset">
+                        <h3 id="tips-reset">Si avui no surt com volies</h3>
+                        <article class="tip-card tip-reset">
+                            <span class="tip-origin">Recordatori personal</span>
+                            <h4>Un àpat no esborra la resta</h4>
+                            <p>Evita castigar-te, saltar-te el següent àpat o fer exercici per compensar. Torna a la rutina habitual i observa què et podria ajudar la pròxima vegada: un sopar més suficient, menys presses o tenir una opció preparada.</p>
+                            <p>Aquest recordatori recull la idea que vols conservar del mètode; no és una cita verificada del llibre d’Allen Carr.</p>
+                        </article>
+                    </section>
+
+                    <details class="tips-references">
+                        <summary>D’on surten aquests consells?</summary>
+                        <p>Els recordatoris personals parteixen del que has demanat. Els complements sobre gana, hidratació i recuperació s’han contrastat amb aquestes fonts. Meditar pot ajudar-te a fer una pausa; no elimina les necessitats d’energia del cos.</p>
+                        <ul>
+                            <li><a href="https://www.uhsussex.nhs.uk/resources/managing-emotional-eating/" target="_blank" rel="noopener noreferrer">NHS Sussex · Gana, emocions i com reprendre els hàbits</a></li>
+                            <li><a href="https://www.nhs.uk/live-well/eat-well/food-guidelines-and-food-labels/water-drinks-nutrition/" target="_blank" rel="noopener noreferrer">NHS · Aigua i hidratació</a></li>
+                            <li><a href="https://www.hprc-online.org/nutrition/performance-nutrition/refuel-rehydrate-recover" target="_blank" rel="noopener noreferrer">HPRC · Recuperació després de l’exercici</a></li>
+                        </ul>
+                    </details>
+                </section>
+
+                <!-- SHOPPING LIST VIEW -->
+                <section id="shopping-view" class="view">
+                    <div class="shopping-header">
+                        <h2>Llista de la Compra</h2>
+                        <p>Ingredients per al teu menú i el que vulguis afegir-hi. Pots ajustar cada línia abans d’anar a comprar.</p>
+                        <button class="btn-primary" id="generate-shopping-btn" style="margin-top: 1rem;">
+                            <i class='bx bx-refresh'></i> Afegeix / actualitza ingredients del menú
+                        </button>
+                    </div>
+                    <p class="planner-help">S’ajusten les racions i s’agrupen els noms iguals. Les unitats diferents es mostren separades i les quantitats ambigües s’han de revisar. Les línies automàtiques es recalculen; els afegits i els canvis manuals es conserven.</p>
+                    <p class="planner-help">La nevera només indica noms: no en restem quantitats. Si ja tens un ingredient, comprova’n la quantitat i ajusta’l o elimina’l de la compra.</p>
+                    <form id="shopping-add-form" class="shopping-add-form">
+                        <div class="form-group"><label for="shopping-name">Afegeix un ingredient</label><input id="shopping-name" maxlength="150" required placeholder="Ex.: Pomes"></div>
+                        <div class="form-group"><label for="shopping-quantity">Quantitat · opcional</label><input id="shopping-quantity" maxlength="500" placeholder="Ex.: 1 kg"></div>
+                        <button type="submit" class="btn-primary">Afegeix</button>
+                    </form>
+                    <div class="shopping-toolbar"><p id="shopping-summary" role="status"></p><button type="button" id="shopping-clear-bought" class="btn-outline">Treu els comprats</button><button type="button" id="shopping-undo" class="btn-outline" hidden>Desfés l’últim canvi</button></div>
+                    <p id="shopping-status" class="planner-feedback" role="status"></p>
+                    <div class="shopping-list-container" id="shopping-list-container">
+                        <!-- Shopping list will be generated by JS -->
+                        <p style="color: var(--clr-text-muted);">Genera la llista basant-te en el teu planificador.</p>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Recipe Modal -->
+    <div class="modal" id="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipe-detail-title">
+        <div class="modal-content">
+            <button type="button" class="close-btn" id="close-modal" aria-label="Tanca la recepta">&times;</button>
+            <div id="modal-body">
+                <!-- Modal content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Custom Recipe Modal -->
+    <div class="modal" id="planner-meal-modal" role="dialog" aria-modal="true" aria-labelledby="planner-meal-title">
+        <div class="modal-content">
+            <button type="button" class="close-btn" id="close-planner-meal" aria-label="Tanca la selecció d’àpat">&times;</button>
+            <h2 id="planner-meal-title" class="modal-title">Tria un àpat</h2>
+            <form id="planner-meal-form" class="planner-meal-form">
+                <label for="planner-meal-day">Dia<select id="planner-meal-day"><option value="dilluns">Dilluns</option><option value="dimarts">Dimarts</option><option value="dimecres">Dimecres</option><option value="dijous">Dijous</option><option value="divendres">Divendres</option><option value="dissabte">Dissabte</option><option value="diumenge">Diumenge</option></select></label>
+                <label for="planner-meal-type">Àpat<select id="planner-meal-type"><option value="lunch">Dinar</option><option value="dinner">Sopar</option></select></label>
+                <label for="planner-meal-choice">Què faràs?<select id="planner-meal-choice"></select></label>
+                <label for="planner-meal-note">Nota opcional<input id="planner-meal-note" type="text" maxlength="160" placeholder="Ex.: crema que va sobrar, dinar a la feina…"></label>
+                <p id="planner-meal-feedback" class="planner-feedback" role="status"></p>
+                <p class="planner-help">La tria manual permet qualsevol recepta teva, encara que quedi fora dels filtres. Es desa fixada perquè «Regenera» la respecti.</p>
+                <button type="submit" class="btn-primary">Desa i fixa aquest àpat</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Custom Recipe Modal -->
+    <div class="modal" id="add-recipe-modal" role="dialog" aria-modal="true" aria-labelledby="custom-modal-title">
+        <div class="modal-content">
+            <button type="button" class="close-btn" id="close-add-modal" aria-label="Tanca el formulari">&times;</button>
+            <h2 class="modal-title" id="custom-modal-title">La meva recepta</h2>
+            <form id="add-recipe-form" class="custom-form">
+                <div class="form-group">
+                    <label for="custom-title">Títol de la recepta</label>
+                    <input type="text" id="custom-title" required maxlength="120" placeholder="Ex.: Llenties amb bolets">
+                </div>
+                <div class="form-group">
+                    <label for="custom-desc">Descripció breu</label>
+                    <input type="text" id="custom-desc" maxlength="500" placeholder="Què t’agrada d’aquest plat?">
+                </div>
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label for="custom-diff">Dificultat</label>
+                        <select id="custom-diff">
+                            <option value="Fàcil">Fàcil</option>
+                            <option value="Mitjana">Mitjana</option>
+                            <option value="Difícil">Difícil</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-time">Temps total en minuts</label>
+                        <input type="number" id="custom-time" min="1" max="1440" required inputmode="numeric" placeholder="25">
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-servings">Racions</label>
+                        <input type="number" id="custom-servings" min="1" max="20" value="2" required inputmode="numeric">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="custom-seasons">Temporada</label>
+                    <select id="custom-seasons"><option value="all">Tot l’any</option><option value="Tardor,Hivern">Tardor i hivern</option><option value="Primavera,Estiu">Primavera i estiu</option><option value="Hivern">Hivern</option><option value="Primavera">Primavera</option><option value="Estiu">Estiu</option><option value="Tardor">Tardor</option></select>
+                </div>
+                <label class="planner-check"><input id="custom-pantry" type="checkbox"> Recepta de rebost · inclou-la a «Nevera buida»</label>
+                <div class="form-group">
+                    <label for="custom-ingredients">Ingredients · un per línia</label>
+                    <textarea id="custom-ingredients" rows="5" required maxlength="20000" placeholder="Llenties cuites - 400 g&#10;Xampinyons - 250 g&#10;Oli d’oliva - 2 culleradetes"></textarea>
+                    <small>Separa el nom i la quantitat amb « - ». Les comes es poden utilitzar dins les quantitats.</small>
+                </div>
+                <div class="form-group">
+                    <label for="custom-instructions">Preparació</label>
+                    <textarea id="custom-instructions" rows="5" required maxlength="15000" placeholder="1. Talla la verdura…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="custom-batch">Per avançar feina · opcional</label>
+                    <textarea id="custom-batch" rows="2" maxlength="1000" placeholder="Quina part pots preparar abans?"></textarea>
+                </div>
+                <fieldset class="photo-fields">
+                    <legend>Foto opcional</legend>
+                    <label for="custom-photo-file">Tria una foto del mòbil o ordinador</label>
+                    <input id="custom-photo-file" type="file" accept="image/jpeg,image/png,image/webp">
+                    <small>Es prepara una còpia més petita i es desa amb la recepta en aquest navegador.</small>
+                    <label for="custom-photo-url">O enganxa un enllaç HTTPS d’una foto</label>
+                    <input id="custom-photo-url" type="url" maxlength="2000" placeholder="https://…">
+                    <small>Utilitza una foto teva o que tinguis permís per fer servir. Els enllaços externs necessiten internet i poden deixar de funcionar.</small>
+                    <img id="custom-photo-preview" class="custom-photo-preview" alt="Vista prèvia de la recepta" hidden>
+                    <button id="custom-photo-clear" type="button" class="btn-outline">Treu la foto</button>
+                    <p id="custom-photo-status" class="planner-help" role="status"></p>
+                </fieldset>
+                <p id="custom-recipe-status" class="planner-feedback" role="status"></p>
+                <button type="submit" id="custom-save-btn" class="btn-primary">Desa la recepta</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="data-modal" role="dialog" aria-modal="true" aria-labelledby="data-title">
+        <div class="modal-content">
+            <button type="button" id="close-data-modal" class="close-btn" aria-label="Tanca les còpies">&times;</button>
+            <h2 id="data-title" class="modal-title">Les teves dades</h2>
+            <p class="data-local-badge">Desament actual: aquest navegador</p>
+            <p>Encara no hi ha servidor ni sincronització entre dispositius. Per portar les dades a un altre mòbil, descarrega una còpia i guarda-la també fora d’aquest dispositiu, per exemple al teu Drive.</p>
+            <p id="data-summary" class="planner-help"></p>
+            <button type="button" id="export-data-btn" class="btn-primary">Descarrega una còpia completa</button>
+            <p class="planner-help">Inclou receptes personals, fotos carregades, adopcions, nevera, menú, compra i preferències del planificador. Les fotos per enllaç es conserven com a enllaços.</p>
+            <div class="data-import">
+                <h3>Restaura una còpia</h3>
+                <label for="import-data-file">Tria el fitxer de còpia de RealFood</label>
+                <input type="file" id="import-data-file" accept="application/json,.json">
+                <p id="import-data-preview" class="planner-help">Primer revisarem el contingut. Triar un fitxer no modifica les dades.</p>
+                <p class="planner-help">Restaurar substituirà les dades actuals d’aquest navegador. Si les vols conservar, descarrega’n una còpia abans.</p>
+                <button type="button" id="restore-data-btn" class="btn-outline" disabled>Restaura i substitueix les dades actuals</button>
+            </div>
+            <p id="data-status" class="planner-feedback" role="status"></p>
+        </div>
+    </div>
+
+    <div class="modal" id="shopping-item-modal" role="dialog" aria-modal="true" aria-labelledby="shopping-item-title">
+        <div class="modal-content">
+            <button type="button" id="close-shopping-item" class="close-btn" aria-label="Tanca l’edició de l’ingredient">&times;</button>
+            <h2 id="shopping-item-title" class="modal-title">Edita l’ingredient</h2>
+            <form id="shopping-edit-form" class="custom-form">
+                <div class="form-group"><label for="shopping-edit-name">Nom</label><input id="shopping-edit-name" maxlength="150" required></div>
+                <div class="form-group"><label for="shopping-edit-quantity">Quantitat</label><input id="shopping-edit-quantity" maxlength="500"></div>
+                <p class="planner-help">Els canvis manuals es conserven quan actualitzes els ingredients del menú.</p>
+                <p id="shopping-edit-status" class="planner-feedback" role="status"></p>
+                <button type="submit" class="btn-primary">Desa els canvis</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="recipes.js"></script>
+    <script src="seasonal-recipes.js"></script>
+    <script src="recipe-catalog.js"></script>
+    <script src="weekly-planner.js"></script>
+    <script src="shopping-list.js"></script>
+    <script src="app-data.js"></script>
+    <script src="app.js"></script>
+    <script src="pwa.js"></script>
+</body>
+</html>
