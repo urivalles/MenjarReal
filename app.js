@@ -766,9 +766,15 @@ document.addEventListener('DOMContentLoaded', () => {
             shoppingModal.classList.add('show'); shoppingEditName.focus();
         }));
         shoppingContainer.querySelectorAll('.shopping-remove').forEach(button => button.addEventListener('click', () => {
+            const position = { left: window.scrollX || 0, top: window.scrollY || 0, behavior: 'instant' };
+            const index = Array.from(shoppingContainer.querySelectorAll('.shopping-remove')).indexOf(button);
             const item = shoppingList.items.find(row => row.id === button.dataset.id);
             commitShopping(shoppingListEngine.remove(shoppingList, button.dataset.id), `Ingredient eliminat. Pots desfer aquest canvi.${item?.origin === 'menu' ? ' No reapareixerà en actualitzar el mateix menú mentre la quantitat necessària no canviï.' : ''}`, true);
-            shoppingName.focus();
+            const remaining = Array.from(shoppingContainer.querySelectorAll('.shopping-remove'));
+            remaining[Math.min(index, remaining.length - 1)]?.focus({ preventScroll: true });
+            window.scrollTo?.(position);
+            // Manté també la posició després del reajust de la llista al següent frame.
+            window.requestAnimationFrame?.(() => window.scrollTo?.(position));
         }));
     }
 
