@@ -1,12 +1,12 @@
 // El build calcula una versió a partir del contingut per detectar cada canvi.
-const BUILD_VERSION = '25e2651cff03e1a6';
+const BUILD_VERSION = '241073e03bfba7dd';
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `realfood-shell-${encodeURIComponent(new URL(SCOPE).pathname)}-`;
 const CACHE_NAME = CACHE_PREFIX + BUILD_VERSION;
 const APP_FILES = [
     './', 'index.html', 'styles.css', 'icons.css', 'recipes.js',
     'seasonal-recipes.js', 'recipe-catalog.js', 'weekly-planner.js',
-    'shopping-list.js', 'app-data.js', 'app.js', 'pwa.js', 'manifest.webmanifest',
+    'shopping-list.js', 'app-data.js', 'app.js', 'tips-engine.js', 'tips-assistant.js', 'pwa.js', 'manifest.webmanifest',
     'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
     'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
     'photos/recipe-101.jpg', 'photos/recipe-102.jpg', 'photos/recipe-103.jpg',

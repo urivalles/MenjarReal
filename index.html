@@ -254,7 +254,28 @@
                         <p>Recordatoris personals per cuidar-te quan hi ha cansament, estrès o ganes de picar. No cal fer-ho perfecte.</p>
                     </div>
 
-                    <div class="tips-pause" aria-labelledby="tips-now-title">
+                    <section class="context-tips" aria-labelledby="context-tips-title">
+                        <h3 id="context-tips-title">Què et passa?</h3>
+                        <p>Explica breument com et trobes i et mostraré recordatoris que poden encaixar amb el moment. També pots triar una situació directament.</p>
+                        <form id="context-tips-form" autocomplete="off">
+                            <label class="sr-only" for="context-tips-input">Com et trobes o què necessites?</label>
+                            <textarea id="context-tips-input" rows="3" maxlength="1000" placeholder="Per exemple: estic avorrit al sofà i tinc ganes de picar…" aria-describedby="context-tips-local"></textarea>
+                            <div class="context-tips-actions">
+                                <button type="submit" class="btn-primary">Mostra’m consells</button>
+                                <button type="button" id="context-tips-mic" class="btn-outline" aria-pressed="false" aria-describedby="context-tips-voice-status" disabled>🎙 Dicta</button>
+                                <button type="button" id="context-tips-clear" class="btn-outline">Neteja</button>
+                            </div>
+                            <p id="context-tips-voice-status" class="planner-help" role="status">Comprovant si el dictat local en català està disponible…</p>
+                            <p id="context-tips-local" class="planner-help">Els recordatoris es trien en aquest dispositiu segons paraules i situacions. El que escrius no es guarda.</p>
+                        </form>
+                        <div id="context-tips-categories" class="context-categories" role="group" aria-label="Tria o corregeix la situació"></div>
+                        <p id="context-tips-feedback" class="planner-feedback" role="status"></p>
+                        <div id="context-tips-results" class="tips-grid"></div>
+                    </section>
+
+                    <details class="all-tips" id="all-tips">
+                        <summary>Consultar tots els consells</summary>
+                    <div class="tips-pause" id="tip-gentle-pause" aria-labelledby="tips-now-title">
                         <h3 id="tips-now-title">Tinc impuls de menjar ara</h3>
                         <ol>
                             <li><strong>Canvia d’escena.</strong> Aixeca’t si et va bé, deixa la pantalla i fes tres respiracions tranquil·les.</li>
@@ -264,28 +285,28 @@
                     </div>
 
                     <nav class="tips-shortcuts" aria-label="Situacions dels consells">
-                        <a href="#tips-sofa">Sofà i picoteig</a><a href="#tips-meals">Durant els àpats</a><a href="#tips-sport">Després de l’esport</a><a href="#tips-reset">Dies imperfectes</a>
+                        <button type="button" data-scroll-tip="tips-sofa">Sofà i picoteig</button><button type="button" data-scroll-tip="tips-meals">Durant els àpats</button><button type="button" data-scroll-tip="tips-sport">Després de l’esport</button><button type="button" data-scroll-tip="tips-reset">Dies imperfectes</button>
                     </nav>
 
                     <section class="tips-section" aria-labelledby="tips-sofa">
                         <h3 id="tips-sofa">Sofà, avorriment i picoteig</h3>
                         <div class="tips-grid">
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-sofa-break">
                                 <span class="tip-origin">Recordatori personal</span>
                                 <h4>Fes una petita pausa del sofà</h4>
                                 <p>Si notes que menges per inèrcia, prova de canviar d’activitat: estirar-te suaument, endreçar una cosa, dutxar-te o sortir una estona. També pots descansar sense haver d’estar fent coses tota l’estona.</p>
                             </article>
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-food-option">
                                 <span class="tip-origin">Recordatori personal</span>
                                 <h4>Deixa una opció senzilla a mà</h4>
                                 <p>Si tens gana o vols berenar, tria fruita sencera. Si necessites més, acompanya-la de iogurt natural o d’una torrada amb ou o hummus. No cal omplir-te de fruita ni d’aigua per evitar un àpat que necessites.</p>
                             </article>
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-crunchy">
                                 <span class="tip-origin">Recordatori personal</span>
                                 <h4>Si et ve de gust alguna cosa cruixent</h4>
                                 <p>Una opció són les crispetes casolanes, amb poc oli i sense sucre afegit, servides en un bol. Si tens gana de debò, un snack lleuger pot quedar curt: també pots fer un berenar més complet.</p>
                             </article>
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-choices">
                                 <span class="tip-origin">Les meves preferències</span>
                                 <h4>Posa fàcil el que vols escollir</h4>
                                 <p>A casa vull evitar recórrer a patates de bossa, brioixeria i begudes ensucrades. Deixo alternatives senzilles a mà. Això no exclou la patata al forn, els llegums cuits ni els sucres propis de la fruita i la llet.</p>
@@ -296,12 +317,12 @@
                     <section class="tips-section" aria-labelledby="tips-meals">
                         <h3 id="tips-meals">Abans i durant els àpats</h3>
                         <div class="tips-grid">
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-water">
                                 <span class="tip-origin">Recordatori personal</span>
                                 <h4>Un got d’aigua, si et ve de gust</h4>
                                 <p>Pots deixar un got a taula i beure abans o durant l’àpat. És un recordatori d’hidratació; no serveix per substituir menjar ni cal forçar-te a beure per omplir l’estómac.</p>
                             </article>
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-mindful-meal">
                                 <span class="tip-origin">Recordatori personal</span>
                                 <h4>Menja amb una mica més de presència</h4>
                                 <p>Abans de començar, abaixa les espatlles i fes unes respiracions còmodes. Durant l’àpat, deixa els coberts algun cop, assaboreix i observa com et trobes. Si pots, aparta la pantalla. No cal convertir cada mos en una obligació de meditar.</p>
@@ -313,17 +334,17 @@
                         <h3 id="tips-sport">Després de fer esport</h3>
                         <p class="tips-section-intro">El cansament i la gana poden aparèixer junts. Una ració que et va bé un dia pot quedar curta després d’un entrenament més exigent.</p>
                         <div class="tips-grid">
-                            <article class="tip-card">
+                            <article class="tip-card" id="tip-recovery-calm">
                                 <span class="tip-origin">Recordatori personal</span>
                                 <h4>Baixa el ritme i rehidrata’t</h4>
                                 <p>Acaba amb calma, beu aigua de manera regular i segons la set, i prova uns minuts de respiració o meditació si t’ajuden. Si has suat, reposar líquids és part de recuperar-te. No cal beure grans quantitats de cop ni ajornar menjar per meditar.</p>
                             </article>
-                            <article class="tip-card tip-card-highlight">
+                            <article class="tip-card tip-card-highlight" id="tip-recovery-dinner">
                                 <span class="tip-origin complement">Consell afegit · Recuperació</span>
                                 <h4>1. Decideix el sopar abans d’entrenar</h4>
                                 <p>Deixa’l preparat amb una font de proteïna i d’hidrats, a més de verdura: per exemple, tofu amb arròs o peix amb patata. Arribar amb el sopar resolt estalvia decisions quan estàs cansat.</p>
                             </article>
-                            <article class="tip-card tip-card-highlight">
+                            <article class="tip-card tip-card-highlight" id="tip-recovery-snack">
                                 <span class="tip-origin complement">Consell afegit · Recuperació</span>
                                 <h4>2. Tingues un pla si torna la gana</h4>
                                 <p>Si a les onze tens gana, pots menjar un snack previst, com iogurt natural amb plàtan o pa integral amb ou. Si es repeteix, revisa si el sopar o el que menges durant el dia és suficient per a l’activitat.</p>
@@ -334,7 +355,7 @@
 
                     <section class="tips-section" aria-labelledby="tips-reset">
                         <h3 id="tips-reset">Si avui no surt com volies</h3>
-                        <article class="tip-card tip-reset">
+                        <article class="tip-card tip-reset" id="tip-reset">
                             <span class="tip-origin">Recordatori personal</span>
                             <h4>Un àpat no esborra la resta</h4>
                             <p>Evita castigar-te, saltar-te el següent àpat o fer exercici per compensar. Torna a la rutina habitual i observa què et podria ajudar la pròxima vegada: un sopar més suficient, menys presses o tenir una opció preparada.</p>
@@ -350,6 +371,7 @@
                             <li><a href="https://www.nhs.uk/live-well/eat-well/food-guidelines-and-food-labels/water-drinks-nutrition/" target="_blank" rel="noopener noreferrer">NHS · Aigua i hidratació</a></li>
                             <li><a href="https://www.hprc-online.org/nutrition/performance-nutrition/refuel-rehydrate-recover" target="_blank" rel="noopener noreferrer">HPRC · Recuperació després de l’exercici</a></li>
                         </ul>
+                    </details>
                     </details>
                 </section>
 
@@ -538,6 +560,8 @@
     <script src="shopping-list.js"></script>
     <script src="app-data.js"></script>
     <script src="app.js"></script>
+    <script src="tips-engine.js"></script>
+    <script src="tips-assistant.js"></script>
     <script src="pwa.js"></script>
 </body>
 </html>
