@@ -199,7 +199,13 @@
                             <button class="btn-outline" id="clear-planner-btn">Buida el menú</button>
                         </div>
                     </div>
-                    <div class="planner-settings">
+                    <div class="planner-preferences-bar">
+                        <p id="planner-preferences-summary" role="status"></p>
+                        <button type="button" id="toggle-planner-filters" class="filter-icon-button" aria-label="Preferències del menú" title="Preferències del menú" aria-controls="planner-settings-panel" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>
+                        </button>
+                    </div>
+                    <div class="planner-settings" id="planner-settings-panel" hidden>
                         <div class="planner-setting">
                             <label for="planner-cooking">Com vols cuinar?</label>
                             <select id="planner-cooking">

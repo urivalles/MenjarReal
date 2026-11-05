@@ -819,6 +819,8 @@ button, input, select, textarea { touch-action: manipulation; }
 .filter-icon-button { position: relative; width: 48px; height: 48px; flex: 0 0 48px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #bbd8cb; border-radius: .8rem; background: white; color: #047857; cursor: pointer; }
 .filter-icon-button[aria-expanded="true"] { background: #d1fae5; border-color: #059669; }
 .filter-icon-button:focus-visible { outline: 3px solid #047857; outline-offset: 3px; }
+.planner-preferences-bar { display: flex; align-items: center; gap: 1rem; padding: .9rem 1rem; margin-bottom: 1rem; background: white; border: 1px solid #dce7e0; border-radius: .8rem; }
+.planner-preferences-bar > p { flex: 1; min-width: 0; font-size: .88rem; color: #145c43; line-height: 1.5; }
 .filter-badge { position: absolute; top: -6px; right: -6px; min-width: 21px; height: 21px; padding: 0 4px; display: grid; place-items: center; border-radius: 999px; background: #047857; color: white; font-size: .68rem; font-weight: 700; }
 .filter-badge:empty { display: none; }
 .filter-options { display: grid; gap: 1rem; padding: .75rem 0 .25rem; }

@@ -104,6 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const plannerModeHelp = document.getElementById('planner-mode-help');
     const plannerBatchSummary = document.getElementById('planner-batch-summary');
     const plannerPreparations = document.getElementById('planner-preparations');
+    const plannerSettingsPanel = document.getElementById('planner-settings-panel');
+    const togglePlannerFilters = document.getElementById('toggle-planner-filters');
+    const plannerPreferencesSummary = document.getElementById('planner-preferences-summary');
+    plannerSettingsPanel.hidden = true;
+    togglePlannerFilters.addEventListener('click', () => {
+        plannerSettingsPanel.hidden = !plannerSettingsPanel.hidden;
+        togglePlannerFilters.setAttribute('aria-expanded', String(!plannerSettingsPanel.hidden));
+    });
     const plannerControls = {
         seasonEnabled: document.getElementById('planner-season-enabled'),
         season: document.getElementById('planner-season'),
@@ -1076,6 +1084,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         plannerControls.season.disabled = !settings.seasonEnabled;
         const season = settings.season === 'auto' ? weeklyPlannerEngine.currentSeason() : settings.season;
+        plannerPreferencesSummary.textContent = [
+            `${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}`,
+            settings.batchDays ? `Batch cooking · ${settings.batchDays} ${settings.batchDays === 1 ? 'dia' : 'dies'}` : 'Dia a dia',
+            settings.seasonEnabled ? season : 'Totes les temporades',
+            ...(settings.maxMinutes ? [`Màxim ${settings.maxMinutes} min`] : []),
+            ...(settings.preferFridge ? ['Prioritzar nevera'] : [])
+        ].join(' · ');
         plannerControls.season.querySelector?.('option[value="auto"]')?.replaceChildren(`Estació actual · ${season}`);
         const pool = weeklyPlannerEngine.eligible(settings, adoptedRecipes);
         const ownCount = weeklyPlannerEngine.ownRecipes(adoptedRecipes).length;
