@@ -91,16 +91,19 @@
                         <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
                     </div>
                     <div class="filters">
+                        <div class="search-bar">
+                            <i class='bx bx-search'></i>
+                            <input type="search" id="search-recipe" aria-label="Cerca per plat o ingredient" placeholder="Cerca un plat o un ingredient...">
+                        </div>
+                        <details class="recipe-filter-panel" id="recipe-filter-panel">
+                        <summary>Filtres i ordre <span id="active-filter-count"></span></summary>
+                        <div class="filter-options">
                         <div class="collection-filters" role="group" aria-label="Col·lecció de receptes">
                             <button class="collection-chip active" data-collection="all" aria-pressed="true">Tot el receptari</button>
                             <button class="collection-chip" data-collection="mine" aria-pressed="false">Les meves</button>
                             <button class="collection-chip" data-collection="pantry" aria-pressed="false">Nevera buida</button>
                             <button class="collection-chip" data-collection="recommended" aria-pressed="false">Descobrir</button>
                             <button class="collection-chip" data-collection="legacy" aria-pressed="false">Exemples anteriors</button>
-                        </div>
-                        <div class="search-bar">
-                            <i class='bx bx-search'></i>
-                            <input type="search" id="search-recipe" aria-label="Cerca per plat o ingredient" placeholder="Cerca un plat o un ingredient...">
                         </div>
                         <div class="filter-chips">
                             <button class="chip active" data-filter="all" aria-pressed="true">Tota dificultat</button>
@@ -122,7 +125,14 @@
                                 </select>
                             </label>
                             <label><input type="checkbox" id="quick-filter"> Màxim 30 min totals</label>
+                            <label for="recipe-sort">Ordena per
+                                <select id="recipe-sort"><option value="default">Ordre habitual</option><option value="time">Menys temps</option><option value="name">Nom · A–Z</option><option value="fridge">Més coincidències amb la nevera</option></select>
+                            </label>
                         </div>
+                        <button type="button" class="btn-outline" id="reset-recipe-filters">Neteja els filtres</button>
+                        </div>
+                        </details>
+                        <p class="active-filter-summary" id="active-filter-summary" role="status" hidden></p>
                         <p class="recipe-results" id="recipe-results" role="status"></p>
                     </div>
                     <aside id="pantry-help" class="app-notice" hidden><strong>Sense res preparat i la nevera gairebé buida?</strong> Aquí tens receptes teves amb una base de rebost i complements senzills, com ous. «Nevera buida» és una col·lecció: no comprova què tens al rebost. Desactiva «Usar Nevera» si vols veure-les totes.</aside>
@@ -136,7 +146,7 @@
                 <section id="fridge-view" class="view">
                     <div class="fridge-header">
                         <h2>Què tens a la nevera?</h2>
-                        <p>Afegeix el que tens i veuràs quines receptes ho aprofiten. No cal tenir tots els ingredients del plat.</p>
+                        <p>Afegeix el que tens i tria com vols aprofitar-ho.</p>
                     </div>
                     <form class="add-ingredient-form" id="fridge-add-form">
                         <label class="sr-only" for="ingredient-input">Ingredients que tens</label>
@@ -150,6 +160,25 @@
                     <p id="fridge-status" class="planner-feedback" role="status"></p>
                     <div class="fridge-suggestions">
                         <h3>Què puc cuinar amb això?</h3>
+                        <div class="fridge-match-controls">
+                            <label for="fridge-match-mode">Quines receptes vols veure?
+                                <select id="fridge-match-mode">
+                                    <option value="any">Amb algun ingredient</option>
+                                    <option value="available">Només amb el que tinc</option>
+                                    <option value="all">Amb tots els ingredients triats</option>
+                                    <option value="exact">Exactament aquests ingredients</option>
+                                </select>
+                            </label>
+                            <p id="fridge-match-help" class="planner-help"></p>
+                            <details class="pantry-basics"><summary>Bàsics que ja tinc al rebost</summary>
+                                <p class="planner-help">Els marcats es donen per disponibles i no restringeixen les coincidències.</p>
+                                <label><input type="checkbox" id="fridge-basic-water" checked> Aigua</label>
+                                <label><input type="checkbox" id="fridge-basic-salt" checked> Sal</label>
+                                <label><input type="checkbox" id="fridge-basic-oil" checked> Oli d’oliva</label>
+                                <label><input type="checkbox" id="fridge-basic-spices" checked> Espècies seques</label>
+                            </details>
+                            <p class="planner-help">Comparació per nom d’aliment; comprova les quantitats i els ingredients de la fitxa abans de cuinar.</p>
+                        </div>
                         <p id="fridge-recipe-summary" class="planner-help" role="status"></p>
                         <div id="fridge-recipes" class="fridge-recipe-list"></div>
                     </div>
@@ -444,7 +473,7 @@
             <p>Encara no hi ha servidor ni sincronització entre dispositius. Per portar les dades a un altre mòbil, descarrega una còpia i guarda-la també fora d’aquest dispositiu, per exemple al teu Drive.</p>
             <p id="data-summary" class="planner-help"></p>
             <button type="button" id="export-data-btn" class="btn-primary">Descarrega una còpia completa</button>
-            <p class="planner-help">Inclou receptes personals, fotos carregades, adopcions, nevera, menú, compra i preferències del planificador. Les fotos per enllaç es conserven com a enllaços.</p>
+            <p class="planner-help">Inclou receptes personals, fotos carregades, adopcions, nevera, menú, compra i preferències de la nevera i del planificador. Les fotos per enllaç es conserven com a enllaços.</p>
             <div class="data-import">
                 <h3>Restaura una còpia</h3>
                 <label for="import-data-file">Tria el fitxer de còpia de MenjarReal</label>
@@ -467,6 +496,25 @@
                 <p class="planner-help">Els canvis manuals es conserven quan actualitzes els ingredients del menú.</p>
                 <p id="shopping-edit-status" class="planner-feedback" role="status"></p>
                 <button type="submit" class="btn-primary">Desa els canvis</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="plan-recipe-modal" role="dialog" aria-modal="true" aria-labelledby="plan-recipe-title">
+        <div class="modal-content">
+            <button type="button" id="close-plan-recipe" class="close-btn" aria-label="Tanca la tria del dia">&times;</button>
+            <h2 id="plan-recipe-title" class="modal-title">A quin dia la vols?</h2>
+            <p id="plan-recipe-name" class="planner-help"></p>
+            <form id="plan-recipe-form">
+                <div class="form-group"><label for="plan-recipe-day">Dia</label>
+                    <select id="plan-recipe-day" required><option value="">Tria un dia</option></select>
+                </div>
+                <div class="form-group"><label for="plan-recipe-meal">Àpat</label>
+                    <select id="plan-recipe-meal" required disabled><option value="">Tria primer el dia</option></select>
+                </div>
+                <p id="plan-recipe-feedback" class="planner-feedback" role="status"></p>
+                <div id="plan-recipe-alternatives" class="plan-day-alternatives"></div>
+                <button type="submit" id="save-plan-recipe" class="btn-primary" disabled>Afegir al menú</button>
             </form>
         </div>
     </div>

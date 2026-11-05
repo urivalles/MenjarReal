@@ -63,9 +63,36 @@ const recipeCatalog = (() => {
         return recipe.collection === 'recommended' && adopted.includes(recipe.id) ? 'mine' : recipe.collection;
     }
 
+    const fridgeDefaults = () => ({ mode: 'any', basics: ['water', 'salt', 'oil', 'spices'] });
+    function fridgeSettings(value) {
+        if (value == null) return fridgeDefaults();
+        if (!value || !['any', 'available', 'all', 'exact'].includes(value.mode) || !Array.isArray(value.basics) ||
+            !value.basics.every(basic => ['water', 'salt', 'oil', 'spices'].includes(basic))) throw new Error('Les opcions de coincidència de la nevera no són vàlides.');
+        return { mode: value.mode, basics: [...new Set(value.basics)] };
+    }
+    function isBasic(ingredient, basics = []) {
+        const name = normalize(ingredientName(ingredient)).replace(/[’']/g, ' ').replace(/\s+/g, ' ').trim();
+        if (/^sal i pebre$/.test(name)) return basics.includes('salt') && basics.includes('spices');
+        return (basics.includes('water') && /^aigua(?:\s|$)/.test(name)) ||
+            (basics.includes('salt') && /^sal(?: marina| fina| gruixuda)?$/.test(name)) ||
+            (basics.includes('oil') && /^oli(?: d oliva| verge|$)/.test(name)) ||
+            (basics.includes('spices') && /^(pebre(?: vermell)?|curry|garam masala|cumi|curcuma|farigola|orenga|romani|canyella|paprika|all en pols|gingebre en pols)(?:\s|$)/.test(name));
+    }
+    function fridgeMatch(recipe, fridge, settings = fridgeDefaults()) {
+        const { mode, basics } = fridgeSettings(settings);
+        const foods = fridge.filter(food => !isBasic(food, basics));
+        const ingredients = recipe.ingredients.filter(ingredient => !isBasic(ingredient, basics));
+        const matched = ingredients.filter(ingredient => foods.some(food => matchesIngredient(ingredient, food)));
+        const allFoodsUsed = foods.every(food => ingredients.some(ingredient => matchesIngredient(ingredient, food)));
+        const canMake = ingredients.length > 0 && matched.length === ingredients.length;
+        const accepted = foods.length > 0 && (mode === 'any' ? matched.length > 0 : mode === 'available' ? canMake :
+            mode === 'all' ? allFoodsUsed : canMake && allFoodsUsed);
+        return { accepted, matchCount: matched.length, missingCount: ingredients.length - matched.length };
+    }
+
     function select(options = {}) {
         const { query = '', difficulty = 'all', collection = 'all', season = 'all',
-            quick = false, batch = false, useFridge = false, fridge = [], adopted = [] } = options;
+            quick = false, batch = false, useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
         const term = normalize(query.trim());
         let selected = recipes.filter(recipe => {
             const kind = collectionOf(recipe, adopted);
@@ -78,13 +105,15 @@ const recipeCatalog = (() => {
                 (!quick || (recipe.totalMinutes || parseInt(recipe.time, 10)) <= 30) &&
                 (!batch || Boolean(recipe.batchNote));
         });
-        if (useFridge) {
-            selected = selected.map(recipe => ({ ...recipe, matchCount: recipe.ingredients.filter(
-                ingredient => fridge.some(food => matchesIngredient(ingredient, food))).length
-            })).filter(recipe => recipe.matchCount > 0).sort((a, b) => b.matchCount - a.matchCount);
+        if (useFridge || sort === 'fridge') {
+            selected = selected.map(recipe => ({ ...recipe, ...fridgeMatch(recipe, fridge, fridgeOptions) }));
+            if (useFridge) selected = selected.filter(recipe => recipe.accepted);
+            selected.sort((a, b) => b.matchCount - a.matchCount || a.missingCount - b.missingCount);
         }
+        if (sort === 'time') selected.sort((a, b) => (a.totalMinutes || parseInt(a.time, 10)) - (b.totalMinutes || parseInt(b.time, 10)));
+        if (sort === 'name') selected.sort((a, b) => a.title.localeCompare(b.title, 'ca'));
         return selected;
     }
 
-    return { recipes, normalize, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes };
+    return { recipes, normalize, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
 })();

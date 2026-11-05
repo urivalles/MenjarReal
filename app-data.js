@@ -3,8 +3,8 @@
 const appData = (() => {
     const key = 'realfood.data.v1';
     const requiredFields = ['customRecipes', 'myFridge', 'weeklyPlanner', 'adoptedRecipes'];
-    const fields = [...requiredFields, 'shoppingList'];
-    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], shoppingList: shoppingListEngine.empty() });
+    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences'];
+    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
     let warning = '';
     let unreadablePrimary = false;
     let lastStoredDocument = null;
@@ -23,7 +23,8 @@ const appData = (() => {
             if (planner.days[day][meal] !== null && normalizedPlanner.days[day][meal] === null) throw new Error('Hi ha un àpat no vàlid a la còpia.');
         }
         const shoppingList = shoppingListEngine.validate(Object.hasOwn(value, 'shoppingList') ? value.shoppingList : shoppingListEngine.empty());
-        return { version: 1, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList };
+        const fridgePreferences = recipeCatalog.fridgeSettings(value.fridgePreferences);
+        return { version: 1, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
     }
 
     function readLegacy(name, fallback) {
@@ -78,6 +79,10 @@ const appData = (() => {
         if (!fields.includes(name)) throw new Error('Camp de dades desconegut.');
         return replace({ ...snapshot(), [name]: JSON.parse(serialized) });
     }
+    function update(changes) {
+        if (!changes || !Object.keys(changes).every(name => fields.includes(name))) throw new Error('Camp de dades desconegut.');
+        return replace({ ...snapshot(), ...changes });
+    }
 
     function backup() {
         return JSON.stringify({ format: 'realfood-personal-backup', version: 1, exportedAt: new Date().toISOString(), data: snapshot() }, null, 2);
@@ -91,5 +96,5 @@ const appData = (() => {
         return validate(value.data);
     }
 
-    return { key, getItem, setItem, snapshot, restore: value => replace(value, true), backup, parseBackup, validate, get warning() { return warning; } };
+    return { key, getItem, setItem, update, snapshot, restore: value => replace(value, true), backup, parseBackup, validate, get warning() { return warning; } };
 })();

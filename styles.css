@@ -811,6 +811,31 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 button, input, select, textarea { touch-action: manipulation; }
 
 /* Responsive */
+.recipe-filter-panel { border-top: 1px solid #e2e8f0; padding-top: .75rem; }
+.recipe-filter-panel > summary, .pantry-basics > summary { cursor: pointer; min-height: 44px; padding: .6rem 0; font-weight: 650; color: #145c43; }
+.filter-options { display: grid; gap: 1rem; padding: .75rem 0 .25rem; }
+.filter-options > .btn-outline { justify-self: start; min-height: 44px; }
+.active-filter-summary { color: #145c43; font-size: .85rem; background: #ecfdf5; border-radius: .6rem; padding: .55rem .75rem; }
+.recipe-card { position: relative; }
+.recipe-open.btn-view { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; margin: 0; padding: 0; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
+.recipe-open.btn-view:hover { background: transparent; }
+.recipe-open:focus-visible { outline: 3px solid #047857; outline-offset: -3px; }
+.recipe-card .recipe-content { padding: 1.1rem; }
+.recipe-card .recipe-title { font-size: 1.1rem; line-height: 1.4; margin: 0; }
+.recipe-card-time { color: #526459; font-size: .85rem; margin: .5rem 0 .8rem; }
+.recipe-card .recipe-actions { position: relative; z-index: 2; flex-wrap: wrap; }
+.recipe-card .recipe-actions > button { min-height: 44px; font-size: .8rem; padding: .55rem .7rem; }
+.recipe-card .recipe-actions .btn-adopt { margin: 0; }
+.fridge-match-controls { padding: 1rem; margin-top: 1rem; border-radius: .8rem; background: #fff; border: 1px solid #dce7e0; }
+.fridge-match-controls > label { display: grid; gap: .45rem; font-weight: 600; }
+.fridge-match-controls select { width: 100%; min-height: 44px; padding: .7rem; font: inherit; border-radius: .6rem; border: 1px solid #cbd5e1; background: white; }
+.pantry-basics > label { display: inline-flex; gap: .5rem; align-items: center; margin-right: 1rem; min-height: 44px; font-size: .9rem; }
+.pantry-basics input { width: 19px; height: 19px; accent-color: #059669; }
+.fridge-recipe-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.plan-day-alternatives { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.plan-day-alternatives > button { min-height: 44px; padding: .6rem .8rem; }
+#save-plan-recipe { min-height: 44px; }
+
 @media (max-width: 768px) {
     .app-container {
         flex-direction: column;

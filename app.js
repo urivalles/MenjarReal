@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recipeCatalog.replaceCustomRecipes(customRecipes);
     let myFridge = readStored('myFridge', [], value =>
         Array.isArray(value) && value.every(food => typeof food === 'string' && food.trim()));
+    let fridgePreferences = recipeCatalog.fridgeSettings(readStored('fridgePreferences', null, value => value && typeof value === 'object'));
     let weeklyPlanner = weeklyPlannerEngine.normalizeState(readStored('weeklyPlanner', null,
         value => value && typeof value === 'object' && !Array.isArray(value)));
     let adoptedRecipes = readStored('adoptedRecipes', [], value => Array.isArray(value) &&
@@ -46,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingBackup = null;
 
     const daysOfWeek = ['Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte', 'Diumenge'];
+    const fridgeModeNames = { any: 'algun ingredient', available: 'només el que tinc', all: 'tots els triats', exact: 'exactament aquests' };
 
     // --- DOM Elements ---
     const navLinks = document.querySelectorAll('.nav-links li');
@@ -64,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const collectionSummary = document.getElementById('collection-summary');
     const catalogNotice = document.getElementById('catalog-notice');
     const pantryHelp = document.getElementById('pantry-help');
+    const recipeSort = document.getElementById('recipe-sort');
+    const activeFilterCount = document.getElementById('active-filter-count');
+    const activeFilterSummary = document.getElementById('active-filter-summary');
     
     // Fridge DOM
     const ingredientInput = document.getElementById('ingredient-input');
@@ -71,6 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const ingredientsList = document.getElementById('ingredients-list');
     const fridgeRecipeList = document.getElementById('fridge-recipes');
     const fridgeRecipeSummary = document.getElementById('fridge-recipe-summary');
+    const fridgeMatchMode = document.getElementById('fridge-match-mode');
+    const fridgeMatchHelp = document.getElementById('fridge-match-help');
+    const fridgeBasics = Object.fromEntries(['water', 'salt', 'oil', 'spices'].map(basic => [basic, document.getElementById('fridge-basic-' + basic)]));
+    const planRecipeModal = document.getElementById('plan-recipe-modal');
+    const planRecipeDay = document.getElementById('plan-recipe-day');
+    const planRecipeMeal = document.getElementById('plan-recipe-meal');
+    const planRecipeFeedback = document.getElementById('plan-recipe-feedback');
+    const planRecipeAlternatives = document.getElementById('plan-recipe-alternatives');
+    const savePlanRecipe = document.getElementById('save-plan-recipe');
+    let recipeToPlan = null;
+    let planRecipeTrigger = null;
     
     // Planner DOM
     const plannerGrid = document.querySelector('.planner-grid');
@@ -244,43 +260,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'recipe-card';
             
-            // Simple string matching to highlight if we have ingredients (very basic algorithm)
-            let matchCount = 0;
-            if (myFridge.length > 0) {
-                recipe.ingredients.forEach(ing => {
-                    if (hasIngredient(ing)) {
-                        matchCount++;
-                    }
-                });
-            }
-            
-            const matchTag = (matchCount > 0 && myFridge.length > 0) ? 
-                `<span style="color: var(--clr-primary); font-weight: bold;"><i class='bx bx-check'></i> Tens ${matchCount} ingred.</span>` : '';
-
             card.innerHTML = `
+                <button type="button" class="btn-view recipe-open" data-id="${recipe.id}" aria-label="Veure ${escapeHtml(recipe.title)}"><span class="sr-only">Obre la recepta</span></button>
                 ${coverHtml(recipe)}
                 <div class="recipe-content">
-                    <div class="recipe-labels"><span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
-                        <span class="recipe-level">${escapeHtml(recipe.difficulty)}</span></div>
                     <h3 class="recipe-title">${escapeHtml(recipe.title)}</h3>
-                    <p class="recipe-description">${escapeHtml(recipe.description)}</p>
-                    <div class="recipe-meta">
-                        <span><i class='bx bx-time'></i> ${escapeHtml(recipe.time)} totals</span>
-                        ${recipe.activeMinutes ? `<span>${recipe.activeMinutes} min de feina</span>` : ''}
-                        ${recipe.servings ? `<span>${recipe.servings} racions</span>` : ''}
-                        ${matchTag}
-                    </div>
-                    <div class="recipe-tags">${[...(recipe.seasons || []), ...(recipe.tags || [])].map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div>
-                    <p class="recipe-ingredients-preview">
-                        ${recipe.ingredients.slice(0, 3).map(ing => escapeHtml(ingredientLabel(ing))).join(', ')}${recipe.ingredients.length > 3 ? '...' : ''}
-                    </p>
+                    <p class="recipe-card-time"><i class='bx bx-time' aria-hidden="true"></i> ${escapeHtml(recipe.time)} totals</p>
                     <div class="recipe-actions">
-                        <button class="btn-view" data-id="${recipe.id}">Veure Recepta</button>
-                        <button class="btn-add-planner" data-id="${recipe.id}">
-                            <i class='bx bx-calendar-plus'></i> Planificar
-                        </button>
+                        ${recipe.collection !== 'legacy' ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
+                        ${adoptionButton(recipe)}
                     </div>
-                    ${adoptionButton(recipe)}
                 </div>
             `;
             recipesContainer.appendChild(card);
@@ -289,26 +278,14 @@ document.addEventListener('DOMContentLoaded', () => {
         bindPhotoFallback(recipesContainer);
 
         // Add event listeners to newly created buttons
-        document.querySelectorAll('.btn-view').forEach(btn => {
+        recipesContainer.querySelectorAll('.btn-view').forEach(btn => {
             btn.addEventListener('click', (e) => openRecipeModal(parseInt(e.currentTarget.dataset.id)));
         });
-        document.querySelectorAll('.recipes-grid .btn-adopt').forEach(btn => {
+        recipesContainer.querySelectorAll('.btn-adopt').forEach(btn => {
             btn.addEventListener('click', () => toggleAdoption(Number(btn.dataset.id)));
         });
 
-        document.querySelectorAll('.btn-add-planner').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const recipeId = Number(e.currentTarget.dataset.id);
-                const recipe = recipes.find(item => item.id === recipeId);
-                if (recipeCatalog.collectionOf(recipe, adoptedRecipes) !== 'mine') {
-                    catalogNotice.hidden = false;
-                    catalogNotice.textContent = 'Per planificar aquesta proposta, afegeix-la primer a «Les meves» amb «Fer-la meva».';
-                    return;
-                }
-                const day = weeklyPlannerEngine.days.find(key => !weeklyPlanner.days[key].lunch) || 'dilluns';
-                openMealPicker(day, 'lunch', recipeId);
-            });
-        });
+        recipesContainer.querySelectorAll('.btn-add-planner').forEach(btn => btn.addEventListener('click', () => openRecipePlan(Number(btn.dataset.id))));
     }
 
     function filterRecipes() {
@@ -318,12 +295,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = recipeCatalog.select({
             query: searchInput.value, difficulty: activeDifficulty, collection: selectedCollection,
             season: seasonFilter.value, quick: quickFilter.checked,
-            useFridge: useFridgeFilter, fridge: myFridge, adopted: adoptedRecipes
+            useFridge: useFridgeFilter, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences, sort: recipeSort.value || 'default'
         });
         const mine = recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adoptedRecipes) === 'mine').length;
         const recommended = recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adoptedRecipes) === 'recommended').length;
         collectionSummary.textContent = `${mine} receptes teves · ${recommended} idees per descobrir`;
-        recipeResults.textContent = `${filtered.length} ${filtered.length === 1 ? 'recepta' : 'receptes'}${selectedCollection === 'legacy' ? ' · Demostracions de la versió anterior, sense revisió de temporada.' : ' · Quantitats orientatives. Les receptes noves encara s’han de provar a la teva cuina.'}${useFridgeFilter ? ' Coincidència per nom; no comprova quantitats disponibles.' : ''}`;
+        const applied = [];
+        const collections = { mine: 'Les meves', pantry: 'Nevera buida', recommended: 'Descobrir', legacy: 'Exemples anteriors' };
+        if (selectedCollection !== 'all') applied.push(collections[selectedCollection]);
+        if (activeDifficulty !== 'all') applied.push(activeDifficulty);
+        if (seasonFilter.value !== 'all') applied.push(seasonFilter.value);
+        if (quickFilter.checked) applied.push('Màxim 30 min');
+        if (useFridgeFilter) applied.push('Nevera: ' + fridgeModeNames[fridgePreferences.mode]);
+        const sortNames = { time: 'menys temps', name: 'nom A–Z', fridge: 'coincidències de nevera' };
+        if (sortNames[recipeSort.value]) applied.push('Ordre: ' + sortNames[recipeSort.value]);
+        activeFilterCount.textContent = applied.length ? `(${applied.length})` : '';
+        activeFilterSummary.hidden = !applied.length;
+        activeFilterSummary.textContent = applied.join(' · ');
+        recipeResults.textContent = `${filtered.length} ${filtered.length === 1 ? 'recepta' : 'receptes'}${selectedCollection === 'legacy' ? ' · Exemples anteriors' : ''}`;
         renderRecipes(filtered);
     }
 
@@ -331,6 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', filterRecipes);
     seasonFilter.addEventListener('change', filterRecipes);
     quickFilter.addEventListener('change', filterRecipes);
+    recipeSort.addEventListener('change', filterRecipes);
+    document.getElementById('reset-recipe-filters').addEventListener('click', () => {
+        selectedCollection = 'all'; seasonFilter.value = 'all'; seasonFilter.disabled = false; quickFilter.checked = false; recipeSort.value = 'default';
+        filterByFridgeBtn.classList.remove('active'); filterByFridgeBtn.setAttribute('aria-pressed', 'false');
+        collectionButtons.forEach(button => { const active = button.dataset.collection === 'all'; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+        filterChips.forEach(chip => { const active = chip.dataset.filter === 'all'; chip.classList.toggle('active', active); chip.setAttribute('aria-pressed', String(active)); });
+        filterRecipes();
+    });
     collectionButtons.forEach(button => button.addEventListener('click', () => {
         selectedCollection = button.dataset.collection;
         if (selectedCollection === 'pantry') {
@@ -412,10 +409,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.adaptationNote ? `<div class="modal-section detail-source"><h4>Origen i adaptació</h4><p>${escapeHtml(recipe.adaptationNote)}</p>
                 <ul class="detail-list">${(recipe.sourceIds || []).map(id => recipeSources[id]).filter(Boolean).map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul>
                 <p>Preparació adaptada, pendent de prova casolana. No s’han calculat calories ni nutrients d’aquesta versió.</p></div>` : ''}
+            ${recipe.collection !== 'legacy' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}
         `;
         bindPhotoFallback(modalBody);
+        const planDetail = modalBody.querySelector('.btn-plan-detail');
+        if (planDetail) planDetail.addEventListener('click', () => openRecipePlan(recipe.id));
         const edit = modalBody.querySelector('.btn-edit-recipe');
         if (edit) edit.addEventListener('click', () => {
             modal.classList.remove('show');
@@ -445,12 +445,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === customModal) closeCustomRecipe();
         if (e.target === dataModal) closeDataModal();
         if (e.target === shoppingModal) closeShoppingEditor();
+        if (e.target === planRecipeModal) closeRecipePlan();
     });
     document.addEventListener('keydown', event => {
-        const dialog = [shoppingModal, dataModal, customModal, mealModal, modal].find(item => item.classList.contains('show'));
+        const dialog = [planRecipeModal, shoppingModal, dataModal, customModal, mealModal, modal].find(item => item.classList.contains('show'));
         if (!dialog) return;
         if (event.key === 'Escape') {
-            if (dialog === shoppingModal) closeShoppingEditor();
+            if (dialog === planRecipeModal) closeRecipePlan();
+            else if (dialog === shoppingModal) closeShoppingEditor();
             else if (dialog === dataModal) closeDataModal();
             else if (dialog === customModal) closeCustomRecipe();
             else if (dialog === mealModal) closeMealPicker();
@@ -639,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const restored = appData.restore(pendingBackup);
             customRecipes = restored.customRecipes; recipeCatalog.replaceCustomRecipes(customRecipes);
-            myFridge = restored.myFridge; weeklyPlanner = restored.weeklyPlanner; adoptedRecipes = restored.adoptedRecipes;
+            myFridge = restored.myFridge; fridgePreferences = restored.fridgePreferences; weeklyPlanner = restored.weeklyPlanner; adoptedRecipes = restored.adoptedRecipes;
             shoppingList = restored.shoppingList; shoppingUndo = null;
             pendingBackup = null; restoreDataBtn.disabled = true; importDataFile.value = '';
             filterRecipes(); renderFridge(); renderPlanner(); dataSummary.textContent = dataDescription(restored);
@@ -800,25 +802,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderFridgeRecipes() {
         fridgeRecipeList.innerHTML = '';
+        fridgeMatchMode.value = fridgePreferences.mode;
+        Object.entries(fridgeBasics).forEach(([basic, checkbox]) => { checkbox.checked = fridgePreferences.basics.includes(basic); });
+        const explanations = {
+            any: 'La recepta aprofita un o més aliments dels que has anotat. Pot necessitar-ne d’altres.',
+            available: 'Tots els ingredients de la recepta són disponibles. No cal que faci servir tots els aliments de la nevera.',
+            all: 'La recepta fa servir tots els aliments que has anotat, però pot necessitar-ne d’altres.',
+            exact: 'La recepta fa servir tots els aliments anotats i cap altre, excepte els bàsics marcats.'
+        };
+        fridgeMatchHelp.textContent = explanations[fridgePreferences.mode];
         if (!myFridge.length) {
             fridgeRecipeSummary.textContent = 'Afegeix aliments per veure receptes relacionades aquí mateix.';
             return;
         }
-        const matches = recipeCatalog.select({ useFridge: true, fridge: myFridge, adopted: adoptedRecipes });
+        const matches = recipeCatalog.select({ useFridge: true, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences });
         fridgeRecipeSummary.textContent = matches.length
-            ? `${matches.length} receptes aprofiten algun dels teus aliments. Les que més en fan servir apareixen primer. Pot faltar-te la resta d’ingredients.`
-            : 'Encara no hi ha coincidències al receptari. Prova noms senzills, com «ou», «tomàquet» o «tofu».';
+            ? `${matches.length} receptes · ${fridgeModeNames[fridgePreferences.mode]}. Les que més aliments aprofiten apareixen primer.`
+            : 'No hi ha coincidències amb aquesta tria. Prova «Amb algun ingredient», revisa els bàsics o afegeix més aliments.';
         matches.forEach(recipe => {
             const row = document.createElement('article');
             row.className = 'fridge-recipe';
             row.innerHTML = `${coverHtml(recipe)}<div><h4>${escapeHtml(recipe.title)}</h4>
                 <p>${escapeHtml(recipe.time)} · Aprofita: ${recipe.ingredients.filter(hasIngredient).map(ingredient => escapeHtml(recipeCatalog.ingredientName(ingredient))).join(', ')}</p>
-                <button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta i què em falta</button></div>`;
+                <div class="fridge-recipe-actions"><button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta</button>
+                <button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button></div></div>`;
             fridgeRecipeList.appendChild(row);
         });
         bindPhotoFallback(fridgeRecipeList);
         fridgeRecipeList.querySelectorAll('.fridge-open-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id))));
+        fridgeRecipeList.querySelectorAll('.fridge-plan-recipe').forEach(button => button.addEventListener('click', () => openRecipePlan(Number(button.dataset.id))));
     }
+    function saveFridgePreferences() {
+        try {
+            const next = recipeCatalog.fridgeSettings({ mode: fridgeMatchMode.value, basics: Object.entries(fridgeBasics).filter(([, checkbox]) => checkbox.checked).map(([basic]) => basic) });
+            appData.setItem('fridgePreferences', JSON.stringify(next)); fridgePreferences = next;
+            renderFridgeRecipes(); filterRecipes();
+            document.getElementById('fridge-status').textContent = 'Opcions de coincidència desades.';
+        } catch (error) {
+            renderFridgeRecipes();
+            document.getElementById('fridge-status').textContent = `No s’han pogut desar les opcions: ${error.message}`;
+        }
+    }
+    fridgeMatchMode.addEventListener('change', saveFridgePreferences);
+    Object.values(fridgeBasics).forEach(checkbox => checkbox.addEventListener('change', saveFridgePreferences));
 
     function addIngredient(event) {
         event?.preventDefault();
@@ -883,6 +909,66 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     }
+
+    function openRecipePlan(recipeId) {
+        const recipe = recipes.find(item => item.id === recipeId && item.collection !== 'legacy');
+        if (!recipe) return;
+        recipeToPlan = recipe;
+        planRecipeTrigger = document.activeElement;
+        const adopting = recipe.collection === 'recommended' && !adoptedRecipes.includes(recipe.id);
+        document.getElementById('plan-recipe-name').textContent = recipe.title + (adopting ? ' · En desar-la, també s’afegirà a «Les meves».' : '');
+        planRecipeDay.innerHTML = '<option value="">Tria un dia</option>' + weeklyPlannerEngine.days.map(day => {
+            const free = weeklyPlannerEngine.meals.filter(meal => !weeklyPlanner.days[day][meal]).length;
+            return `<option value="${day}">${dayName(day)} · ${free ? `${free} ${free === 1 ? 'àpat lliure' : 'àpats lliures'}` : 'ple'}</option>`;
+        }).join('');
+        planRecipeDay.value = ''; planRecipeMeal.value = '';
+        savePlanRecipe.textContent = adopting ? 'Fes-la meva i afegeix al menú' : 'Afegir al menú';
+        updateRecipePlanDay();
+        planRecipeModal.classList.add('show'); planRecipeDay.focus();
+    }
+    function updateRecipePlanDay() {
+        const day = planRecipeDay.value;
+        const free = weeklyPlannerEngine.days.includes(day) ? weeklyPlannerEngine.meals.filter(meal => !weeklyPlanner.days[day][meal]) : [];
+        const previousMeal = planRecipeMeal.value;
+        planRecipeAlternatives.innerHTML = '';
+        planRecipeMeal.innerHTML = '<option value="">Tria un àpat</option>' + (weeklyPlannerEngine.days.includes(day) ?
+            weeklyPlannerEngine.meals.map(meal => `<option value="${meal}"${free.includes(meal) ? '' : ' disabled'}>${mealNames[meal]}${free.includes(meal) ? ' · lliure' : ' · ocupat'}</option>`).join('') : '');
+        planRecipeMeal.disabled = !free.length;
+        planRecipeMeal.value = free.includes(previousMeal) ? previousMeal : free.length === 1 ? free[0] : '';
+        savePlanRecipe.disabled = !free.includes(planRecipeMeal.value);
+        if (!weeklyPlannerEngine.days.includes(day)) { planRecipeFeedback.textContent = 'Tria el dia on vols afegir-la.'; return; }
+        if (free.length) { planRecipeFeedback.textContent = `${dayName(day)} té ${free.length === 1 ? 'un àpat lliure' : 'dinar i sopar lliures'}.`; return; }
+        const alternatives = weeklyPlannerEngine.days.filter(key => weeklyPlannerEngine.meals.some(meal => !weeklyPlanner.days[key][meal]));
+        planRecipeFeedback.textContent = alternatives.length ? `${dayName(day)} és ple. Pots triar un d’aquests dies amb lloc:` : 'Tota la setmana és plena. Allibera un àpat al menú abans d’afegir-hi aquesta recepta.';
+        planRecipeAlternatives.innerHTML = alternatives.map(key => `<button type="button" class="btn-outline plan-suggest-day" data-day="${key}">${dayName(key)} · ${weeklyPlannerEngine.meals.filter(meal => !weeklyPlanner.days[key][meal]).map(meal => mealNames[meal].toLowerCase()).join(' i ')}</button>`).join('');
+        planRecipeAlternatives.querySelectorAll('.plan-suggest-day').forEach(button => button.addEventListener('click', () => { planRecipeDay.value = button.dataset.day; updateRecipePlanDay(); planRecipeMeal.focus(); }));
+    }
+    function closeRecipePlan() {
+        planRecipeModal.classList.remove('show'); recipeToPlan = null;
+        if (planRecipeTrigger?.isConnected) planRecipeTrigger.focus();
+    }
+    planRecipeDay.addEventListener('change', updateRecipePlanDay);
+    planRecipeMeal.addEventListener('change', updateRecipePlanDay);
+    document.getElementById('close-plan-recipe').addEventListener('click', closeRecipePlan);
+    document.getElementById('plan-recipe-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const day = planRecipeDay.value, meal = planRecipeMeal.value;
+        if (!recipeToPlan || !weeklyPlannerEngine.days.includes(day) || !weeklyPlannerEngine.meals.includes(meal)) { planRecipeFeedback.textContent = 'Tria un dia i un àpat lliure.'; return; }
+        if (weeklyPlanner.days[day][meal]) { updateRecipePlanDay(); return; }
+        try {
+            const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
+            next.days[day][meal] = { kind: 'recipe', id: recipeToPlan.id, title: recipeToPlan.title, locked: true };
+            const adopted = recipeToPlan.collection === 'recommended' && !adoptedRecipes.includes(recipeToPlan.id) ? [...adoptedRecipes, recipeToPlan.id] : [...adoptedRecipes];
+            appData.update({ weeklyPlanner: next, adoptedRecipes: adopted });
+            weeklyPlanner = next; adoptedRecipes = adopted;
+            const message = `${recipeToPlan.title}: afegida a ${dayName(day).toLowerCase()} · ${mealNames[meal].toLowerCase()}.`;
+            filterRecipes(); renderPlanner(); renderFridgeRecipes();
+            if (modal.classList.contains('show')) openRecipeModal(recipeToPlan.id);
+            catalogNotice.hidden = false; catalogNotice.textContent = message;
+            document.getElementById('fridge-status').textContent = message;
+            closeRecipePlan();
+        } catch (error) { planRecipeFeedback.textContent = `No s’ha pogut desar: ${error.message} El menú anterior es conserva.`; }
+    });
 
     function openMealPicker(day, meal, recipeId = null) {
         if (!weeklyPlannerEngine.days.includes(day) || !weeklyPlannerEngine.meals.includes(meal)) return;
