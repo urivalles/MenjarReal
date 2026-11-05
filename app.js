@@ -69,6 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const recipeSort = document.getElementById('recipe-sort');
     const activeFilterCount = document.getElementById('active-filter-count');
     const activeFilterSummary = document.getElementById('active-filter-summary');
+    const recipeFilterPanel = document.getElementById('recipe-filter-panel');
+    const toggleRecipeFilters = document.getElementById('toggle-recipe-filters');
+    recipeFilterPanel.hidden = true;
+    toggleRecipeFilters.addEventListener('click', () => {
+        recipeFilterPanel.hidden = !recipeFilterPanel.hidden;
+        toggleRecipeFilters.setAttribute('aria-expanded', String(!recipeFilterPanel.hidden));
+    });
     
     // Fridge DOM
     const ingredientInput = document.getElementById('ingredient-input');
@@ -309,7 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (useFridgeFilter) applied.push('Nevera: ' + fridgeModeNames[fridgePreferences.mode]);
         const sortNames = { time: 'menys temps', name: 'nom A–Z', fridge: 'coincidències de nevera' };
         if (sortNames[recipeSort.value]) applied.push('Ordre: ' + sortNames[recipeSort.value]);
-        activeFilterCount.textContent = applied.length ? `(${applied.length})` : '';
+        activeFilterCount.textContent = applied.length ? String(applied.length) : '';
+        toggleRecipeFilters.setAttribute('aria-label', `Filtres i ordre${applied.length ? ` · ${applied.length} opcions aplicades` : ''}`);
         activeFilterSummary.hidden = !applied.length;
         activeFilterSummary.textContent = applied.join(' · ');
         recipeResults.textContent = `${filtered.length} ${filtered.length === 1 ? 'recepta' : 'receptes'}${selectedCollection === 'legacy' ? ' · Exemples anteriors' : ''}`;

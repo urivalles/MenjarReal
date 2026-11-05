@@ -812,7 +812,15 @@ button, input, select, textarea { touch-action: manipulation; }
 
 /* Responsive */
 .recipe-filter-panel { border-top: 1px solid #e2e8f0; padding-top: .75rem; }
-.recipe-filter-panel > summary, .pantry-basics > summary { cursor: pointer; min-height: 44px; padding: .6rem 0; font-weight: 650; color: #145c43; }
+.pantry-basics > summary { cursor: pointer; min-height: 44px; padding: .6rem 0; font-weight: 650; color: #145c43; }
+.recipe-toolbar { display: flex; gap: .65rem; align-items: center; }
+.recipe-toolbar .search-bar { flex: 1; min-width: 0; }
+.recipe-toolbar input { min-width: 0; width: 100%; }
+.filter-icon-button { position: relative; width: 48px; height: 48px; flex: 0 0 48px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #bbd8cb; border-radius: .8rem; background: white; color: #047857; cursor: pointer; }
+.filter-icon-button[aria-expanded="true"] { background: #d1fae5; border-color: #059669; }
+.filter-icon-button:focus-visible { outline: 3px solid #047857; outline-offset: 3px; }
+.filter-badge { position: absolute; top: -6px; right: -6px; min-width: 21px; height: 21px; padding: 0 4px; display: grid; place-items: center; border-radius: 999px; background: #047857; color: white; font-size: .68rem; font-weight: 700; }
+.filter-badge:empty { display: none; }
 .filter-options { display: grid; gap: 1rem; padding: .75rem 0 .25rem; }
 .filter-options > .btn-outline { justify-self: start; min-height: 44px; }
 .active-filter-summary { color: #145c43; font-size: .85rem; background: #ecfdf5; border-radius: .6rem; padding: .55rem .75rem; }

@@ -91,12 +91,17 @@
                         <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
                     </div>
                     <div class="filters">
+                        <div class="recipe-toolbar">
                         <div class="search-bar">
                             <i class='bx bx-search'></i>
                             <input type="search" id="search-recipe" aria-label="Cerca per plat o ingredient" placeholder="Cerca un plat o un ingredient...">
                         </div>
-                        <details class="recipe-filter-panel" id="recipe-filter-panel">
-                        <summary>Filtres i ordre <span id="active-filter-count"></span></summary>
+                        <button type="button" id="toggle-recipe-filters" class="filter-icon-button" aria-label="Filtres i ordre" title="Filtres i ordre" aria-controls="recipe-filter-panel" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>
+                            <span id="active-filter-count" class="filter-badge"></span>
+                        </button>
+                        </div>
+                        <div class="recipe-filter-panel" id="recipe-filter-panel" hidden>
                         <div class="filter-options">
                         <div class="collection-filters" role="group" aria-label="Col·lecció de receptes">
                             <button class="collection-chip active" data-collection="all" aria-pressed="true">Tot el receptari</button>
@@ -131,7 +136,7 @@
                         </div>
                         <button type="button" class="btn-outline" id="reset-recipe-filters">Neteja els filtres</button>
                         </div>
-                        </details>
+                        </div>
                         <p class="active-filter-summary" id="active-filter-summary" role="status" hidden></p>
                         <p class="recipe-results" id="recipe-results" role="status"></p>
                     </div>
