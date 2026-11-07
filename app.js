@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Recipes Logic ---
     function collectionLabel(recipe) {
         const kind = recipeCatalog.collectionOf(recipe, adoptedRecipes);
-        return kind === 'mine' ? recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per descobrir' : 'Exemple anterior';
+        return kind === 'mine' ? recipe.testedByUser ? 'La meva recepta · Provada per mi' : recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per provar' : 'Exemple anterior';
     }
 
     function coverHtml(recipe, large = false) {
@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.batchNote ? `<div class="modal-section"><h4>Per avançar feina</h4><p>${escapeHtml(recipe.batchNote)}</p></div>` : ''}
             ${recipe.adaptationNote ? `<div class="modal-section detail-source"><h4>Origen i adaptació</h4><p>${escapeHtml(recipe.adaptationNote)}</p>
                 <ul class="detail-list">${(recipe.sourceIds || []).map(id => recipeSources[id]).filter(Boolean).map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul>
-                <p>Preparació adaptada, pendent de prova casolana. ${recipe.nutritionNote ? 'Les xifres nutricionals indicades no s’han verificat ni recalculat.' : 'No s’han calculat calories ni nutrients d’aquesta versió.'}</p></div>` : ''}
+                <p>${recipe.testedByUser ? 'Recepta ja provada per tu.' : 'Preparació adaptada, pendent de prova casolana.'} ${recipe.nutritionNote ? 'Les xifres nutricionals indicades no s’han verificat ni recalculat.' : 'No s’han calculat calories ni nutrients d’aquesta versió.'}</p></div>` : ''}
             ${recipe.collection !== 'legacy' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}

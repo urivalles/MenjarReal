@@ -189,7 +189,9 @@ const recipeSources = {
     chicken: { title: 'Sara Buenfeld · Good Food: Healthy chicken stir-fry', url: 'https://www.bbcgoodfood.com/recipes/healthy-chicken-stir-fry' },
     peanutNoodles: { title: 'University of Maryland Extension: Easy Peanut Noodles', url: 'https://extension.umd.edu/programs/family-consumer-sciences/snap-ed/eat-smart/recipes/easy-peanut-noodles' },
     peanutSauce: { title: 'Meghan Splawn · The Kitchn: Creamy Peanut Sauce', url: 'https://www.thekitchn.com/how-to-make-easy-creamy-peanut-sauce-246266' },
-    maydenCream: { title: 'MaydenFit · Crema al curri amb pollastre (font indicada per l’usuari)', url: 'https://www.youtube.com/watch?v=g_bthu9MhgI' }
+    maydenCream: { title: 'MaydenFit · Crema al curri amb pollastre (font indicada per l’usuari)', url: 'https://www.youtube.com/watch?v=g_bthu9MhgI' },
+    maydenChickpeaOmelette: { title: 'MaydenFit · Truita de cigrons (ingredients de la descripció)', url: 'https://www.youtube.com/watch?v=2sLECGB-Re8' },
+    chickpeaOmeletteSteps: { title: 'HolyCook · Versió de la truita de cigrons de Mayden', url: 'https://holycook.es/noticias/recetas/tortilla-garbanzos-mozzarella-mayden/' }
 };
 
 function seasonalRecipe(data) {
@@ -410,7 +412,7 @@ const seasonalRecipes = [
         adaptationNote: 'Inspirada en el saltat de Sara Buenfeld, sense salsa de cacauet i amb una guarnició i racions pròpies.'
     }),
     seasonalRecipe({
-        id: 302, title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', emoji: '🍄', photoPending: true,
+        id: 302, title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', testedByUser: true, emoji: '🍄', photoPending: true,
         description: 'Nyoquis amb bolets congelats i una crema de cottage i parmesà. Dues racions, en uns 20–25 minuts.',
         totalMinutes: 25, activeMinutes: 20, equipment: ['Paella', 'Batedora'], sourceChecked: null,
         tags: ['Vegetarià', 'Amb formatge'], sourceIds: [],
@@ -421,10 +423,10 @@ const seasonalRecipes = [
         balanceNote: 'Combina nyoquis, bolets i lactis. Pots acompanyar-ho amb més verdura si et ve de gust; no s’han calculat necessitats nutricionals personals.',
         variations: ['Llimona, altres verdures i ou són opcionals. No entren a la compra automàtica ni són necessaris per coincidir amb la nevera; afegeix-los a la compra si els vols.', 'Modera la caiena i evita que la salsa de cottage bulli. L’ou opcional augmenta l’aportació de proteïna.'],
         batchNote: 'Pots deixar la ceba i els bolets cuinats. Acaba els nyoquis i la salsa a foc baix quan els hagis de menjar.',
-        adaptationNote: 'Recepta pròpia de l’usuari, elaborada amb ChatGPT. Quantitats i estimacions transcrites de la seva proposta; pendent de prova casolana.'
+        adaptationNote: 'Recepta pròpia, elaborada amb ChatGPT i ja provada per tu. Quantitats i estimacions transcrites de la teva proposta.'
     }),
     seasonalRecipe({
-        id: 303, title: 'Crema densa al curri amb pollastre', collection: 'mine', emoji: '🥣', photoPending: true,
+        id: 303, title: 'Crema densa al curri amb pollastre', collection: 'mine', testedByUser: true, emoji: '🥣', photoPending: true,
         description: 'Crema espessa de patata, ceba i pastanaga, amb pollastre esmicolat i un ou escalfat per persona. Dues racions grans.',
         totalMinutes: 30, activeMinutes: 10, equipment: ['Olla', 'Batedora', 'Cassó'], sourceChecked: null,
         tags: ['Pollastre', 'Crema', 'Racions grans'], sourceIds: ['maydenCream'],
@@ -434,6 +436,20 @@ const seasonalRecipes = [
         balanceNote: 'Patata i verdures amb pollastre i ou. La fitxa correspon a dues racions grans; les quantitats es poden ajustar en passar-les a la compra.',
         variations: ['Ajusta l’aigua per aconseguir una textura densa.', 'Pots substituir l’aigua per brou casolà; afegeix-lo manualment a la compra si en necessites.'],
         batchNote: 'Prepara la crema amb el pollastre i guarda-la en racions. Fes l’ou al moment de servir.',
-        adaptationNote: 'Font indicada per l’usuari: MaydenFit. Preparació i valors nutricionals transcrits de la seva proposta; el vídeo no s’ha pogut verificar en aquesta sessió.'
+        adaptationNote: 'Recepta ja provada per tu i incorporada a «Les meves». Font indicada: MaydenFit, que es conserva a sota. Preparació i xifres transcrites de la teva proposta; els valors nutricionals no s’han verificat.'
+    }),
+    seasonalRecipe({
+        id: 209, title: 'Truita de cigrons de MaydenFit', collection: 'recommended', testedByUser: false, emoji: '🍳', photoPending: true,
+        description: 'Per provar: cigrons cuits, ou i una mica de mozzarella en una truita de paella. Dues racions orientatives.',
+        seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], totalMinutes: 15, activeMinutes: 8,
+        equipment: ['Bol', 'Forquilla', 'Paella antiadherent', 'Plat per girar'], sourceChecked: '2026-11-07',
+        tags: ['Llegums', 'Vegetarià', 'Amb ou', 'Per provar'], sourceIds: ['maydenChickpeaOmelette', 'chickpeaOmeletteSteps'],
+        ingredients: [['Cigrons cuits', '400 g escorreguts'], ['Ous', '4 unitats'], ['Mozzarella ratllada', '30 g'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust'], ['Oli d’oliva verge extra en esprai', 'Una mica']],
+        steps: ['Escorre i esbandeix els cigrons cuits. Aixafa’ls amb una forquilla juntament amb la mozzarella; no cal que quedi una pasta fina.', 'Incorpora els ous, sal i pebre i barreja-ho bé.', 'Escalfa una paella antiadherent amb una mica d’oli en esprai. Aboca-hi la barreja i cou-la a foc moderat uns 3–4 minuts, fins que la base tingui consistència per girar-la.', 'Gira-la amb l’ajuda d’un plat i cou l’altra cara uns 3–4 minuts més. Ajusta el temps segons el gruix i el foc, fins que l’ou quedi quallat al centre.'],
+        nutritionNote: 'La descripció de MaydenFit publica 849 kcal, 54 g de proteïnes, 50 g d’hidrats, 18 g de fibra i 44 g de greixos, sense indicar-hi la ració. Valors no verificats ni recalculats: no es presenten com a valors per ració.',
+        balanceNote: 'Cigrons i ou amb una petita quantitat de formatge. Pots acompanyar la truita amb amanida o verdura, que no s’inclou a la compra de la versió bàsica.',
+        variations: ['La recepta original inclou mozzarella; si prefereixes canviar-la, la textura i els valors nutricionals variaran.', 'Els 15 minuts totals i les dues racions són una proposta orientativa per organitzar l’app, no dades especificades a la descripció del vídeo.'],
+        batchNote: 'Pots deixar els cigrons escorreguts abans. Barreja i qualla la truita quan l’hagis de menjar.',
+        adaptationNote: 'Recepta de MaydenFit per provar. Ingredients comprovats a la descripció del vídeo enllaçat. Passos resumits a partir de la versió publicada per HolyCook; no s’han pogut contrastar directament amb el vídeo. Racions i temps orientatius de l’app.'
     })
 ];
