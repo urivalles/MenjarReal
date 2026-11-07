@@ -821,6 +821,25 @@ button, input, select, textarea { touch-action: manipulation; }
 .filter-icon-button:focus-visible { outline: 3px solid #047857; outline-offset: 3px; }
 .planner-preferences-bar { display: flex; align-items: center; gap: 1rem; padding: .9rem 1rem; margin-bottom: 1rem; background: white; border: 1px solid #dce7e0; border-radius: .8rem; }
 .planner-preferences-bar > p { flex: 1; min-width: 0; font-size: .88rem; color: #145c43; line-height: 1.5; }
+.menu-import-dialog { position: fixed; inset: 0; margin: auto; width: min(700px, calc(100% - 1.5rem)); max-height: 90vh; max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain; border: 1px solid #dce7e0; border-radius: 1.25rem; padding: 1.5rem; background: #fff; color: var(--clr-text-main); box-shadow: 0 20px 60px #0f302b40; }
+.menu-import-dialog::backdrop { background: #132d2580; }
+.menu-import-dialog > .close-btn { width: 44px; height: 44px; top: .5rem; right: .5rem; border-radius: 50%; background: #f1f6f3; }
+.menu-import-dialog > h2 { padding-right: 2rem; }
+.menu-import-dialog label { display: block; font-weight: 500; }
+.menu-import-dialog textarea, .menu-import-dialog input[type="text"], .menu-import-dialog select { width: 100%; min-width: 0; min-height: 44px; padding: .65rem .75rem; border: 1px solid #bdcec5; border-radius: .65rem; font: inherit; font-size: 1rem; color: inherit; background: white; }
+.menu-import-dialog textarea { resize: vertical; margin-top: .5rem; }
+.menu-import-dialog :is(textarea, input, select, button):focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+.menu-photo-pending { font-size: .88rem; padding: .7rem; margin: .75rem 0 1rem; background: #f2f7f4; border-radius: .65rem; }
+.menu-import-day { margin: .8rem 0; padding: 1rem; border: 1px solid #dce7e0; border-radius: .85rem; background: #f9fcfa; }
+.menu-import-day h3 { font-size: 1.05rem; margin-bottom: .6rem; }
+.menu-import-meal { display: grid; gap: .4rem; min-width: 0; }
+.menu-import-meal + .menu-import-meal { border-top: 1px solid #dce7e0; margin-top: .8rem; padding-top: .8rem; }
+.menu-import-dialog .planner-check { display: flex; gap: .5rem; align-items: center; min-height: 44px; }
+.menu-import-dialog .planner-check input { width: 20px; height: 20px; flex-shrink: 0; }
+.menu-import-dialog .planner-help { margin: .6rem 0; }
+#menu-import-warnings-box { padding: .75rem; background: #fff5df; border-radius: .65rem; }
+#menu-import-warnings { padding-left: 1.25rem; overflow-wrap: anywhere; font-size: .9rem; }
+.menu-import-cancel { margin-top: 1rem; }
 .context-tips { padding: 1.4rem; background: white; border: 1px solid #cce2d6; border-radius: 1rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; }
 .context-tips > h3 { font-size: 1.4rem; margin-bottom: .5rem; }
 .context-tips > p { color: #526459; margin-bottom: 1rem; font-size: .95rem; }

@@ -188,7 +188,8 @@ const recipeSources = {
     omelette: { title: 'Good Food: Mushroom omelette', url: 'https://www.bbcgoodfood.com/recipes/1744/cheesy-mushroom-omelette' },
     chicken: { title: 'Sara Buenfeld · Good Food: Healthy chicken stir-fry', url: 'https://www.bbcgoodfood.com/recipes/healthy-chicken-stir-fry' },
     peanutNoodles: { title: 'University of Maryland Extension: Easy Peanut Noodles', url: 'https://extension.umd.edu/programs/family-consumer-sciences/snap-ed/eat-smart/recipes/easy-peanut-noodles' },
-    peanutSauce: { title: 'Meghan Splawn · The Kitchn: Creamy Peanut Sauce', url: 'https://www.thekitchn.com/how-to-make-easy-creamy-peanut-sauce-246266' }
+    peanutSauce: { title: 'Meghan Splawn · The Kitchn: Creamy Peanut Sauce', url: 'https://www.thekitchn.com/how-to-make-easy-creamy-peanut-sauce-246266' },
+    maydenCream: { title: 'MaydenFit · Crema al curri amb pollastre (font indicada per l’usuari)', url: 'https://www.youtube.com/watch?v=g_bthu9MhgI' }
 };
 
 function seasonalRecipe(data) {
@@ -407,5 +408,32 @@ const seasonalRecipes = [
         variations: ['Canvia el pollastre per 350 g de tofu i daura’l abans de la verdura.', 'L’arròs integral també serveix; el temps total dependrà del paquet i sovint serà superior.'],
         batchNote: 'Pots deixar la verdura tallada i la salsa mesurada. Mantén el pollastre cru separat de la resta.',
         adaptationNote: 'Inspirada en el saltat de Sara Buenfeld, sense salsa de cacauet i amb una guarnició i racions pròpies.'
+    }),
+    seasonalRecipe({
+        id: 302, title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', emoji: '🍄', photoPending: true,
+        description: 'Nyoquis amb bolets congelats i una crema de cottage i parmesà. Dues racions, en uns 20–25 minuts.',
+        totalMinutes: 25, activeMinutes: 20, equipment: ['Paella', 'Batedora'], sourceChecked: null,
+        tags: ['Vegetarià', 'Amb formatge'], sourceIds: [],
+        ingredients: [['Nyoquis', '200 g'], ['Cottage', '180 g'], ['Bolets congelats', '150 g'], ['Ceba', '1/2 unitat'], ['Parmesà', '10–15 g'], ['All', 'Al gust'], ['Julivert', 'Al gust'], ['Pebre negre', 'Al gust'], ['Nou moscada', 'Al gust'], ['Farigola', 'Al gust'], ['Caiena', 'Al gust'], ['Oli d’oliva', 'Una mica'], ['Sal', 'Al gust']],
+        optionalIngredients: [{ item: 'Llimona', qty: 'Unes gotes' }, { item: 'Ous', qty: '2 unitats · 1 per ració' }],
+        steps: ['Sofregeix la mitja ceba i l’all amb una mica d’oli.', 'Afegeix els bolets congelats i deixa que alliberin l’aigua.', 'Incorpora els nyoquis i cou-los 2–4 minuts, seguint també les indicacions del paquet. Afegeix una mica d’aigua si cal.', 'Tritura el cottage amb el parmesà, la nou moscada i una mica del líquid dels bolets.', 'Incorpora la crema a foc baix, sense deixar-la bullir.', 'Condimenta amb pebre, farigola, julivert i una mica de caiena. Si vols, acaba amb unes gotes de llimona i serveix amb un ou cuit al teu gust per ració.'],
+        nutritionNote: 'Valors aproximats aportats per l’usuari, no verificats ni recalculats: 325–375 kcal i 16–18 g de proteïnes per ració. Amb un ou: 395–455 kcal i 22–25 g de proteïnes. Poden variar segons el producte i les quantitats.',
+        balanceNote: 'Combina nyoquis, bolets i lactis. Pots acompanyar-ho amb més verdura si et ve de gust; no s’han calculat necessitats nutricionals personals.',
+        variations: ['Llimona, altres verdures i ou són opcionals. No entren a la compra automàtica ni són necessaris per coincidir amb la nevera; afegeix-los a la compra si els vols.', 'Modera la caiena i evita que la salsa de cottage bulli. L’ou opcional augmenta l’aportació de proteïna.'],
+        batchNote: 'Pots deixar la ceba i els bolets cuinats. Acaba els nyoquis i la salsa a foc baix quan els hagis de menjar.',
+        adaptationNote: 'Recepta pròpia de l’usuari, elaborada amb ChatGPT. Quantitats i estimacions transcrites de la seva proposta; pendent de prova casolana.'
+    }),
+    seasonalRecipe({
+        id: 303, title: 'Crema densa al curri amb pollastre', collection: 'mine', emoji: '🥣', photoPending: true,
+        description: 'Crema espessa de patata, ceba i pastanaga, amb pollastre esmicolat i un ou escalfat per persona. Dues racions grans.',
+        totalMinutes: 30, activeMinutes: 10, equipment: ['Olla', 'Batedora', 'Cassó'], sourceChecked: null,
+        tags: ['Pollastre', 'Crema', 'Racions grans'], sourceIds: ['maydenCream'],
+        ingredients: [['Pit de pollastre', '1 unitat sencera'], ['Patata', '500 g'], ['Ceba', '350 g'], ['Pastanaga', '2 unitats'], ['Ous', '2 unitats'], ['Aigua', 'Fins cobrir'], ['Curri o cúrcuma', 'Al gust'], ['Nou moscada', 'Al gust'], ['Pebre negre', 'Al gust'], ['Sal', 'Al gust']],
+        steps: ['Pela i talla les verdures a trossos petits.', 'Posa-les en una olla amb el pit de pollastre.', 'Cobreix amb aigua, condimenta i cou uns 20 minuts, fins que les verdures siguin tendres i el pollastre estigui ben cuit també al centre; allarga la cocció si cal.', 'Retira el pollastre i tritura les verdures amb part del brou fins a obtenir una crema espessa. Reserva la resta de brou per ajustar la textura.', 'Esmicola el pollastre i incorpora’l a la crema.', 'Prepara els ous escalfats en un cassó i serveix-ne un per ració.'],
+        nutritionNote: 'Valors per ració segons la font original indicada per l’usuari, no verificats: 501 kcal, 45 g de proteïnes, 66 g d’hidrats, 7 g de greixos i 10 g de fibra. No s’han recalculat i el pes del pit no està especificat.',
+        balanceNote: 'Patata i verdures amb pollastre i ou. La fitxa correspon a dues racions grans; les quantitats es poden ajustar en passar-les a la compra.',
+        variations: ['Ajusta l’aigua per aconseguir una textura densa.', 'Pots substituir l’aigua per brou casolà; afegeix-lo manualment a la compra si en necessites.'],
+        batchNote: 'Prepara la crema amb el pollastre i guarda-la en racions. Fes l’ou al moment de servir.',
+        adaptationNote: 'Font indicada per l’usuari: MaydenFit. Preparació i valors nutricionals transcrits de la seva proposta; el vídeo no s’ha pogut verificar en aquesta sessió.'
     })
 ];

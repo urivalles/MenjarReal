@@ -414,7 +414,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }).join('')}
                 </ul>
             </div>
-            
+            ${recipe.optionalIngredients ? `<div class="modal-section"><h4>Ingredients opcionals</h4><ul class="detail-list">${recipe.optionalIngredients.map(ingredient => `<li>${escapeHtml(ingredientLabel(ingredient))}</li>`).join('')}</ul><p class="planner-help">No s’afegeixen automàticament a la compra ni es necessiten per a la coincidència amb la nevera.</p></div>` : ''}
+            ${recipe.nutritionNote ? `<div class="modal-section detail-note"><h4>Nutrició orientativa · sense verificar</h4><p>${escapeHtml(recipe.nutritionNote)}</p></div>` : ''}
             <div class="modal-section">
                 <h4>Preparació</h4>
                 <p class="modal-instructions">${escapeHtml(recipe.instructions)}</p>
@@ -424,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.batchNote ? `<div class="modal-section"><h4>Per avançar feina</h4><p>${escapeHtml(recipe.batchNote)}</p></div>` : ''}
             ${recipe.adaptationNote ? `<div class="modal-section detail-source"><h4>Origen i adaptació</h4><p>${escapeHtml(recipe.adaptationNote)}</p>
                 <ul class="detail-list">${(recipe.sourceIds || []).map(id => recipeSources[id]).filter(Boolean).map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul>
-                <p>Preparació adaptada, pendent de prova casolana. No s’han calculat calories ni nutrients d’aquesta versió.</p></div>` : ''}
+                <p>Preparació adaptada, pendent de prova casolana. ${recipe.nutritionNote ? 'Les xifres nutricionals indicades no s’han verificat ni recalculat.' : 'No s’han calculat calories ni nutrients d’aquesta versió.'}</p></div>` : ''}
             ${recipe.collection !== 'legacy' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}
@@ -685,8 +686,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateShopping(goToList = false) {
         const required = shoppingListEngine.requirements(weeklyPlanner);
+        const writtenMeals = weeklyPlannerEngine.days.flatMap(day => weeklyPlannerEngine.meals.map(meal => weeklyPlanner.days[day][meal])).filter(slot => slot?.kind === 'note');
+        const writtenWarning = writtenMeals.length ? ` Hi ha ${writtenMeals.length} plats escrits sense recepta vinculada: els seus ingredients no s’han inclòs. Afegeix-los manualment.` : '';
         if (!required.mealCount) {
-            const message = 'Afegeix primer receptes al menú. Els àpats fora de casa i les restes no generen ingredients.';
+            const message = 'Afegeix primer receptes al menú. Els àpats fora de casa i les restes no generen ingredients.' + writtenWarning;
             shoppingStatus.textContent = message;
             if (goToList) plannerFeedback(message, true);
             return;
@@ -700,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const next = shoppingListEngine.merge(shoppingList, required);
             const reviews = next.items.filter(item => item.needsReview).length;
-            const message = `Ingredients actualitzats a partir de ${required.mealCount} àpats per a ${weeklyPlanner.settings.people} ${weeklyPlanner.settings.people === 1 ? 'persona' : 'persones'}. S’han conservat els canvis manuals.${reviews ? ` Revisa ${reviews} quantitats editades: el menú ha canviat.` : ''}${required.unscaled.length ? ' Algunes receptes antigues no indiquen racions: n’hem comptat les quantitats de base per cada ús, sense ajustar-les a persones. Revisa-les a les receptes d’origen.' : ''}`;
+            const message = `Ingredients actualitzats a partir de ${required.mealCount} àpats per a ${weeklyPlanner.settings.people} ${weeklyPlanner.settings.people === 1 ? 'persona' : 'persones'}. S’han conservat els canvis manuals.${reviews ? ` Revisa ${reviews} quantitats editades: el menú ha canviat.` : ''}${required.unscaled.length ? ' Algunes receptes antigues no indiquen racions: n’hem comptat les quantitats de base per cada ús, sense ajustar-les a persones. Revisa-les a les receptes d’origen.' : ''}${writtenWarning}`;
             if (commitShopping(next, message, true) && goToList) {
                 Array.from(navLinks).find(link => link.getAttribute('data-target') === 'shopping-view')?.click();
             } else if (goToList) plannerFeedback(shoppingStatus.textContent, true);
@@ -747,7 +750,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderShopping() {
         const bought = shoppingList.items.filter(item => item.checked).length;
-        shoppingSummary.textContent = `${shoppingList.items.length - bought} pendents · ${bought} comprats`;
+        const writtenCount = weeklyPlannerEngine.days.flatMap(day => weeklyPlannerEngine.meals.map(meal => weeklyPlanner.days[day][meal])).filter(slot => slot?.kind === 'note').length;
+        shoppingSummary.textContent = `${shoppingList.items.length - bought} pendents · ${bought} comprats${writtenCount ? ` · ${writtenCount} plats escrits al menú: cal afegir-ne els ingredients manualment` : ''}`;
         shoppingClearBought.disabled = !bought;
         shoppingClearAll.disabled = !shoppingList.items.length && !shoppingList.dismissed.length;
         shoppingUndoBtn.hidden = !shoppingUndo;
@@ -1006,13 +1010,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateMealChoices(preselected = null) {
         const current = weeklyPlanner.days[mealDay.value]?.[mealType.value];
         const own = weeklyPlannerEngine.ownRecipes(adoptedRecipes);
-        mealChoice.innerHTML = `<option value="empty">Sense assignar</option><option value="leftovers">Aprofito restes</option><option value="out">Menjo fora</option>` +
+        mealChoice.innerHTML = `<option value="empty">Sense assignar</option><option value="leftovers">Aprofito restes</option><option value="out">Menjo fora</option><option value="note">Plat escrit · sense recepta</option>` +
             own.map(recipe => `<option value="${recipe.id}">${escapeHtml(recipe.title)} · ${escapeHtml(recipe.time)}</option>`).join('') +
             (current?.kind === 'recipe' && !own.some(recipe => recipe.id === current.id) ?
                 `<option value="${current.id}">${escapeHtml(current.title)} · Àpat ja desat</option>` : '');
         mealChoice.value = preselected != null ? String(preselected) : current?.kind === 'recipe' ? String(current.id) : current?.kind || 'empty';
-        mealNote.value = current?.kind === 'out' || current?.kind === 'leftovers' ? current.title : '';
-        mealNote.disabled = !['leftovers', 'out'].includes(mealChoice.value);
+        mealNote.value = ['out', 'leftovers', 'note'].includes(current?.kind) ? current.title : '';
+        mealNote.disabled = !['leftovers', 'out', 'note'].includes(mealChoice.value);
     }
 
     function closeMealPicker() {
@@ -1022,7 +1026,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mealDay.addEventListener('change', () => updateMealChoices());
     mealType.addEventListener('change', () => updateMealChoices());
-    mealChoice.addEventListener('change', () => { mealNote.disabled = !['leftovers', 'out'].includes(mealChoice.value); });
+    mealChoice.addEventListener('change', () => { mealNote.disabled = !['leftovers', 'out', 'note'].includes(mealChoice.value); });
     closeMealBtn.addEventListener('click', closeMealPicker);
     mealForm.addEventListener('submit', event => {
         event.preventDefault();
@@ -1032,7 +1036,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
         const choice = mealChoice.value;
         if (choice === 'empty') next.days[day][meal] = null;
-        else if (choice === 'out' || choice === 'leftovers') {
+        else if (['out', 'leftovers', 'note'].includes(choice)) {
+            if (choice === 'note' && !mealNote.value.trim()) { mealFeedback.textContent = 'Escriu el nom del plat al camp de nota.'; return; }
             next.days[day][meal] = { kind: choice, title: mealNote.value.trim(), locked: true };
         } else {
             const id = Number(choice);
@@ -1107,11 +1112,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const slot = weeklyPlanner.days[dayKey][meal];
                 const recipe = slot?.kind === 'recipe' ? recipes.find(item => item.id === slot.id) : null;
                 const label = `${dayName(dayKey)} ${mealNames[meal].toLowerCase()}`;
-                const title = slot?.kind === 'recipe' ? recipe?.title || slot.title : slot?.kind === 'out' ? 'Menjo fora' : slot?.kind === 'leftovers' ? 'Aprofito restes' : 'Sense assignar';
+                const title = slot?.kind === 'recipe' ? recipe?.title || slot.title : slot?.kind === 'note' ? slot.title : slot?.kind === 'out' ? 'Menjo fora' : slot?.kind === 'leftovers' ? 'Aprofito restes' : 'Sense assignar';
                 return `<section class="planner-meal${slot?.locked ? ' is-locked' : ''}">
                     <div class="planner-meal-heading"><h4>${mealNames[meal]}</h4>${slot ? `<button type="button" class="planner-lock" data-day="${dayKey}" data-meal="${meal}" aria-pressed="${slot.locked}" aria-label="${slot.locked ? 'Desfixa' : 'Fixa'} ${label}">${slot.locked ? 'Fixat ✓' : 'Fixa'}</button>` : ''}</div>
                     ${recipe ? `<button type="button" class="planner-view-recipe" data-id="${recipe.id}">${escapeHtml(title)}</button>` : `<p class="planner-meal-title">${escapeHtml(title)}</p>`}
-                    ${recipe ? `<p class="planner-meal-meta">${escapeHtml(recipe.time)} · ${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}${slot.batchKey ? ' · Bloc batch cooking' : ''}</p>` : slot?.title ? `<p class="planner-meal-meta">${escapeHtml(slot.title)}</p>` : ''}
+                    ${recipe ? `<p class="planner-meal-meta">${escapeHtml(recipe.time)} · ${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}${slot.batchKey ? ' · Bloc batch cooking' : ''}</p>` : slot?.kind === 'note' ? '<p class="planner-meal-meta">Plat escrit · ingredients a la compra manualment</p>' : slot?.title ? `<p class="planner-meal-meta">${escapeHtml(slot.title)}</p>` : ''}
                     <div class="planner-meal-actions"><button type="button" class="planner-choose" data-day="${dayKey}" data-meal="${meal}" aria-label="Tria ${label}">${slot ? 'Tria un altre' : 'Tria un àpat'}</button>
                         ${!slot || slot.kind === 'recipe' ? `<button type="button" class="planner-replace" data-day="${dayKey}" data-meal="${meal}" aria-label="Suggereix una alternativa per a ${label}">↻ Canvia</button>` : ''}
                     </div></section>`;
@@ -1153,6 +1158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Init ---
+    menuImportUI.mount({ getState: () => weeklyPlanner, getAdopted: () => adoptedRecipes, getFridge: () => myFridge, commit: commitPlanner });
     filterRecipes();
     renderFridge();
     renderPlanner();

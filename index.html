@@ -201,6 +201,9 @@
                     </div>
                     <div class="planner-preferences-bar">
                         <p id="planner-preferences-summary" role="status"></p>
+                        <button type="button" id="open-menu-import" class="filter-icon-button" aria-label="Importa un menú" title="Importa un menú" aria-haspopup="dialog">
+                            <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h4l2-3h4l2 3h4v15H4z"/><circle cx="12" cy="13" r="4"/></svg>
+                        </button>
                         <button type="button" id="toggle-planner-filters" class="filter-icon-button" aria-label="Preferències del menú" title="Preferències del menú" aria-controls="planner-settings-panel" aria-expanded="false">
                             <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>
                         </button>
@@ -403,6 +406,31 @@
         </main>
     </div>
 
+    <dialog id="menu-import-dialog" class="menu-import-dialog" aria-labelledby="menu-import-title" aria-describedby="menu-import-local">
+        <button type="button" id="close-menu-import" class="close-btn" aria-label="Tanca la importació">&times;</button>
+        <h2 id="menu-import-title" class="modal-title">Importa un menú</h2>
+        <p id="menu-import-local" class="planner-help">Es revisa i es desa només en aquest navegador. No s’envia res ni hi ha costos d’IA.</p>
+        <p class="menu-photo-pending">📷 La lectura de fotografies encara està pendent. De moment, escriu o enganxa el menú.</p>
+        <form id="menu-import-form">
+            <label for="menu-import-text">El teu menú en text</label>
+            <textarea id="menu-import-text" rows="5" maxlength="12000" placeholder="Dilluns&#10;Dinar: Nyoquis cremosos amb bolets i cottage&#10;Sopar: Amanida amb ou&#10;Dimarts | Llenties | Peix al forn" aria-describedby="menu-import-format"></textarea>
+            <p id="menu-import-format" class="planner-help">Indica el dia i «Dinar:» o «Sopar:». També pots enganxar una taula: Dia | Dinar | Sopar. Si ho prefereixes, deixa el text buit i omple els camps següents.</p>
+            <button type="submit" class="btn-primary">Previsualitza i edita</button>
+        </form>
+        <section id="menu-import-preview" hidden aria-labelledby="menu-import-preview-title">
+            <h3 id="menu-import-preview-title" tabindex="-1">Revisa la setmana</h3>
+            <p class="planner-help">Els camps buits conserven el menú actual. Per canviar un àpat ocupat, escriu el nou plat i marca «Substitueix aquest àpat». Els plats es desaran fixats.</p>
+            <details id="menu-import-warnings-box" hidden open><summary>Text que cal revisar</summary><ul id="menu-import-warnings"></ul></details>
+            <div id="menu-import-rows"></div>
+            <button type="button" id="menu-import-suggest" class="btn-outline">Suggereix plats per als buits</button>
+            <p class="planner-help">Receptes de «Les meves», segons les preferències del Menú. Prioritzem varietat de verdures, llegums, proteïnes i altres grups identificables. Respectem el batch cooking; no calculem nutrients ni garantim un equilibri nutricional personalitzat.</p>
+            <p id="menu-import-summary" role="status" class="planner-help"></p>
+            <button type="button" id="menu-import-save" class="btn-primary" disabled>Confirma i incorpora al menú</button>
+        </section>
+        <p id="menu-import-status" class="planner-feedback" role="status" aria-live="polite"></p>
+        <button type="button" id="menu-import-cancel" class="btn-outline menu-import-cancel">Cancel·la</button>
+    </dialog>
+
     <!-- Recipe Modal -->
     <div class="modal" id="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipe-detail-title">
         <div class="modal-content">
@@ -557,6 +585,8 @@
     <script src="seasonal-recipes.js"></script>
     <script src="recipe-catalog.js"></script>
     <script src="weekly-planner.js"></script>
+    <script src="menu-import.js"></script>
+    <script src="menu-import-ui.js"></script>
     <script src="shopping-list.js"></script>
     <script src="app-data.js"></script>
     <script src="app.js"></script>

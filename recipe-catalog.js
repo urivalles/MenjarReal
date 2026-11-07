@@ -76,7 +76,7 @@ const recipeCatalog = (() => {
         return (basics.includes('water') && /^aigua(?:\s|$)/.test(name)) ||
             (basics.includes('salt') && /^sal(?: marina| fina| gruixuda)?$/.test(name)) ||
             (basics.includes('oil') && /^oli(?: d oliva| verge|$)/.test(name)) ||
-            (basics.includes('spices') && /^(pebre(?: vermell)?|curry|garam masala|cumi|curcuma|farigola|orenga|romani|canyella|paprika|all en pols|gingebre en pols)(?:\s|$)/.test(name));
+            (basics.includes('spices') && /^(pebre(?: vermell)?|curri|curry|garam masala|cumi|curcuma|farigola|orenga|romani|canyella|paprika|nou moscada|caiena|all en pols|gingebre en pols)(?:\s|$)/.test(name));
     }
     function fridgeMatch(recipe, fridge, settings = fridgeDefaults()) {
         const { mode, basics } = fridgeSettings(settings);

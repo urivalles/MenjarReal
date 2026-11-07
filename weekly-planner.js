@@ -24,6 +24,9 @@ const weeklyPlannerEngine = (() => {
 
     function cleanSlot(value, legacy = false) {
         if (!value || typeof value !== 'object') return null;
+        if (value.kind === 'note' && typeof value.title === 'string' && value.title.trim()) {
+            return { kind: 'note', title: value.title.trim().slice(0, 160), locked: value.locked !== false };
+        }
         if (value.kind === 'out' || value.kind === 'leftovers') {
             return { kind: value.kind, title: typeof value.title === 'string' ? value.title.slice(0, 160) : '', locked: value.locked !== false };
         }
@@ -68,7 +71,7 @@ const weeklyPlannerEngine = (() => {
             if (/salmo|lluc|bacalla|peix|tonyina|sardina/.test(name)) return 'fish';
             if (/pollastre|gall dindi|carn/.test(name)) return 'meat';
             if (/cigrons|llenties|mongeta|fesols/.test(name)) return 'legumes';
-            if (/paneer|formatge/.test(name)) return 'dairy';
+            if (/paneer|formatge|cottage|parmesa/.test(name)) return 'dairy';
         }
         return 'other';
     }
