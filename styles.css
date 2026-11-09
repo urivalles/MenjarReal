@@ -412,12 +412,6 @@ h2 {
 }
 
 /* Fridge View */
-.fridge-header {
-    margin-bottom: .65rem;
-}
-.fridge-header h2 { display: flex; gap: .45rem; align-items: center; font-size: 1.2rem; }
-.fridge-header .bx { color: var(--clr-primary-dark); }
-
 .add-ingredient-form {
     display: flex;
     gap: .5rem;
