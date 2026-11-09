@@ -210,6 +210,66 @@ const recipePhotos = {
       "note": "Amanida d’enciam, tomàquet, cogombre i pastanaga. Foto de referència: no mostra la nostra salsa ni tots els ingredients."
     }
   },
+  "305": {
+    "image": "photos/recipe-305.jpg",
+    "photoCredit": {
+      "author": "Juan Emilio Prades Bel",
+      "source": "https://commons.wikimedia.org/wiki/File:Guiso_de_frijoles_negros.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Guisat de fasols negres com a referència. La nostra versió incorpora col i arròs, que no es mostren a la foto."
+    }
+  },
+  "306": {
+    "image": "photos/recipe-306.jpg",
+    "photoCredit": {
+      "author": "jeffreyw",
+      "source": "https://commons.wikimedia.org/wiki/File:Mmm..._pretty_summer_salad_(6005733739).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "note": "Pasta amb bròquil i tomàquet com a referència. La nostra versió incorpora tofu esmicolat i sofregit."
+    }
+  },
+  "307": {
+    "image": "photos/recipe-307.jpg",
+    "photoCredit": {
+      "author": "Javier Leiva from Manlleu, Barcelona",
+      "source": "https://commons.wikimedia.org/wiki/File:Arr%C3%B2s_a_la_cubana_-_Barcelona.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "note": "Arròs amb ou i tomàquet. La nostra versió hi afegeix salsa de llom fresc, ceba i carbassó."
+    }
+  },
+  "308": {
+    "image": "photos/recipe-308.jpg",
+    "photoCredit": {
+      "author": "FBenjr123",
+      "source": "https://commons.wikimedia.org/wiki/File:Eggplant_with_tofu_02.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "note": "Tofu amb albergínia com a referència. La nostra versió té un marinat diferent i s’acompanya d’arròs."
+    }
+  },
+  "309": {
+    "image": "photos/recipe-309.jpg",
+    "photoCredit": {
+      "author": "Tamorlan",
+      "source": "https://commons.wikimedia.org/wiki/File:Tortilla_de_Patatas_(Corte_transversal).jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "note": "Truita de patata de referència. La nostra versió afegeix clares i olives i inclou tomàquet d’acompanyament."
+    }
+  },
+  "310": {
+    "image": "photos/recipe-310.jpg",
+    "photoCredit": {
+      "author": "Korea.net / Korean Culture and Information Service",
+      "source": "https://commons.wikimedia.org/wiki/File:KOCIS_doenjangguk,_Soybean_Paste_Soup_(4556778160).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "note": "Sopa coreana de tofu i patata com a referència. El nostre guisat fa servir un brou i uns condiments diferents."
+    }
+  },
   "401": {
     "image": "photos/recipe-401.jpg",
     "photoCredit": {
@@ -259,13 +319,92 @@ function seasonalRecipe(data) {
         difficulty: 'Fàcil', servings: 2, seasons: ['Tardor', 'Hivern'],
         mealTypes: ['Dinar', 'Sopar'], sourceChecked: '2026-11-02',
         ...data,
-        time: `${data.totalMinutes} min`,
+        time: data.time || `${data.totalMinutes} min`,
         ingredients: data.ingredients.map(([item, qty]) => ({ item, qty })),
         instructions: data.steps.map((step, index) => `${index + 1}. ${step}`).join('\n')
     };
 }
 
 const seasonalRecipes = [
+    seasonalRecipe({
+        id: 305, title: 'Fasols negres amb verdures i arròs', collection: 'mine', emoji: '🫘',
+        description: 'Guisat de fasols negres ja cuits amb col, tomàquet i una ració d’arròs. Dues racions de plat únic.',
+        time: '30–35 min', totalMinutes: 35, activeMinutes: 20, sourceChecked: null,
+        equipment: ['Olla', 'Cassó'], tags: ['Llegums', 'Plat únic', 'Fesols negres'], sourceIds: [],
+        ingredients: [['Fasols negres cuits', '500 g escorreguts'], ['Arròs', '60 g en cru'], ['Ceba', '150 g'], ['Col', '250 g'], ['Tomàquet triturat', '200 g'], ['All', '2 grans'], ['Oli d’oliva', '10 g'], ['Llorer', 'Al gust'], ['Pebre vermell', 'Al gust'], ['Aigua o brou', 'Fins a la textura desitjada']],
+        steps: ['Estova la ceba i l’all amb l’oli durant 8–10 minuts; afegeix-hi un raig d’aigua si s’enganxa. Incorpora la col tallada fina i cou-la 5 minuts.', 'Afegeix el pebre vermell i, de seguida, el tomàquet. Cou-ho 8 minuts. Incorpora els fasols, el llorer i una mica d’aigua o brou; fes xup-xup 10 minuts.', 'Bull l’arròs a part i reparteix-lo amb els fasols. Per espessir el guisat, aixafa unes cullerades de llegum i torna-les a l’olla.'],
+        nutritionNote: 'Estimació del document aportat, no verificada ni recalculada: aproximadament 500–570 kcal i 23–28 g de proteïnes per ració, amb l’arròs i l’oli indicats. Pot variar segons els productes.',
+        balanceNote: 'Plat únic amb llegum, verdures i arròs. La versió habitual és sense xoriço.',
+        variations: ['Si parteixes de fasols secs, remulla’ls i cou-los primer segons l’envàs. Els 30–35 minuts de la fitxa són amb llegum ja cuit.', 'Pots ajustar la textura amb aigua o brou, sense haver d’afegir més oli.'],
+        batchNote: 'Pots avançar el guisat de fasols i preparar l’arròs a part. Reparteix-ho en racions i conserva-ho refrigerat.',
+        adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
+    }),
+    seasonalRecipe({
+        id: 306, title: 'Macarrons amb bròquil i tofu', collection: 'mine', emoji: '🍝',
+        description: 'Macarrons amb tofu esmicolat, bròquil i sofregit de tomàquet, amb llet desnatada i una mica de Grana Padano.',
+        time: '25–30 min', totalMinutes: 30, activeMinutes: 20, sourceChecked: null,
+        equipment: ['Olla', 'Paella ampla'], tags: ['Tofu', 'Pasta', 'Plat únic'], sourceIds: [],
+        ingredients: [['Macarrons integrals', '120 g en cru'], ['Tofu ferm', '300 g'], ['Bròquil', '300 g'], ['Tomàquet triturat', '250 g'], ['Ceba', '100 g'], ['Llet desnatada', '100 ml'], ['Grana Padano', '15 g'], ['Oli d’oliva', '10 g'], ['Salsa de soja', '10 ml'], ['Vinagre', '1 culleradeta'], ['All', 'Al gust'], ['Pebre vermell', 'Al gust']],
+        steps: ['Esmicola el tofu i barreja’l amb la soja, el vinagre i el pebre vermell mentre prepares la resta.', 'Estova la ceba i l’all amb la meitat de l’oli. Afegeix el tomàquet i cou-lo 10 minuts. Mentrestant, bull la pasta i incorpora el bròquil els últims minuts, fins que sigui tendre.', 'En una paella ampla, daura el tofu amb la resta de l’oli. Incorpora el sofregit, la llet, la pasta i el bròquil. Remena i acaba amb el Grana Padano.'],
+        nutritionNote: 'Estimació del document aportat, no verificada ni recalculada: aproximadament 530–620 kcal i 31–39 g de proteïnes per ració, segons el tofu i la resta de productes. Inclou l’oli indicat.',
+        balanceNote: 'Plat únic amb pasta, verdura i tofu. La pasta es pesa en cru; els 15 g de formatge són per a les dues racions.',
+        variations: ['Reserva aigua de la pasta per ajustar la salsa sense afegir més oli.', 'Pots fer servir macarrons no integrals si és el que tens; els temps de cocció i els valors nutricionals poden variar.'],
+        batchNote: 'Pots avançar el sofregit i deixar el tofu marinat a la nevera. Cuina pasta i bròquil quan muntis el plat.',
+        adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
+    }),
+    seasonalRecipe({
+        id: 307, title: 'Arròs a la cubana amb llom fresc picat', collection: 'mine', emoji: '🍚',
+        description: 'Arròs amb una salsa de llom fresc, ceba, carbassó i tomàquet, amb un ou per persona.',
+        totalMinutes: 30, activeMinutes: 20, sourceChecked: null,
+        equipment: ['Cassó', 'Paella'], tags: ['Carn magra', 'Amb ou', 'Plat únic'], sourceIds: [],
+        ingredients: [['Arròs', '120 g en cru'], ['Llom de porc fresc picat', '250 g'], ['Ous', '2 unitats'], ['Tomàquet triturat', '300 g'], ['Ceba', '150 g'], ['Carbassó', '250 g'], ['Oli d’oliva', '10 g'], ['All', 'Al gust'], ['Pebre', 'Al gust']],
+        steps: ['Bull l’arròs segons l’envàs. Pica la ceba i el carbassó ben petits.', 'Estova les verdures amb la meitat de l’oli durant 8–10 minuts. Afegeix l’all i el llom, desfés-lo amb l’espàtula i cuina’l completament. Incorpora el tomàquet i cou-ho 10 minuts més.', 'Prepara els ous en una paella antiadherent amb la resta de l’oli, o fes-los escalfats. Serveix una ració d’arròs amb la salsa de carn i un ou.'],
+        nutritionNote: 'Estimació del document aportat, no verificada ni recalculada: aproximadament 540–610 kcal i 36–42 g de proteïnes per ració, amb l’ou i l’oli indicats. Pot variar segons els productes.',
+        balanceNote: 'Plat únic. La ceba i el carbassó amplien la salsa; són l’ajust vegetal d’aquesta versió.',
+        variations: ['Utilitza llom fresc, no llom curat.', 'Els ous poden ser a la paella o escalfats; no afegeixis més oli al que ja compta la recepta si vols mantenir les quantitats indicades.'],
+        batchNote: 'Pots avançar la salsa de carn i verdures. Guarda-la refrigerada i prepara l’ou al moment de servir.',
+        adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
+    }),
+    seasonalRecipe({
+        id: 308, title: 'Tofu marinat amb albergínia i arròs', collection: 'mine', emoji: '🍆',
+        description: 'Tofu daurat amb albergínia tendra, arròs i salsa de soja i llima. El marinat previ de 15 minuts és opcional.',
+        time: '30 min · +15 min de marinat opcional', totalMinutes: 30, activeMinutes: 20, sourceChecked: null,
+        seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], equipment: ['Paella', 'Microones', 'Cassó'], tags: ['Tofu', 'Plat únic'], sourceIds: [],
+        ingredients: [['Tofu ferm', '350 g'], ['Albergínia', '500–600 g'], ['Arròs', '100 g en cru'], ['Midó de blat de moro', '10 g'], ['Oli d’oliva', '10 g'], ['Salsa de soja', '15 ml'], ['Llima', '1/2 unitat'], ['All', '1 gra'], ['Gingebre', 'Al gust'], ['Pebre vermell', 'Al gust']],
+        steps: ['Eixuga el tofu abans de marinar-lo i talla’l a daus. Barreja la soja, la llima, l’all, el gingebre i el pebre vermell; incorpora-hi el tofu. Si tens temps, deixa’l 15 minuts.', 'Bull l’arròs. Talla l’albergínia, posa-la en un recipient apte amb tapa entreoberta i cuina-la al microones en tandes de 5 minuts fins que sigui tendra.', 'Escorre el tofu, reservant el líquid, i arrebossa’l lleugerament amb la maizena just abans de coure’l. Daura’l amb l’oli a foc mitjà-alt, sense atapeir la paella. Afegeix l’albergínia i el marinat reservat amb un raig d’aigua; fes-lo bullir breument i serveix amb l’arròs.'],
+        nutritionNote: 'Estimació del document aportat, no verificada ni recalculada: aproximadament 490–610 kcal i 27–36 g de proteïnes per ració, segons el tofu. Inclou l’arròs i l’oli indicats.',
+        balanceNote: 'Plat únic amb tofu, albergínia i arròs. La maizena correspon a midó de blat de moro.',
+        variations: ['Retira els trossets d’all que es torrin massa.', 'Si vols preservar la crosta del tofu, serveix la salsa al costat.', 'Els 15 minuts de marinat són opcionals i s’afegeixen als 30 minuts orientatius de preparació.'],
+        batchNote: 'Pots deixar el tofu marinat a la nevera i preparar l’albergínia abans. Daura el tofu al moment si vols conservar-ne la crosta.',
+        adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
+    }),
+    seasonalRecipe({
+        id: 309, title: 'Truita de patata lleugera amb clares', collection: 'mine', emoji: '🍳',
+        description: 'Truita de patata i ceba amb ous, clares pasteuritzades i olives. L’acompanyament de tomàquet està inclòs.',
+        time: '30–35 min', totalMinutes: 35, activeMinutes: 20, sourceChecked: null,
+        equipment: ['Paella antiadherent amb tapa', 'Bol', 'Plat per girar'], tags: ['Amb ou', 'Plat complet'], sourceIds: [],
+        ingredients: [['Patata', '400 g'], ['Ous', '4 unitats'], ['Clares pasteuritzades', '200 g'], ['Ceba', '150 g'], ['Oli d’oliva', '10 g'], ['Olives', '30 g'], ['Pebre', 'Al gust'], ['Tomàquet', '300 g'], ['Vinagre o suc de llimona', 'Al gust']],
+        optionalIngredients: [{ item: 'Tonyina', qty: 'Al gust · opció d’aprofitament' }],
+        steps: ['Talla la patata fina i la ceba a tires. Cou-les en una paella antiadherent amb l’oli i unes cullerades d’aigua, tapades i a foc mitjà-baix, durant 15–20 minuts. Remena i afegeix aigua a poc a poc si cal.', 'Quan la patata sigui tendra, destapa perquè s’evapori l’excés d’aigua. Bat els ous amb les clares, afegeix-hi les olives picades i barreja-ho amb la patata.', 'Qualla la truita per les dues cares, fins que el centre sigui cuit al teu gust i sense ou líquid. Serveix-ne la meitat amb el tomàquet amanit amb vinagre o llimona.'],
+        nutritionNote: 'Estimació del document aportat, no verificada ni recalculada: aproximadament 450–510 kcal i 28–32 g de proteïnes per ració, amb el tomàquet i l’oli indicats. La tonyina opcional queda fora del càlcul.',
+        balanceNote: 'Plat complet amb l’acompanyament de tomàquet indicat. Les olives hi aporten el punt de sabor de la teva versió.',
+        variations: ['La tonyina de la versió d’aprofitament és opcional: no s’inclou a la compra bàsica ni a les estimacions nutricionals.', 'Afegeix aigua a poc a poc en coure la patata per evitar que s’enganxi, sense haver d’augmentar l’oli.'],
+        batchNote: 'Pots avançar la patata i la ceba. Barreja-hi ous i clares i qualla la truita quan l’hagis de servir.',
+        adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
+    }),
+    seasonalRecipe({
+        id: 310, title: 'Guisat de tofu amb patata i verdures', collection: 'mine', emoji: '🥣',
+        description: 'Tofu i patata en un guisat de brou lleuger amb verdures fresques o congelades, gingebre i pebre vermell.',
+        time: '35–40 min', totalMinutes: 40, activeMinutes: 15, sourceChecked: null,
+        equipment: ['Olla'], tags: ['Tofu', 'Una olla', 'Plat únic'], sourceIds: [],
+        ingredients: [['Tofu ferm', '350 g'], ['Patata', '400 g'], ['Ceba', '150 g'], ['Verdures variades', '300 g, fresques o congelades'], ['Brou desgreixat', '600–800 ml'], ['All', '2 grans'], ['Oli d’oliva', '10 g'], ['Salsa de soja', '10 ml'], ['Gingebre', 'Al gust'], ['Pebre vermell', 'Al gust']],
+        steps: ['Talla el tofu a daus i la patata a trossos petits. Estova la ceba amb l’oli durant 8 minuts; afegeix-hi l’all i el gingebre i remena un minut.', 'Incorpora el pebre vermell i, tot seguit, el brou. Afegeix la patata i cou-la 12–15 minuts a foc suau.', 'Afegeix les verdures i el tofu. Continua la cocció 8–10 minuts, o fins que la patata i les verdures siguin tendres. Si les verdures necessiten més temps, incorpora-les abans.', 'Acaba amb la soja, tasta abans de salar i aixafa uns trossos de patata dins del brou per espessir-lo.'],
+        nutritionNote: 'Estimació del document aportat, no verificada ni recalculada: aproximadament 440–560 kcal i 26–35 g de proteïnes per ració, amb brou lleuger i segons el tofu. Inclou l’oli indicat; un altre tipus de brou pot canviar aquests valors.',
+        balanceNote: 'Plat únic de tofu, patata i verdures. El brou desgreixat ajuda a ajustar-ne la textura.',
+        variations: ['Pots utilitzar brou de verdures o el brou de peus de porc de la recepta original, ben desgreixat. Aquest últim pot modificar el resum nutricional.', 'Avança o retarda les verdures segons el temps que necessitin per coure’s.'],
+        batchNote: 'Prepara el guisat en una olla i reparteix-lo en racions per a diferents àpats; conserva-les refrigerades.',
+        adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
+    }),
     seasonalRecipe({
         id: 304, title: 'Amanida verda amb salsa de iogurt i mostassa', collection: 'mine', emoji: '🥗',
         description: 'Enciam, ruca, verdura fresca, poma i olives amb una salsa cremosa. Base per a dues racions, amb opcions de proteïna.',

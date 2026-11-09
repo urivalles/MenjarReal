@@ -69,8 +69,8 @@ const weeklyPlannerEngine = (() => {
             if (/seitan/.test(name)) return 'seitan';
             if (/ous?\b/.test(name)) return 'egg';
             if (/salmo|lluc|bacalla|peix|tonyina|sardina/.test(name)) return 'fish';
-            if (/pollastre|gall dindi|carn/.test(name)) return 'meat';
-            if (/cigrons|llenties|mongeta|fesols/.test(name)) return 'legumes';
+            if (/pollastre|gall dindi|carn|llom|porc/.test(name)) return 'meat';
+            if (/cigrons|llenties|mongeta|fesols|fasols/.test(name)) return 'legumes';
             if (/paneer|formatge|cottage|parmesa/.test(name)) return 'dairy';
         }
         return 'other';

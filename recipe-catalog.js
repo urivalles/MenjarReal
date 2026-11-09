@@ -51,7 +51,7 @@ const recipeCatalog = (() => {
     const ingredientName = ingredient => typeof ingredient === 'string' ? ingredient : ingredient.item;
 
     function matchesIngredient(ingredient, food) {
-        const singular = { ous: 'ou', tomaquets: 'tomaquet', patates: 'patata', pastanagues: 'pastanaga',
+        const singular = { fasols: 'fesol', fasol: 'fesol', fesols: 'fesol', ous: 'ou', tomaquets: 'tomaquet', patates: 'patata', pastanagues: 'pastanaga',
             cebes: 'ceba', cigrons: 'cigro', llenties: 'llentia', mongetes: 'mongeta',
             xampinyons: 'xampinyo', bolets: 'bolet', carbassons: 'carbasso',
             pebrots: 'pebrot', espinacs: 'espinac', bledes: 'bleda', pèsols: 'pesol', pesols: 'pesol' };

@@ -32,6 +32,12 @@ const glutenGuide = (() => {
     "302": "[\"Nyoquis\",\"Cottage\",\"Bolets congelats\",\"Ceba\",\"Parmesà\",\"All\",\"Julivert\",\"Pebre negre\",\"Nou moscada\",\"Farigola\",\"Caiena\",\"Oli d’oliva\",\"Sal\",\"Llimona\",\"Ous\"]",
     "303": "[\"Pit de pollastre\",\"Patata\",\"Ceba\",\"Pastanaga\",\"Ous\",\"Aigua\",\"Curri o cúrcuma\",\"Nou moscada\",\"Pebre negre\",\"Sal\"]",
     "304": "[\"Enciam i ruca\",\"Tomàquet\",\"Cogombre\",\"Ceba morada\",\"Poma\",\"Olives negres\",\"Iogurt natural\",\"Mostassa\",\"Suc de llimona o vinagre\",\"Oli d’oliva\",\"Sal\",\"Nous\",\"Pebre\",\"Ous durs\",\"Tonyina\",\"Cigrons cuits\"]",
+    "305": "[\"Fasols negres cuits\",\"Arròs\",\"Ceba\",\"Col\",\"Tomàquet triturat\",\"All\",\"Oli d’oliva\",\"Llorer\",\"Pebre vermell\",\"Aigua o brou\"]",
+    "306": "[\"Macarrons integrals\",\"Tofu ferm\",\"Bròquil\",\"Tomàquet triturat\",\"Ceba\",\"Llet desnatada\",\"Grana Padano\",\"Oli d’oliva\",\"Salsa de soja\",\"Vinagre\",\"All\",\"Pebre vermell\"]",
+    "307": "[\"Arròs\",\"Llom de porc fresc picat\",\"Ous\",\"Tomàquet triturat\",\"Ceba\",\"Carbassó\",\"Oli d’oliva\",\"All\",\"Pebre\"]",
+    "308": "[\"Tofu ferm\",\"Albergínia\",\"Arròs\",\"Midó de blat de moro\",\"Oli d’oliva\",\"Salsa de soja\",\"Llima\",\"All\",\"Gingebre\",\"Pebre vermell\"]",
+    "309": "[\"Patata\",\"Ous\",\"Clares pasteuritzades\",\"Ceba\",\"Oli d’oliva\",\"Olives\",\"Pebre\",\"Tomàquet\",\"Vinagre o suc de llimona\",\"Tonyina\"]",
+    "310": "[\"Tofu ferm\",\"Patata\",\"Ceba\",\"Verdures variades\",\"Brou desgreixat\",\"All\",\"Oli d’oliva\",\"Salsa de soja\",\"Gingebre\",\"Pebre vermell\"]",
     "401": "[\"Poma\",\"Aigua\",\"Canyella\"]",
     "402": "[\"Pera\",\"Aigua\",\"Canyella\"]"
 };
@@ -47,7 +53,10 @@ const glutenGuide = (() => {
         206: 'Acompanya la truita amb 100 g de pa etiquetat «sense gluten», en lloc del pa integral habitual.',
         208: 'Substitueix la salsa de soja per la mateixa quantitat de tamari o soja etiquetats «sense gluten».',
         301: 'Utilitza 140 g de noodles d’arròs etiquetats «sense gluten» i una cullerada de tamari o soja també etiquetats «sense gluten». Revisa la crema de cacauet i la resta de salses; cou els noodles segons el paquet.',
-        302: 'Tria 200 g de nyoquis etiquetats «sense gluten». Si no en trobes, fes servir 200 g de pasta de blat de moro o arròs etiquetada «sense gluten», cou-la a part segons el paquet i barreja-la amb la crema al final. El temps pot variar.'
+        302: 'Tria 200 g de nyoquis etiquetats «sense gluten». Si no en trobes, fes servir 200 g de pasta de blat de moro o arròs etiquetada «sense gluten», cou-la a part segons el paquet i barreja-la amb la crema al final. El temps pot variar.',
+        306: 'Canvia els 120 g de macarrons per pasta etiquetada «sense gluten» i els 10 ml de soja per 10 ml de tamari o soja etiquetats «sense gluten». Revisa el tofu, les espècies i el formatge; cou la pasta segons el paquet.',
+        308: 'Canvia els 15 ml de soja per 15 ml de tamari o soja etiquetats «sense gluten». Revisa el tofu i el midó de blat de moro, així com els condiments.',
+        310: 'Canvia els 10 ml de soja per 10 ml de tamari o soja etiquetats «sense gluten». Revisa també el tofu, el brou i les verdures preparades si les compres congelades.'
     };
     const checks = {
         1: 'Peix senzill sense arrebossat ni salses afegides; revisa els condiments.',
@@ -70,7 +79,10 @@ const glutenGuide = (() => {
         303: 'Revisa el curri o la cúrcuma i la resta d’espècies; si hi poses brou, també cal revisar-lo.',
         304: 'Revisa mostassa, iogurt, olives i, si n’hi poses, tonyina o cigrons. Els opcionals també compten.',
         401: 'Poma i aigua. Si hi afegeixes canyella o altres complements, revisa’n l’etiqueta.',
-        402: 'Pera i aigua. Si hi afegeixes canyella o altres complements, revisa’n l’etiqueta.'
+        402: 'Pera i aigua. Si hi afegeixes canyella o altres complements, revisa’n l’etiqueta.',
+        305: 'Revisa els fasols cuits, el tomàquet, el brou i les espècies. Pots utilitzar aigua en lloc de brou.',
+        307: 'Utilitza llom fresc sense preparats afegits i revisa el tomàquet triturat i els condiments.',
+        309: 'Revisa les clares pasteuritzades, les olives i els condiments. Per amanir, pots fer servir llimona o vinagre amb etiqueta revisada. Comprova també la tonyina si hi afegeixes aquest opcional.'
     };
     const signature = recipe => JSON.stringify([...(recipe.ingredients || []), ...(recipe.optionalIngredients || [])].map(item => typeof item === 'string' ? item : item.item));
     function review(recipe) {

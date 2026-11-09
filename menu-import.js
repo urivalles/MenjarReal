@@ -79,8 +79,8 @@ const menuImportEngine = (() => {
         const definitions = {
             'proteïna:tofu': /\btofu\b/, 'proteïna:seitan': /\bseitan\b/,
             'proteïna:ou': /\bous?\b/, 'proteïna:peix': /\b(salmo|lluc|bacalla|peix|tonyina|sardina)\b/,
-            'proteïna:carn': /\b(pollastre|carn|gall dindi)\b/, 'proteïna:lactis': /\b(cottage|paneer|parmesa|formatge)\b/,
-            llegums: /\b(cigrons?|llenties|mongetes?|fesols?|edamame)\b/,
+            'proteïna:carn': /\b(pollastre|carn|gall dindi|llom|porc)\b/, 'proteïna:lactis': /\b(cottage|paneer|parmesa|formatge)\b/,
+            llegums: /\b(cigrons?|llenties|mongetes?|fesols?|fasols?|edamame)\b/,
             'verdura:fulles': /\b(espinacs|bledes|col|kale)\b/,
             'verdura:crucíferes': /\b(broquil|coliflor)\b/,
             'verdura:bolets': /\b(bolets?|xampinyons?)\b/,
