@@ -395,9 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modalBody.innerHTML = `
             ${coverHtml(recipe, true)}
-            ${recipe.photoCredit ? `<p class="photo-credit">Foto de referència: ${escapeHtml(recipe.photoCredit.note)}<br>
-                <a href="${escapeHtml(recipe.photoCredit.source)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.author)} · Wikimedia Commons</a> ·
-                <a href="${escapeHtml(recipe.photoCredit.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.license)}</a>. Imatge reduïda; retall visual a les targetes.</p>` : ''}
             <span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
             <h2 class="modal-title" id="recipe-detail-title">${escapeHtml(recipe.title)}</h2>
             <p>${escapeHtml(recipe.description)}</p>
@@ -435,6 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}
+            ${recipe.photoCredit ? `<details class="photo-credit"><summary>Crèdits de la foto</summary><p>Foto de referència: ${escapeHtml(recipe.photoCredit.note)}<br>
+                <a href="${escapeHtml(recipe.photoCredit.source)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.author)} · Wikimedia Commons</a> ·
+                <a href="${escapeHtml(recipe.photoCredit.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.license)}</a>. Imatge reduïda; retall visual a les targetes.</p></details>` : ''}
         `;
         bindPhotoFallback(modalBody);
         const planDetail = modalBody.querySelector('.btn-plan-detail');

@@ -64,7 +64,9 @@ html { overscroll-behavior-y: contain; }
 .fridge-recipe h4 { font-size: 1rem; }
 .fridge-recipe p { color: var(--clr-text-muted); font-size: .85rem; margin: .35rem 0 .6rem; }
 .fridge-recipe > div:last-child { min-width: 0; overflow-wrap: anywhere; }
-.photo-credit { color: var(--clr-text-muted); font-size: .75rem; margin: .5rem 0 1rem; }
+.photo-credit { color: var(--clr-text-muted); font-size: .75rem; margin: 1rem 0 0; }
+.photo-credit > summary { cursor: pointer; min-height: 44px; padding: .75rem 0; }
+.photo-credit > p { margin-top: .25rem; }
 .photo-credit a { color: #146a50; }
 
 /* Layout */
