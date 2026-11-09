@@ -7,7 +7,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Palak_Paneer.JPG",
       "license": "CC0",
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
-      "note": "Espinacs especiats amb paneer; la nostra versi? se serveix amb arr?s."
+      "note": "Espinacs especiats amb paneer; la nostra versió se serveix amb arròs."
     }
   },
   "102": {
@@ -17,7 +17,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Egg_soup_restaurant_style.jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "note": "Sopa de verdures amb ou; la nostra versi? tamb? porta cigrons."
+      "note": "Sopa de verdures amb ou; la nostra versió també porta cigrons."
     }
   },
   "103": {
@@ -27,7 +27,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Baked_Tofu_with_Potatoes_and_Broccoli.jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "note": "Tofu al forn amb patata i br?quil."
+      "note": "Tofu al forn amb patata i bròquil."
     }
   },
   "104": {
@@ -37,7 +37,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Seitan-vegetables-Pixabay.jpg",
       "license": "CC0",
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
-      "note": "Seitan amb verdures; la guarnici? pot variar."
+      "note": "Seitan amb verdures; la guarnició pot variar."
     }
   },
   "105": {
@@ -47,7 +47,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Baked_cod_fillet.jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "note": "Filets de peix blanc al forn; la nostra versi? ?s de llu? amb guarnici?."
+      "note": "Filets de peix blanc al forn; la nostra versió és de lluç amb guarnició."
     }
   },
   "106": {
@@ -57,7 +57,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Green_shakshuka_from_Oren%27s_Hummus.jpg",
       "license": "CC0",
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
-      "note": "Ous amb verdures verdes; presentaci? de refer?ncia."
+      "note": "Ous amb verdures verdes; presentació de referència."
     }
   },
   "107": {
@@ -67,7 +67,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Grilled_salmon.jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "note": "Salm? a la planxa amb patates; la nostra guarnici? inclou xampinyons."
+      "note": "Salmó a la planxa amb patates; la nostra guarnició inclou xampinyons."
     }
   },
   "108": {
@@ -77,7 +77,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Marinated_tofu,_broccoli,_potatoes,_onions_(3084642155).jpg",
       "license": "CC BY 2.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-      "note": "Tofu marinat amb br?quil, patata i ceba."
+      "note": "Tofu marinat amb bròquil, patata i ceba."
     }
   },
   "201": {
@@ -87,7 +87,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Tofu_with_spinach_and_mushrooms.JPG",
       "license": "CC BY-SA 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-      "note": "Tofu amb espinacs i bolets; refer?ncia dels ingredients, amb una preparaci? diferent del saag."
+      "note": "Tofu amb espinacs i bolets; referència dels ingredients, amb una preparació diferent del saag."
     }
   },
   "202": {
@@ -107,7 +107,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Spinach-Chickpea_Curry_(3117324894).jpg",
       "license": "CC BY 2.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-      "note": "Cigrons amb espinacs; la nostra versi? tamb? porta xampinyons."
+      "note": "Cigrons amb espinacs; la nostra versió també porta xampinyons."
     }
   },
   "204": {
@@ -127,7 +127,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Baked_Tofu_with_Broccoli_and_Rice.jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "note": "Tofu amb br?quil i arr?s; la nostra versi? afegeix bolets."
+      "note": "Tofu amb bròquil i arròs; la nostra versió afegeix bolets."
     }
   },
   "206": {
@@ -147,7 +147,7 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Baked_Cod_%26_Lentils_(38881075884).jpg",
       "license": "CC BY-SA 2.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-      "note": "Peix blanc al forn amb llenties; la nostra versi? afegeix coliflor i no porta crosta."
+      "note": "Peix blanc al forn amb llenties; la nostra versió afegeix coliflor i no porta crosta."
     }
   },
   "208": {
@@ -157,7 +157,17 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Liat_Portal_for_Foodie_Disorder_-_Grilled_chicken_with_rice_and_vegetables.jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "note": "Pollastre amb arr?s i verdures; la nostra versi? fa servir pit i br?quil."
+      "note": "Pollastre amb arròs i verdures; la nostra versió fa servir pit i bròquil."
+    }
+  },
+  "209": {
+    "image": "photos/recipe-209.jpg",
+    "photoCredit": {
+      "author": "Back ache",
+      "source": "https://commons.wikimedia.org/wiki/File:Chickpea_Omelette_Complete.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "note": "Truita de cigrons de referència; no és la recepta de MaydenFit ni una fotografia del seu vídeo."
     }
   },
   "301": {
@@ -167,7 +177,57 @@ const recipePhotos = {
       "source": "https://commons.wikimedia.org/wiki/File:Peanut_noodles_(4260867491).jpg",
       "license": "CC BY 2.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-      "note": "Noodles amb cacauet; la foto no inclou l?ou ferrat."
+      "note": "Noodles amb cacauet; la foto no inclou l’ou ferrat."
+    }
+  },
+  "302": {
+    "image": "photos/recipe-302.jpg",
+    "photoCredit": {
+      "author": "Katrin Gilger",
+      "source": "https://commons.wikimedia.org/wiki/File:Gnocchi_mit_Rucola_und_Pilzen_(5370762432).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "note": "Nyoquis amb bolets i ruca. La nostra versió fa la salsa amb cottage i no requereix ruca."
+    }
+  },
+  "303": {
+    "image": "photos/recipe-303.jpg",
+    "photoCredit": {
+      "author": "GeoTrinity",
+      "source": "https://commons.wikimedia.org/wiki/File:Selfmade_Mulligatawny_with_Chicken_(Nov._2008).jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "note": "Sopa especiada amb pollastre. La nostra versió és una crema més densa amb patata i ou escalfat."
+    }
+  },
+  "304": {
+    "image": "photos/recipe-304.jpg",
+    "photoCredit": {
+      "author": "Brassluff",
+      "source": "https://commons.wikimedia.org/wiki/File:Salad_combined_together_and_made_on_the_plate.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "note": "Amanida d’enciam, tomàquet, cogombre i pastanaga. Foto de referència: no mostra la nostra salsa ni tots els ingredients."
+    }
+  },
+  "401": {
+    "image": "photos/recipe-401.jpg",
+    "photoCredit": {
+      "author": "Fabrismugnano",
+      "source": "https://commons.wikimedia.org/wiki/File:Mele_cotte.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "note": "Pomes cuites senceres com a referència d’aspecte. La nostra recepta es fa a meitats al microones."
+    }
+  },
+  "402": {
+    "image": "photos/recipe-402.jpg",
+    "photoCredit": {
+      "author": "MarkusHagenlocher",
+      "source": "https://commons.wikimedia.org/wiki/File:Birnenkompott.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "note": "Compota de pera com a referència d’aspecte. La nostra recepta cou les meitats al microones, sense xarop."
     }
   }
 };
@@ -207,7 +267,7 @@ function seasonalRecipe(data) {
 
 const seasonalRecipes = [
     seasonalRecipe({
-        id: 304, title: 'Amanida verda amb salsa de iogurt i mostassa', collection: 'mine', emoji: '🥗', photoPending: true,
+        id: 304, title: 'Amanida verda amb salsa de iogurt i mostassa', collection: 'mine', emoji: '🥗',
         description: 'Enciam, ruca, verdura fresca, poma i olives amb una salsa cremosa. Base per a dues racions, amb opcions de proteïna.',
         seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], totalMinutes: 15, activeMinutes: 15, sourceChecked: null,
         equipment: ['Bol', 'Ganivet'], tags: ['Amanida', 'Recepta personal'], sourceIds: [],
@@ -217,7 +277,7 @@ const seasonalRecipes = [
         balanceNote: 'La base és una amanida de verdura i fruita. Per fer-ne un àpat més complet pots triar una de les opcions de proteïna; no s’inclouen totes automàticament a la compra.',
         variations: ['La compra compta els ingredients de dues racions de base i una tanda sencera de salsa de 125 g de iogurt. L’escala de persones manté aquesta proporció; pot sobrar salsa.', 'Nous, pebre i opcions de proteïna són opcionals: afegeix a la compra només els que vulguis. Si has de bullir els ous, calcula el temps addicional.', 'Pots aprofitar altres fulles verdes o verdures que tinguis a la nevera.'],
         batchNote: 'Prepara la salsa a part i conserva-la refrigerada segons els ingredients utilitzats. Guarda l’amanida sense amanir i talla la poma quan la vagis a servir.',
-        adaptationNote: 'Proposta personal que has compartit des d’un altre xat de ChatGPT. Amanida per a dues racions i recepta original de salsa per a tres amanides, amb el rendiment explicat. Temps orientatiu. La fotografia esmentada no s’ha rebut; no s’ha substituït per una altra foto.'
+        adaptationNote: 'Proposta personal que has compartit des d’un altre xat de ChatGPT. Amanida per a dues racions i recepta original de salsa per a tres amanides, amb el rendiment explicat. Temps orientatiu. S’ha afegit una foto de referència d’internet; no és la fotografia esmentada de l’altre xat, que no s’ha rebut.'
     }),
     seasonalRecipe({
         id: 301, title: 'Noodles amb salsa de cacauet i ou ferrat', collection: 'mine', emoji: '🍜', pantry: true,
@@ -425,7 +485,7 @@ const seasonalRecipes = [
         adaptationNote: 'Inspirada en el saltat de Sara Buenfeld, sense salsa de cacauet i amb una guarnició i racions pròpies.'
     }),
     seasonalRecipe({
-        id: 302, title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', testedByUser: true, emoji: '🍄', photoPending: true,
+        id: 302, title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', testedByUser: true, emoji: '🍄',
         description: 'Nyoquis amb bolets congelats i una crema de cottage i parmesà. Dues racions, en uns 20–25 minuts.',
         totalMinutes: 25, activeMinutes: 20, equipment: ['Paella', 'Batedora'], sourceChecked: null,
         tags: ['Vegetarià', 'Amb formatge'], sourceIds: [],
@@ -439,7 +499,7 @@ const seasonalRecipes = [
         adaptationNote: 'Recepta pròpia, elaborada amb ChatGPT i ja provada per tu. Quantitats i estimacions transcrites de la teva proposta.'
     }),
     seasonalRecipe({
-        id: 303, title: 'Crema densa al curri amb pollastre', collection: 'mine', testedByUser: true, emoji: '🥣', photoPending: true,
+        id: 303, title: 'Crema densa al curri amb pollastre', collection: 'mine', testedByUser: true, emoji: '🥣',
         description: 'Crema espessa de patata, ceba i pastanaga, amb pollastre esmicolat i un ou escalfat per persona. Dues racions grans.',
         totalMinutes: 30, activeMinutes: 10, equipment: ['Olla', 'Batedora', 'Cassó'], sourceChecked: null,
         tags: ['Pollastre', 'Crema', 'Racions grans'], sourceIds: ['maydenCream'],
@@ -452,7 +512,7 @@ const seasonalRecipes = [
         adaptationNote: 'Recepta ja provada per tu i incorporada a «Les meves». Font indicada: MaydenFit, que es conserva a sota. Preparació i xifres transcrites de la teva proposta; els valors nutricionals no s’han verificat.'
     }),
     seasonalRecipe({
-        id: 209, title: 'Truita de cigrons de MaydenFit', collection: 'recommended', testedByUser: false, emoji: '🍳', photoPending: true,
+        id: 209, title: 'Truita de cigrons de MaydenFit', collection: 'recommended', testedByUser: false, emoji: '🍳',
         description: 'Per provar: cigrons cuits, ou i una mica de mozzarella en una truita de paella. Dues racions orientatives.',
         seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], totalMinutes: 15, activeMinutes: 8,
         equipment: ['Bol', 'Forquilla', 'Paella antiadherent', 'Plat per girar'], sourceChecked: '2026-11-07',

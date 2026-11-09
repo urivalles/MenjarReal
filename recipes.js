@@ -190,7 +190,6 @@ const dessertRecipes = [
             "Postres",
             "Microones"
         ],
-        "photoPending": true,
         "ingredients": [
             {
                 "item": "Poma",
@@ -233,7 +232,6 @@ const dessertRecipes = [
             "Postres",
             "Microones"
         ],
-        "photoPending": true,
         "ingredients": [
             {
                 "item": "Pera",
