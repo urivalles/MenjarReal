@@ -84,8 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const ingredientsList = document.getElementById('ingredients-list');
     const fridgeRecipeList = document.getElementById('fridge-recipes');
     const fridgeRecipeSummary = document.getElementById('fridge-recipe-summary');
-    const fridgeMatchMode = document.getElementById('fridge-match-mode');
-    const fridgeMatchHelp = document.getElementById('fridge-match-help');
+    const fridgeMatchModes = ['any', 'available', 'all', 'exact'].map(mode => ({ mode, input: document.getElementById('fridge-match-' + mode) }));
+    const fridgeFilterPanel = document.getElementById('fridge-filter-panel');
+    const toggleFridgeFilters = document.getElementById('toggle-fridge-filters');
+    fridgeFilterPanel.hidden = true;
+    toggleFridgeFilters.addEventListener('click', () => {
+        fridgeFilterPanel.hidden = !fridgeFilterPanel.hidden;
+        toggleFridgeFilters.setAttribute('aria-expanded', String(!fridgeFilterPanel.hidden));
+    });
     const planRecipeModal = document.getElementById('plan-recipe-modal');
     const planRecipeDay = document.getElementById('plan-recipe-day');
     const planRecipeMeal = document.getElementById('plan-recipe-meal');
@@ -835,22 +841,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderFridgeRecipes() {
         fridgeRecipeList.innerHTML = '';
-        fridgeMatchMode.value = fridgePreferences.mode;
-        const explanations = {
-            any: 'La recepta aprofita un o més aliments dels que has anotat. Pot necessitar-ne d’altres.',
-            available: 'Tots els ingredients de la recepta són disponibles. No cal que faci servir tots els aliments de la nevera.',
-            all: 'La recepta fa servir tots els aliments que has anotat, però pot necessitar-ne d’altres.',
-            exact: 'La recepta fa servir tots els aliments anotats i cap altre, excepte els bàsics habituals.'
-        };
-        fridgeMatchHelp.textContent = explanations[fridgePreferences.mode];
+        fridgeMatchModes.forEach(({ mode, input }) => { input.checked = mode === fridgePreferences.mode; });
+        fridgeRecipeSummary.hidden = !myFridge.length;
         if (!myFridge.length) {
-            fridgeRecipeSummary.textContent = 'Afegeix aliments per veure receptes relacionades aquí mateix.';
+            fridgeRecipeSummary.textContent = '';
             return;
         }
         const matches = recipeCatalog.select({ useFridge: true, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences });
         fridgeRecipeSummary.textContent = matches.length
-            ? `${matches.length} receptes · ${fridgeModeNames[fridgePreferences.mode]}. Les que més aliments aprofiten apareixen primer.`
-            : 'No hi ha coincidències amb aquesta tria. Prova «Amb algun ingredient», revisa els bàsics o afegeix més aliments.';
+            ? `${matches.length} receptes`
+            : 'Cap recepta amb aquests filtres.';
         matches.forEach(recipe => {
             const row = document.createElement('article');
             row.className = 'fridge-recipe';
@@ -864,18 +864,20 @@ document.addEventListener('DOMContentLoaded', () => {
         fridgeRecipeList.querySelectorAll('.fridge-open-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id))));
         fridgeRecipeList.querySelectorAll('.fridge-plan-recipe').forEach(button => button.addEventListener('click', () => openRecipePlan(Number(button.dataset.id))));
     }
-    function saveFridgePreferences() {
+    function saveFridgePreferences(mode) {
         try {
-            const next = recipeCatalog.fridgeSettings({ mode: fridgeMatchMode.value });
+            const next = recipeCatalog.fridgeSettings({ mode });
             appData.setItem('fridgePreferences', JSON.stringify(next)); fridgePreferences = next;
             renderFridgeRecipes(); filterRecipes();
-            document.getElementById('fridge-status').textContent = 'Opcions de coincidència desades.';
+            document.getElementById('fridge-status').textContent = '';
         } catch (error) {
             renderFridgeRecipes();
             document.getElementById('fridge-status').textContent = `No s’han pogut desar les opcions: ${error.message}`;
         }
     }
-    fridgeMatchMode.addEventListener('change', saveFridgePreferences);
+    fridgeMatchModes.forEach(({ mode, input }) => input.addEventListener('change', () => {
+        if (input.checked) saveFridgePreferences(mode);
+    }));
 
     function addIngredient(event) {
         event?.preventDefault();

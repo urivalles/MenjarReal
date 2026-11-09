@@ -56,7 +56,8 @@ html { overscroll-behavior-y: contain; }
 .collection-intro > button { margin-top: 1rem; }
 .btn-danger-outline { color: #a4312a; border-color: #e7b5ad; }
 .fridge-suggestions { margin-top: .7rem; }
-.fridge-suggestions > h3 { font-size: 1.25rem; }
+.fridge-suggestions-header { display: flex; align-items: center; justify-content: space-between; gap: .65rem; }
+.fridge-suggestions-header h3 { font-size: 1.25rem; }
 .fridge-recipe-list { display: grid; gap: 1rem; margin-top: 1rem; }
 .fridge-recipe { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; min-width: 0; }
 .fridge-recipe > .recipe-img { width: 120px; height: 110px; flex: 0 0 120px; border-radius: .65rem; }
@@ -870,12 +871,11 @@ button, input, select, textarea { touch-action: manipulation; }
 .recipe-card .recipe-actions > button { min-height: 44px; font-size: .8rem; padding: .55rem .7rem; }
 .recipe-card .recipe-actions .btn-adopt { margin: 0; }
 .fridge-match-controls { padding: .55rem .75rem; margin-top: .5rem; border-radius: .8rem; background: #fff; border: 1px solid #dce7e0; }
-.fridge-match-controls > summary { min-height: 32px; cursor: pointer; font-size: .9rem; color: var(--clr-primary-dark); }
-.fridge-match-controls[open] > summary { margin-bottom: .5rem; }
+.fridge-match-controls fieldset { border: 0; padding: 0; margin: 0; display: grid; }
+.fridge-match-controls label { display: flex; align-items: center; gap: .6rem; min-height: 44px; cursor: pointer; font-size: .9rem; }
+.fridge-match-controls input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--clr-primary-dark); }
 #icon-help img { border-radius: 1rem; margin: .5rem 0; }
 #icon-help ol { padding-left: 1.3rem; }
-.fridge-match-controls > label { display: grid; gap: .45rem; font-weight: 600; }
-.fridge-match-controls select { width: 100%; min-height: 44px; padding: .7rem; font: inherit; border-radius: .6rem; border: 1px solid #cbd5e1; background: white; }
 .fridge-recipe-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .plan-day-alternatives { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
 .plan-day-alternatives > button { min-height: 44px; padding: .6rem .8rem; }

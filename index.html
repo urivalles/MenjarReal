@@ -173,20 +173,22 @@
                     </div>
                     <p id="fridge-status" class="planner-feedback" role="status"></p>
                     <div class="fridge-suggestions">
-                        <h3>Què puc cuinar amb això?</h3>
-                        <details class="fridge-match-controls"><summary>Opcions de coincidència</summary>
-                            <label for="fridge-match-mode">Quines receptes vols veure?
-                                <select id="fridge-match-mode">
-                                    <option value="any">Amb algun ingredient</option>
-                                    <option value="available">Només amb el que tinc</option>
-                                    <option value="all">Amb tots els ingredients triats</option>
-                                    <option value="exact">Exactament aquests ingredients</option>
-                                </select>
-                            </label>
-                            <p id="fridge-match-help" class="planner-help"></p>
-                            <p class="planner-help">Comparació per nom d’aliment; comprova les quantitats i els ingredients de la fitxa abans de cuinar.</p>
-                        </details>
-                        <p id="fridge-recipe-summary" class="planner-help" role="status"></p>
+                        <div class="fridge-suggestions-header">
+                            <h3>Què puc cuinar amb això?</h3>
+                            <button type="button" id="toggle-fridge-filters" class="filter-icon-button" aria-label="Filtres de la nevera" title="Filtres de la nevera" aria-controls="fridge-filter-panel" aria-expanded="false">
+                                <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>
+                            </button>
+                        </div>
+                        <div id="fridge-filter-panel" class="fridge-match-controls" hidden>
+                            <fieldset>
+                                <legend class="sr-only">Filtres de la nevera</legend>
+                                <label><input type="radio" id="fridge-match-any" name="fridge-match-mode" value="any" checked> Amb algun ingredient</label>
+                                <label><input type="radio" id="fridge-match-available" name="fridge-match-mode" value="available"> Només amb el que tinc</label>
+                                <label><input type="radio" id="fridge-match-all" name="fridge-match-mode" value="all"> Amb tots els ingredients triats</label>
+                                <label><input type="radio" id="fridge-match-exact" name="fridge-match-mode" value="exact"> Exactament aquests ingredients</label>
+                            </fieldset>
+                        </div>
+                        <p id="fridge-recipe-summary" class="planner-help" role="status" hidden></p>
                         <div id="fridge-recipes" class="fridge-recipe-list"></div>
                     </div>
                 </section>
