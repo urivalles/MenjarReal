@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fridgeRecipeSummary = document.getElementById('fridge-recipe-summary');
     const fridgeMatchMode = document.getElementById('fridge-match-mode');
     const fridgeMatchHelp = document.getElementById('fridge-match-help');
-    const fridgeBasics = Object.fromEntries(['water', 'salt', 'oil', 'spices'].map(basic => [basic, document.getElementById('fridge-basic-' + basic)]));
     const planRecipeModal = document.getElementById('plan-recipe-modal');
     const planRecipeDay = document.getElementById('plan-recipe-day');
     const planRecipeMeal = document.getElementById('plan-recipe-meal');
@@ -837,12 +836,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderFridgeRecipes() {
         fridgeRecipeList.innerHTML = '';
         fridgeMatchMode.value = fridgePreferences.mode;
-        Object.entries(fridgeBasics).forEach(([basic, checkbox]) => { checkbox.checked = fridgePreferences.basics.includes(basic); });
         const explanations = {
             any: 'La recepta aprofita un o més aliments dels que has anotat. Pot necessitar-ne d’altres.',
             available: 'Tots els ingredients de la recepta són disponibles. No cal que faci servir tots els aliments de la nevera.',
             all: 'La recepta fa servir tots els aliments que has anotat, però pot necessitar-ne d’altres.',
-            exact: 'La recepta fa servir tots els aliments anotats i cap altre, excepte els bàsics marcats.'
+            exact: 'La recepta fa servir tots els aliments anotats i cap altre, excepte els bàsics habituals.'
         };
         fridgeMatchHelp.textContent = explanations[fridgePreferences.mode];
         if (!myFridge.length) {
@@ -868,7 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function saveFridgePreferences() {
         try {
-            const next = recipeCatalog.fridgeSettings({ mode: fridgeMatchMode.value, basics: Object.entries(fridgeBasics).filter(([, checkbox]) => checkbox.checked).map(([basic]) => basic) });
+            const next = recipeCatalog.fridgeSettings({ mode: fridgeMatchMode.value });
             appData.setItem('fridgePreferences', JSON.stringify(next)); fridgePreferences = next;
             renderFridgeRecipes(); filterRecipes();
             document.getElementById('fridge-status').textContent = 'Opcions de coincidència desades.';
@@ -878,7 +876,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     fridgeMatchMode.addEventListener('change', saveFridgePreferences);
-    Object.values(fridgeBasics).forEach(checkbox => checkbox.addEventListener('change', saveFridgePreferences));
 
     function addIngredient(event) {
         event?.preventDefault();

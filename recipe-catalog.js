@@ -68,22 +68,24 @@ const recipeCatalog = (() => {
     const fridgeDefaults = () => ({ mode: 'any', basics: ['water', 'salt', 'oil', 'spices'] });
     function fridgeSettings(value) {
         if (value == null) return fridgeDefaults();
-        if (!value || !['any', 'available', 'all', 'exact'].includes(value.mode) || !Array.isArray(value.basics) ||
-            !value.basics.every(basic => ['water', 'salt', 'oil', 'spices'].includes(basic))) throw new Error('Les opcions de coincidència de la nevera no són vàlides.');
-        return { mode: value.mode, basics: [...new Set(value.basics)] };
+        if (!value || !['any', 'available', 'all', 'exact'].includes(value.mode) ||
+            (value.basics !== undefined && (!Array.isArray(value.basics) ||
+                !value.basics.every(basic => fridgeDefaults().basics.includes(basic))))) throw new Error('Les opcions de coincidència de la nevera no són vàlides.');
+        // Keep the stored field compatible with older backups; basics are always available now.
+        return { ...fridgeDefaults(), mode: value.mode };
     }
-    function isBasic(ingredient, basics = []) {
+    function isBasic(ingredient) {
         const name = normalize(ingredientName(ingredient)).replace(/[’']/g, ' ').replace(/\s+/g, ' ').trim();
-        if (/^sal i pebre$/.test(name)) return basics.includes('salt') && basics.includes('spices');
-        return (basics.includes('water') && /^aigua(?:\s|$)/.test(name)) ||
-            (basics.includes('salt') && /^sal(?: marina| fina| gruixuda)?$/.test(name)) ||
-            (basics.includes('oil') && /^oli(?: d oliva| verge|$)/.test(name)) ||
-            (basics.includes('spices') && /^(pebre(?: vermell)?|curri|curry|garam masala|cumi|curcuma|farigola|orenga|romani|canyella|paprika|nou moscada|caiena|all en pols|gingebre en pols)(?:\s|$)/.test(name));
+        if (/^sal i pebre$/.test(name)) return true;
+        return /^aigua(?:\s|$)/.test(name) ||
+            /^sal(?: marina| fina| gruixuda)?$/.test(name) ||
+            /^oli(?: d oliva)?(?: verge(?: extra)?)?(?: en esprai)?$/.test(name) ||
+            /^(pebre(?: vermell)?|curri|curry|garam masala|cumi|curcuma|farigola|orenga|romani|llorer|canyella|paprika|nou moscada|caiena|all en pols|gingebre en pols)(?:\s|$)/.test(name);
     }
     function fridgeMatch(recipe, fridge, settings = fridgeDefaults()) {
-        const { mode, basics } = fridgeSettings(settings);
-        const foods = fridge.filter(food => !isBasic(food, basics));
-        const ingredients = recipe.ingredients.filter(ingredient => !isBasic(ingredient, basics));
+        const { mode } = fridgeSettings(settings);
+        const foods = fridge.filter(food => !isBasic(food));
+        const ingredients = recipe.ingredients.filter(ingredient => !isBasic(ingredient));
         const matched = ingredients.filter(ingredient => foods.some(food => matchesIngredient(ingredient, food)));
         const allFoodsUsed = foods.every(food => ingredients.some(ingredient => matchesIngredient(ingredient, food)));
         const canMake = ingredients.length > 0 && matched.length === ingredients.length;

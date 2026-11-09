@@ -813,7 +813,6 @@ button, input, select, textarea { touch-action: manipulation; }
 
 /* Responsive */
 .recipe-filter-panel { border-top: 1px solid #e2e8f0; padding-top: .75rem; }
-.pantry-basics > summary { cursor: pointer; min-height: 44px; padding: .6rem 0; font-weight: 650; color: #145c43; }
 .recipe-toolbar { display: flex; gap: .65rem; align-items: center; }
 .recipe-toolbar .search-bar { flex: 1; min-width: 0; }
 .recipe-toolbar input { min-width: 0; width: 100%; }
@@ -881,8 +880,6 @@ button, input, select, textarea { touch-action: manipulation; }
 #icon-help ol { padding-left: 1.3rem; }
 .fridge-match-controls > label { display: grid; gap: .45rem; font-weight: 600; }
 .fridge-match-controls select { width: 100%; min-height: 44px; padding: .7rem; font: inherit; border-radius: .6rem; border: 1px solid #cbd5e1; background: white; }
-.pantry-basics > label { display: inline-flex; gap: .5rem; align-items: center; margin-right: 1rem; min-height: 44px; font-size: .9rem; }
-.pantry-basics input { width: 19px; height: 19px; accent-color: #059669; }
 .fridge-recipe-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .plan-day-alternatives { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
 .plan-day-alternatives > button { min-height: 44px; padding: .6rem .8rem; }
