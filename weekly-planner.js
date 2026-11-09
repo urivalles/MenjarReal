@@ -51,7 +51,7 @@ const weeklyPlannerEngine = (() => {
     }
 
     function ownRecipes(adopted = []) {
-        return recipeCatalog.recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adopted) === 'mine');
+        return recipeCatalog.recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adopted) === 'mine' && recipe.category !== 'dessert');
     }
 
     function eligible(settings, adopted = [], date = new Date()) {

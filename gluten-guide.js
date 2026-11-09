@@ -31,7 +31,9 @@ const glutenGuide = (() => {
     "301": "[\"Noodles secs\",\"Crema de cacauet 100%\",\"Salsa de soja baixa en sal\",\"Oli de sèsam torrat\",\"Vinagre d’arròs sense sucre afegit\",\"Aigua calenta\",\"Ous\",\"Oli d’oliva verge extra\"]",
     "302": "[\"Nyoquis\",\"Cottage\",\"Bolets congelats\",\"Ceba\",\"Parmesà\",\"All\",\"Julivert\",\"Pebre negre\",\"Nou moscada\",\"Farigola\",\"Caiena\",\"Oli d’oliva\",\"Sal\",\"Llimona\",\"Ous\"]",
     "303": "[\"Pit de pollastre\",\"Patata\",\"Ceba\",\"Pastanaga\",\"Ous\",\"Aigua\",\"Curri o cúrcuma\",\"Nou moscada\",\"Pebre negre\",\"Sal\"]",
-    "304": "[\"Enciam i ruca\",\"Tomàquet\",\"Cogombre\",\"Ceba morada\",\"Poma\",\"Olives negres\",\"Iogurt natural\",\"Mostassa\",\"Suc de llimona o vinagre\",\"Oli d’oliva\",\"Sal\",\"Nous\",\"Pebre\",\"Ous durs\",\"Tonyina\",\"Cigrons cuits\"]"
+    "304": "[\"Enciam i ruca\",\"Tomàquet\",\"Cogombre\",\"Ceba morada\",\"Poma\",\"Olives negres\",\"Iogurt natural\",\"Mostassa\",\"Suc de llimona o vinagre\",\"Oli d’oliva\",\"Sal\",\"Nous\",\"Pebre\",\"Ous durs\",\"Tonyina\",\"Cigrons cuits\"]",
+    "401": "[\"Poma\",\"Aigua\",\"Canyella\"]",
+    "402": "[\"Pera\",\"Aigua\",\"Canyella\"]"
 };
     const changes = {
         5: 'Canvia la salsa de soja per la mateixa quantitat de tamari o salsa de soja etiquetats «sense gluten». Revisa també el tofu.',
@@ -66,7 +68,9 @@ const glutenGuide = (() => {
         207: 'Peix sense arrebossar. Revisa llenties i brou, o utilitza aigua.',
         209: 'Revisa els cigrons cuits, la mozzarella ratllada, el pebre i l’oli en esprai.',
         303: 'Revisa el curri o la cúrcuma i la resta d’espècies; si hi poses brou, també cal revisar-lo.',
-        304: 'Revisa mostassa, iogurt, olives i, si n’hi poses, tonyina o cigrons. Els opcionals també compten.'
+        304: 'Revisa mostassa, iogurt, olives i, si n’hi poses, tonyina o cigrons. Els opcionals també compten.',
+        401: 'Poma i aigua. Si hi afegeixes canyella o altres complements, revisa’n l’etiqueta.',
+        402: 'Pera i aigua. Si hi afegeixes canyella o altres complements, revisa’n l’etiqueta.'
     };
     const signature = recipe => JSON.stringify([...(recipe.ingredients || []), ...(recipe.optionalIngredients || [])].map(item => typeof item === 'string' ? item : item.item));
     function review(recipe) {

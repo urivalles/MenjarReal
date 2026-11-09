@@ -97,10 +97,12 @@
                     <div class="collection-intro">
                         <span class="eyebrow">TEMPORADA I REBOST</span>
                         <h2>Menjar bé, sense complicar-te</h2>
-                        <p>Els teus plats de sempre i idees noves per provar. Dinars i sopars fàcils, amb ingredients corrents.</p>
+                        <p>Els teus plats de sempre i idees noves per provar. Dinars, sopars i postres per guardar les receptes que t’agraden.</p>
                         <p class="collection-summary" id="collection-summary" aria-live="polite"></p>
                         <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
                     </div>
+                    <div class="collection-filters" role="group" aria-label="Recull de postres"><button type="button" class="collection-chip" data-collection="dessert" aria-pressed="false">Postres</button></div>
+                    <p class="planner-help">Les postres formen part del teu recull de receptes i es guarden a banda del menú setmanal.</p>
                     <div class="filters">
                         <div class="recipe-toolbar">
                         <div class="search-bar">
@@ -505,6 +507,7 @@
                     <label for="custom-seasons">Temporada</label>
                     <select id="custom-seasons"><option value="all">Tot l’any</option><option value="Tardor,Hivern">Tardor i hivern</option><option value="Primavera,Estiu">Primavera i estiu</option><option value="Hivern">Hivern</option><option value="Primavera">Primavera</option><option value="Estiu">Estiu</option><option value="Tardor">Tardor</option></select>
                 </div>
+                <label for="custom-category">Tipus de recepta<select id="custom-category"><option value="main">Dinar o sopar</option><option value="dessert">Postres</option></select></label>
                 <label class="planner-check"><input id="custom-pantry" type="checkbox"> Recepta de rebost · inclou-la a «Nevera buida»</label>
                 <div class="form-group">
                     <label for="custom-ingredients">Ingredients · un per línia</label>

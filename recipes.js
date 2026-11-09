@@ -163,3 +163,93 @@ const defaultRecipes = [
         instructions: "1. Talla la ceba i sofregeix-la a l'olla amb una mica d'oli.\n2. Pela i talla la carbassa i la pastanaga, i afegeix-les a l'olla.\n3. Cobreix-ho d'aigua o brou i bull-ho uns 20 minuts fins que estigui tot molt tou.\n4. Tritura fins que quedi una crema fina. Salpebra."
     }
 ];
+
+// Recull de postres independent dels dinars i sopars del menú.
+const dessertRecipes = [
+    {
+        "id": 401,
+        "title": "Poma al microones",
+        "description": "Postres de fruita calenta, senzilles i sense sucre afegit.",
+        "collection": "mine",
+        "category": "dessert",
+        "emoji": "\ud83c\udf4e",
+        "difficulty": "Fàcil",
+        "time": "7 min",
+        "totalMinutes": 7,
+        "servings": 1,
+        "seasons": [
+            "Hivern",
+            "Primavera",
+            "Estiu",
+            "Tardor"
+        ],
+        "mealTypes": [
+            "Postres"
+        ],
+        "tags": [
+            "Postres",
+            "Microones"
+        ],
+        "photoPending": true,
+        "ingredients": [
+            {
+                "item": "Poma",
+                "qty": "1 unitat"
+            },
+            {
+                "item": "Aigua",
+                "qty": "1 cullerada"
+            }
+        ],
+        "optionalIngredients": [
+            {
+                "item": "Canyella",
+                "qty": "Al gust"
+            }
+        ],
+        "instructions": "1. Renta la poma, talla-la per la meitat i retira el cor i les llavors. Deixa-hi la pell si t'agrada.\n2. Posa les meitats en un recipient apte per a microones amb una cullerada d'aigua. Tapa'l amb una tapa apta, deixant sortir el vapor.\n3. Cou a 800 W durant 3 minuts. Comprova la textura amb una forquilla i continua en tandes de 30 segons fins que sigui tendra; el temps depèn de la mida, la maduresa i el microones.\n4. Deixa reposar 1 minut i destapa amb cura pel vapor calent. Si vols, afegeix-hi canyella i serveix-la tèbia."
+    },
+    {
+        "id": 402,
+        "title": "Pera al microones",
+        "description": "Postres de fruita calenta, senzilles i sense sucre afegit.",
+        "collection": "mine",
+        "category": "dessert",
+        "emoji": "\ud83c\udf50",
+        "difficulty": "Fàcil",
+        "time": "6 min",
+        "totalMinutes": 6,
+        "servings": 1,
+        "seasons": [
+            "Hivern",
+            "Primavera",
+            "Estiu",
+            "Tardor"
+        ],
+        "mealTypes": [
+            "Postres"
+        ],
+        "tags": [
+            "Postres",
+            "Microones"
+        ],
+        "photoPending": true,
+        "ingredients": [
+            {
+                "item": "Pera",
+                "qty": "1 unitat"
+            },
+            {
+                "item": "Aigua",
+                "qty": "1 cullerada"
+            }
+        ],
+        "optionalIngredients": [
+            {
+                "item": "Canyella",
+                "qty": "Al gust"
+            }
+        ],
+        "instructions": "1. Renta la pera, talla-la per la meitat i retira el cor i les llavors. Deixa-hi la pell si t'agrada.\n2. Posa les meitats en un recipient apte per a microones amb una cullerada d'aigua. Tapa'l amb una tapa apta, deixant sortir el vapor.\n3. Cou a 800 W durant 2 minuts. Comprova la textura amb una forquilla i continua en tandes de 30 segons fins que sigui tendra; el temps depèn de la mida, la maduresa i el microones.\n4. Deixa reposar 1 minut i destapa amb cura pel vapor calent. Si vols, afegeix-hi canyella i serveix-la tèbia."
+    }
+];

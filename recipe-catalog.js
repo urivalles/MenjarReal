@@ -2,7 +2,8 @@
 const recipeCatalog = (() => {
     const recipes = [
         ...defaultRecipes.map(recipe => ({ ...recipe, collection: 'legacy' })),
-        ...seasonalRecipes
+        ...seasonalRecipes,
+        ...dessertRecipes
     ].map(recipe => ({ ...recipe, ...recipePhotos[recipe.id] }));
     const builtInIds = new Set(recipes.map(recipe => recipe.id));
 
@@ -33,7 +34,8 @@ const recipeCatalog = (() => {
             time: `${value.totalMinutes} min`, seasons: [...new Set(value.seasons)],
             ingredients, instructions: text(value.instructions, 15000, true),
             batchNote: text(value.batchNote || '', 1000), image, pantry: value.pantry === true,
-            mealTypes: ['Dinar', 'Sopar'], tags: ['Recepta personal']
+            category: value.category === 'dessert' ? 'dessert' : 'main',
+            mealTypes: value.category === 'dessert' ? ['Postres'] : ['Dinar', 'Sopar'], tags: ['Recepta personal']
         };
     }
 
@@ -96,7 +98,7 @@ const recipeCatalog = (() => {
         const term = normalize(query.trim());
         let selected = recipes.filter(recipe => {
             const kind = collectionOf(recipe, adopted);
-            const matchesCollection = collection === 'all' ? kind !== 'legacy' : collection === 'pantry' ? kind === 'mine' && recipe.pantry === true : kind === collection;
+            const matchesCollection = collection === 'all' ? kind !== 'legacy' : collection === 'dessert' ? recipe.category === 'dessert' : collection === 'pantry' ? kind === 'mine' && recipe.pantry === true : kind === collection;
             const matchesQuery = !term || normalize([recipe.title, recipe.description,
                 ...recipe.ingredients.map(ingredientName), ...(recipe.tags || [])].join(' ')).includes(term);
             const matchesGluten = gluten === 'all' || (gluten === 'ingredients' ? glutenGuide.review(recipe).status === 'ingredients' : gluten === 'adapt' && glutenGuide.review(recipe).status === 'adapt');

@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Recipes Logic ---
     function collectionLabel(recipe) {
         const kind = recipeCatalog.collectionOf(recipe, adoptedRecipes);
-        return kind === 'mine' ? recipe.testedByUser ? 'La meva recepta · Provada per mi' : recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per provar' : 'Exemple anterior';
+        return kind === 'mine' ? recipe.category === 'dessert' ? 'La meva recepta · Postres' : recipe.testedByUser ? 'La meva recepta · Provada per mi' : recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per provar' : 'Exemple anterior';
     }
 
     function coverHtml(recipe, large = false) {
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h3 class="recipe-title">${escapeHtml(recipe.title)}</h3>
                     <p class="recipe-card-time"><i class='bx bx-time' aria-hidden="true"></i> ${escapeHtml(recipe.time)} totals</p>
                     <div class="recipe-actions">
-                        ${recipe.collection !== 'legacy' ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
+                        ${recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
                         ${adoptionButton(recipe)}
                     </div>
                 </div>
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recommended = recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adoptedRecipes) === 'recommended').length;
         collectionSummary.textContent = `${mine} receptes teves · ${recommended} idees per descobrir`;
         const applied = [];
-        const collections = { mine: 'Les meves', pantry: 'Nevera buida', recommended: 'Descobrir', legacy: 'Exemples anteriors' };
+        const collections = { dessert: 'Postres', mine: 'Les meves', pantry: 'Nevera buida', recommended: 'Descobrir', legacy: 'Exemples anteriors' };
         if (selectedCollection !== 'all') applied.push(collections[selectedCollection]);
         if (activeDifficulty !== 'all') applied.push(activeDifficulty);
         if (seasonFilter.value !== 'all') applied.push(seasonFilter.value);
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.adaptationNote ? `<div class="modal-section detail-source"><h4>Origen i adaptació</h4><p>${escapeHtml(recipe.adaptationNote)}</p>
                 <ul class="detail-list">${(recipe.sourceIds || []).map(id => recipeSources[id]).filter(Boolean).map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul>
                 <p>${recipe.testedByUser ? 'Recepta ja provada per tu.' : 'Preparació adaptada, pendent de prova casolana.'} ${recipe.nutritionNote ? 'Les xifres nutricionals indicades no s’han verificat ni recalculat.' : 'No s’han calculat calories ni nutrients d’aquesta versió.'}</p></div>` : ''}
-            ${recipe.collection !== 'legacy' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
+            ${recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}
         `;
@@ -506,6 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('custom-modal-title').textContent = recipe ? 'Edita la teva recepta' : 'Afegeix una recepta';
         customFields.title.value = recipe?.title || '';
         customPantry.checked = recipe?.pantry === true;
+        document.getElementById('custom-category').value = recipe?.category || (selectedCollection === 'dessert' ? 'dessert' : 'main');
         customFields.desc.value = recipe?.description || '';
         customFields.diff.value = recipe?.difficulty || 'Fàcil';
         customFields.time.value = recipe?.totalMinutes || '';
@@ -609,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 difficulty: customFields.diff.value, totalMinutes: Number(customFields.time.value), servings: Number(customFields.servings.value),
                 seasons: customFields.seasons.value === 'all' ? ['Hivern', 'Primavera', 'Estiu', 'Tardor'] : customFields.seasons.value.split(','),
                 ingredients, instructions: customFields.instructions.value, batchNote: customFields.batch.value,
-                image: typedUrl || customPhoto, pantry: customPantry.checked });
+                image: typedUrl || customPhoto, category: document.getElementById('custom-category').value, pantry: customPantry.checked });
             const next = [...customRecipes.filter(item => item.id !== id), recipe];
             appData.setItem('customRecipes', JSON.stringify(next));
             customRecipes = next; recipeCatalog.replaceCustomRecipes(next);
@@ -858,7 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `${coverHtml(recipe)}<div><h4>${escapeHtml(recipe.title)}</h4>
                 <p>${escapeHtml(recipe.time)} · Aprofita: ${recipe.ingredients.filter(hasIngredient).map(ingredient => escapeHtml(recipeCatalog.ingredientName(ingredient))).join(', ')}</p>
                 <div class="fridge-recipe-actions"><button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta</button>
-                <button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button></div></div>`;
+                ${recipe.category !== 'dessert' ? `<button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button>` : '<span class="planner-help">Postres</span>'}</div></div>`;
             fridgeRecipeList.appendChild(row);
         });
         bindPhotoFallback(fridgeRecipeList);
@@ -944,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openRecipePlan(recipeId) {
-        const recipe = recipes.find(item => item.id === recipeId && item.collection !== 'legacy');
+        const recipe = recipes.find(item => item.id === recipeId && item.collection !== 'legacy' && item.category !== 'dessert');
         if (!recipe) return;
         recipeToPlan = recipe;
         planRecipeTrigger = document.activeElement;
