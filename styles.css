@@ -55,7 +55,7 @@ html { overscroll-behavior-y: contain; }
 .app-options .header-actions button { width: 100%; justify-content: center; min-height: 44px; white-space: normal; }
 .collection-intro > button { margin-top: 1rem; }
 .btn-danger-outline { color: #a4312a; border-color: #e7b5ad; }
-.fridge-suggestions { margin-top: 2rem; }
+.fridge-suggestions { margin-top: .7rem; }
 .fridge-suggestions > h3 { font-size: 1.25rem; }
 .fridge-recipe-list { display: grid; gap: 1rem; margin-top: 1rem; }
 .fridge-recipe { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; min-width: 0; }
@@ -413,21 +413,22 @@ h2 {
 
 /* Fridge View */
 .fridge-header {
-    background: linear-gradient(135deg, var(--clr-primary-light), var(--clr-surface));
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    margin-bottom: 2rem;
+    margin-bottom: .65rem;
 }
+.fridge-header h2 { display: flex; gap: .45rem; align-items: center; font-size: 1.2rem; }
+.fridge-header .bx { color: var(--clr-primary-dark); }
 
 .add-ingredient-form {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: .5rem;
+    margin-bottom: .4rem;
 }
 
 .add-ingredient-form input {
     flex: 1;
-    padding: 1rem 1.5rem;
+    min-width: 0;
+    min-height: 44px;
+    padding: .6rem .85rem;
     border-radius: var(--radius-full);
     border: 1px solid #e2e8f0;
     font-size: 1rem;
@@ -442,22 +443,22 @@ h2 {
 .ingredients-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    background: var(--clr-surface);
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    min-height: 200px;
+    gap: .35rem;
+    align-items: flex-start;
+    padding: .15rem 0;
 }
+.ingredients-container:empty { display: none; }
+#fridge-status:empty { display: none; }
 
 .ingredient-tag {
     background: var(--clr-primary-light);
     color: var(--clr-primary-dark);
-    padding: 0.5rem 1rem;
+    padding: 0 .1rem 0 .65rem;
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: .1rem;
+    font-size: .88rem;
     font-weight: 500;
     animation: scaleIn 0.2s ease-out;
     max-width: 100%;
@@ -873,7 +874,11 @@ button, input, select, textarea { touch-action: manipulation; }
 .recipe-card .recipe-actions { position: relative; z-index: 2; flex-wrap: wrap; }
 .recipe-card .recipe-actions > button { min-height: 44px; font-size: .8rem; padding: .55rem .7rem; }
 .recipe-card .recipe-actions .btn-adopt { margin: 0; }
-.fridge-match-controls { padding: 1rem; margin-top: 1rem; border-radius: .8rem; background: #fff; border: 1px solid #dce7e0; }
+.fridge-match-controls { padding: .55rem .75rem; margin-top: .5rem; border-radius: .8rem; background: #fff; border: 1px solid #dce7e0; }
+.fridge-match-controls > summary { min-height: 32px; cursor: pointer; font-size: .9rem; color: var(--clr-primary-dark); }
+.fridge-match-controls[open] > summary { margin-bottom: .5rem; }
+#icon-help img { border-radius: 1rem; margin: .5rem 0; }
+#icon-help ol { padding-left: 1.3rem; }
 .fridge-match-controls > label { display: grid; gap: .45rem; font-weight: 600; }
 .fridge-match-controls select { width: 100%; min-height: 44px; padding: .7rem; font: inherit; border-radius: .6rem; border: 1px solid #cbd5e1; background: white; }
 .pantry-basics > label { display: inline-flex; gap: .5rem; align-items: center; margin-right: 1rem; min-height: 44px; font-size: .9rem; }
@@ -942,9 +947,9 @@ button, input, select, textarea { touch-action: manipulation; }
     .modal-content { width: 95%; padding: 1.25rem; max-height: 92dvh; }
     .modal-img { height: 160px; }
     .modal-title { font-size: 1.4rem; margin-top: .6rem; }
-    .add-ingredient-form { flex-wrap: wrap; }
-    .add-ingredient-form input { min-width: 0; width: 100%; }
-    .add-ingredient-form > button { width: 100%; justify-content: center; min-height: 44px; }
+    .add-ingredient-form { flex-wrap: nowrap; }
+    .add-ingredient-form input { min-width: 0; width: 0; }
+    .add-ingredient-form > button { flex-shrink: 0; justify-content: center; min-height: 44px; padding: .55rem .8rem; }
     .fridge-recipe { gap: .7rem; padding: .75rem; align-items: flex-start; }
     .fridge-recipe > .recipe-img { width: 76px; height: 88px; flex-basis: 76px; }
     .fridge-recipe button { padding: .5rem .65rem; min-height: 44px; font-size: .8rem; }

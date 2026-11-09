@@ -92,14 +92,15 @@ const recipeCatalog = (() => {
 
     function select(options = {}) {
         const { query = '', difficulty = 'all', collection = 'all', season = 'all',
-            quick = false, batch = false, useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
+            quick = false, batch = false, gluten = 'all', useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
         const term = normalize(query.trim());
         let selected = recipes.filter(recipe => {
             const kind = collectionOf(recipe, adopted);
             const matchesCollection = collection === 'all' ? kind !== 'legacy' : collection === 'pantry' ? kind === 'mine' && recipe.pantry === true : kind === collection;
             const matchesQuery = !term || normalize([recipe.title, recipe.description,
                 ...recipe.ingredients.map(ingredientName), ...(recipe.tags || [])].join(' ')).includes(term);
-            return matchesCollection && matchesQuery &&
+            const matchesGluten = gluten === 'all' || (gluten === 'ingredients' ? glutenGuide.review(recipe).status === 'ingredients' : gluten === 'adapt' && glutenGuide.review(recipe).status === 'adapt');
+            return matchesCollection && matchesQuery && matchesGluten &&
                 (difficulty === 'all' || recipe.difficulty === difficulty) &&
                 (season === 'all' || (recipe.seasons || []).includes(season)) &&
                 (!quick || (recipe.totalMinutes || parseInt(recipe.time, 10)) <= 30) &&

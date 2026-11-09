@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const collectionButtons = document.querySelectorAll('.collection-chip');
     const seasonFilter = document.getElementById('season-filter');
     const quickFilter = document.getElementById('quick-filter');
+    const glutenFilter = document.getElementById('gluten-filter');
     const recipeResults = document.getElementById('recipe-results');
     const collectionSummary = document.getElementById('collection-summary');
     const catalogNotice = document.getElementById('catalog-notice');
@@ -309,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const useFridgeFilter = filterByFridgeBtn.classList.contains('active');
         const filtered = recipeCatalog.select({
             query: searchInput.value, difficulty: activeDifficulty, collection: selectedCollection,
-            season: seasonFilter.value, quick: quickFilter.checked,
+            season: seasonFilter.value, quick: quickFilter.checked, gluten: glutenFilter.value || 'all',
             useFridge: useFridgeFilter, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences, sort: recipeSort.value || 'default'
         });
         const mine = recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adoptedRecipes) === 'mine').length;
@@ -321,6 +322,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeDifficulty !== 'all') applied.push(activeDifficulty);
         if (seasonFilter.value !== 'all') applied.push(seasonFilter.value);
         if (quickFilter.checked) applied.push('Màxim 30 min');
+        if (glutenFilter.value && glutenFilter.value !== 'all') applied.push(glutenFilter.value === 'ingredients' ? 'Sense ingredients amb gluten · revisa etiquetes' : 'Adaptació sense gluten');
+        document.getElementById('gluten-filter-notice').hidden = !glutenFilter.value || glutenFilter.value === 'all';
         if (useFridgeFilter) applied.push('Nevera: ' + fridgeModeNames[fridgePreferences.mode]);
         const sortNames = { time: 'menys temps', name: 'nom A–Z', fridge: 'coincidències de nevera' };
         if (sortNames[recipeSort.value]) applied.push('Ordre: ' + sortNames[recipeSort.value]);
@@ -336,9 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', filterRecipes);
     seasonFilter.addEventListener('change', filterRecipes);
     quickFilter.addEventListener('change', filterRecipes);
+    glutenFilter.addEventListener('change', filterRecipes);
     recipeSort.addEventListener('change', filterRecipes);
     document.getElementById('reset-recipe-filters').addEventListener('click', () => {
         selectedCollection = 'all'; seasonFilter.value = 'all'; seasonFilter.disabled = false; quickFilter.checked = false; recipeSort.value = 'default';
+        glutenFilter.value = 'all';
         filterByFridgeBtn.classList.remove('active'); filterByFridgeBtn.setAttribute('aria-pressed', 'false');
         collectionButtons.forEach(button => { const active = button.dataset.collection === 'all'; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
         filterChips.forEach(chip => { const active = chip.dataset.filter === 'all'; chip.classList.toggle('active', active); chip.setAttribute('aria-pressed', String(active)); });
@@ -387,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRecipeModal(recipeId) {
         const recipe = recipes.find(r => r.id === recipeId);
         if (!recipe) return;
+        const gluten = glutenGuide.review(recipe);
 
         modalBody.innerHTML = `
             ${coverHtml(recipe, true)}
@@ -396,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
             <h2 class="modal-title" id="recipe-detail-title">${escapeHtml(recipe.title)}</h2>
             <p>${escapeHtml(recipe.description)}</p>
+            <div class="modal-section detail-note"><h4>${escapeHtml(gluten.title)}</h4><p>${escapeHtml(gluten.note)}</p><details><summary>Etiquetes i preparació</summary><p>Comprova els productes i els opcionals que facis servir. Si cal evitar traces, també cal evitar el contacte amb gluten en utensilis, superfícies, aigua o oli compartits. Aquesta guia no certifica el plat ni canvia els ingredients de la compra.</p><ul class="detail-list">${glutenGuide.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul></details></div>
             <div class="detail-facts"><span>${escapeHtml(recipe.time)} totals</span>
                 ${recipe.activeMinutes ? `<span>${recipe.activeMinutes} min de feina</span>` : ''}
                 ${recipe.servings ? `<span>Ingredients per a ${recipe.servings} racions</span>` : ''}
@@ -803,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ingredientsList.innerHTML = '';
         renderFridgeRecipes();
         if (myFridge.length === 0) {
-            ingredientsList.innerHTML = '<p style="color: var(--clr-text-muted); width: 100%; text-align: center;">La teva nevera està buida.</p>';
+            ingredientsList.innerHTML = '';
             return;
         }
 
@@ -889,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (saveFridge(next)) {
                 ingredientInput.value = '';
                 const added = next.length - myFridgeBeforeAdd;
-                document.getElementById('fridge-status').textContent = added ? `${added} ${added === 1 ? 'aliment afegit' : 'aliments afegits'}. A sota tens les receptes que els aprofiten.` : 'Aquests aliments ja eren a la nevera.';
+                document.getElementById('fridge-status').textContent = added ? '' : 'Aquests aliments ja eren a la nevera.';
             }
         } else document.getElementById('fridge-status').textContent = 'Escriu almenys un aliment abans d’afegir-lo.';
     }
@@ -943,6 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
         planRecipeTrigger = document.activeElement;
         const adopting = recipe.collection === 'recommended' && !adoptedRecipes.includes(recipe.id);
         document.getElementById('plan-recipe-name').textContent = recipe.title + (adopting ? ' · En desar-la, també s’afegirà a «Les meves».' : '');
+        if (glutenFilter.value && glutenFilter.value !== 'all' && glutenGuide.review(recipe).status === 'adapt') document.getElementById('plan-recipe-name').textContent += ' · Cal adaptar-la sense gluten: la compra conserva els ingredients originals. Consulta la fitxa i edita la compra.';
         planRecipeDay.innerHTML = '<option value="">Tria un dia</option>' + weeklyPlannerEngine.days.map(day => {
             const free = weeklyPlannerEngine.meals.filter(meal => !weeklyPlanner.days[day][meal]).length;
             return `<option value="${day}">${dayName(day)} · ${free ? `${free} ${free === 1 ? 'àpat lliure' : 'àpats lliures'}` : 'ple'}</option>`;

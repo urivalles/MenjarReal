@@ -10,6 +10,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let installPrompt = null;
     let waitingWorker = null;
     let reloadForUpdate = false;
+    let appRegistration = null;
+    const iconHelp = document.getElementById('icon-help');
+    const iconHelpButton = document.getElementById('open-icon-help-btn');
+    const iconStatus = document.getElementById('icon-update-status');
+    function showIconHelp(visible) {
+        iconHelp.hidden = !visible;
+        iconHelpButton.setAttribute('aria-expanded', String(visible));
+        if (visible) { document.getElementById('app-options').open = false; iconHelp.scrollIntoView?.({ block: 'start', behavior: 'smooth' }); }
+    }
+    iconHelpButton.addEventListener('click', () => showIconHelp(iconHelp.hidden));
+    document.getElementById('close-icon-help-btn').addEventListener('click', () => { showIconHelp(false); iconHelpButton.focus?.({ preventScroll: true }); });
+    document.getElementById('check-app-updates-btn').addEventListener('click', async () => {
+        if (!appRegistration) { iconStatus.textContent = 'Obre l’app publicada amb connexió i torna-ho a provar quan acabi de preparar-se.'; return; }
+        try {
+            await appRegistration.update();
+            offerUpdate(appRegistration.waiting);
+            iconStatus.textContent = appRegistration.waiting ? 'Hi ha una actualització. Desa els formularis i prem «Actualitza l’app».' : 'Comprovació demanada. Si Chrome ofereix revisar el canvi d’icona al menú ⋮, cal acceptar-lo allà. No podem confirmar des d’aquí la icona de la pantalla d’inici.';
+        } catch { iconStatus.textContent = 'No s’ha pogut comprovar l’actualització. Revisa la connexió i torna-ho a provar.'; }
+    });
 
     function showHelp(visible) {
         help.hidden = !visible;
@@ -85,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).then(registration => {
+        appRegistration = registration;
         offerUpdate(registration.waiting);
         function observe(worker) {
             if (!worker) return;

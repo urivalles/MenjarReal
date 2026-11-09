@@ -207,6 +207,19 @@ function seasonalRecipe(data) {
 
 const seasonalRecipes = [
     seasonalRecipe({
+        id: 304, title: 'Amanida verda amb salsa de iogurt i mostassa', collection: 'mine', emoji: '🥗', photoPending: true,
+        description: 'Enciam, ruca, verdura fresca, poma i olives amb una salsa cremosa. Base per a dues racions, amb opcions de proteïna.',
+        seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], totalMinutes: 15, activeMinutes: 15, sourceChecked: null,
+        equipment: ['Bol', 'Ganivet'], tags: ['Amanida', 'Recepta personal'], sourceIds: [],
+        ingredients: [['Enciam i ruca', '100–125 g'], ['Tomàquet', '1 unitat grossa'], ['Cogombre', '1/2 unitat'], ['Ceba morada', '1/2 unitat'], ['Poma', '1/2 unitat'], ['Olives negres', '8–10 unitats'], ['Iogurt natural', '125 g'], ['Mostassa', '2 culleradetes'], ['Suc de llimona o vinagre', '2 culleradetes'], ['Oli d’oliva', '1 cullerada'], ['Sal', 'Un pessic']],
+        optionalIngredients: [{ item: 'Nous', qty: 'Un grapat petit' }, { item: 'Pebre', qty: 'Al gust' }, { item: 'Ous durs', qty: '2 unitats · 1 per persona' }, { item: 'Tonyina', qty: 'Al gust · alternativa als ous' }, { item: 'Cigrons cuits', qty: 'Al gust · alternativa als ous' }],
+        steps: ['Renta i prepara l’enciam, la ruca i les verdures. Talla el tomàquet, el cogombre, la ceba i la poma; barreja-ho amb les olives.', 'Per a la salsa, barreja els 125 g de iogurt, les dues culleradetes de mostassa, les dues de llimona o vinagre, la cullerada d’oli i la sal. Afegeix-hi pebre si vols i una mica d’aigua si queda massa espessa.', 'La fórmula original de salsa rendeix per a tres amanides, sense mida especificada. Amaneix aquestes dues racions al gust i reserva la salsa que no necessitis: no cal abocar-la tota.', 'Si vols completar-la, tria un ou dur per persona, tonyina o cigrons. Afegeix nous si et venen de gust. Amanir al moment manté la base més cruixent.'],
+        balanceNote: 'La base és una amanida de verdura i fruita. Per fer-ne un àpat més complet pots triar una de les opcions de proteïna; no s’inclouen totes automàticament a la compra.',
+        variations: ['La compra compta els ingredients de dues racions de base i una tanda sencera de salsa de 125 g de iogurt. L’escala de persones manté aquesta proporció; pot sobrar salsa.', 'Nous, pebre i opcions de proteïna són opcionals: afegeix a la compra només els que vulguis. Si has de bullir els ous, calcula el temps addicional.', 'Pots aprofitar altres fulles verdes o verdures que tinguis a la nevera.'],
+        batchNote: 'Prepara la salsa a part i conserva-la refrigerada segons els ingredients utilitzats. Guarda l’amanida sense amanir i talla la poma quan la vagis a servir.',
+        adaptationNote: 'Proposta personal que has compartit des d’un altre xat de ChatGPT. Amanida per a dues racions i recepta original de salsa per a tres amanides, amb el rendiment explicat. Temps orientatiu. La fotografia esmentada no s’ha rebut; no s’ha substituït per una altra foto.'
+    }),
+    seasonalRecipe({
         id: 301, title: 'Noodles amb salsa de cacauet i ou ferrat', collection: 'mine', emoji: '🍜', pantry: true,
         description: 'Per quan no tens res preparat: noodles amb salsa cremosa de rebost i un ou ferrat per persona.',
         seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], sourceChecked: '2026-11-03',

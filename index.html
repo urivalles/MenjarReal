@@ -60,6 +60,7 @@
                     <div class="header-actions">
                         <button type="button" class="btn-outline" id="open-data-btn">Les meves dades i còpies</button>
                         <button type="button" class="btn-outline" id="install-app-btn" aria-controls="install-help" aria-expanded="false">Instal·la al mòbil</button>
+                        <button type="button" class="btn-outline" id="open-icon-help-btn" aria-controls="icon-help" aria-expanded="false">Icona de l’esquirol</button>
                     </div>
                 </details>
             </header>
@@ -79,6 +80,16 @@
             </section>
 
             <!-- Views -->
+            <section id="icon-help" class="install-help" hidden aria-labelledby="icon-help-title">
+                <h2 id="icon-help-title">Actualitza la icona de l’esquirol</h2>
+                <img src="icons/esquirol-v2-192.png" width="80" height="80" alt="La icona nova: un esquirol amb una gla sobre fons verd">
+                <p>Aquesta és la icona publicada. La icona de la pantalla d’inici la gestiona Android i pot requerir una confirmació separada de l’actualització del contingut.</p>
+                <ol><li>Obre MenjarReal amb internet i prem «Comprova actualitzacions».</li><li>Si apareix «Actualitza l’app», desa els formularis i actualitza.</li><li>Al menú ⋮ de l’app o de Chrome, busca «Revisa l’actualització de l’app» (el nom pot variar) i accepta la nova icona si apareix.</li></ol>
+                <p>Si encara veus l’antiga, obre <a href="https://urivalles.github.io/MenjarReal/" target="_blank" rel="noopener noreferrer">l’adreça actual de MenjarReal</a> amb el mateix Chrome. Pot ser una drecera antiga. Abans de substituir-la o reinstal·lar, descarrega una còpia a Opcions → Les meves dades i còpies. No esborris les dades del lloc.</p>
+                <button type="button" class="btn-outline" id="check-app-updates-btn">Comprova actualitzacions</button>
+                <p id="icon-update-status" class="planner-feedback" role="status"></p>
+                <button type="button" class="btn-outline" id="close-icon-help-btn">Tanca</button>
+            </section>
             <div class="views">
                 
                 <!-- RECIPES VIEW -->
@@ -130,6 +141,7 @@
                                 </select>
                             </label>
                             <label><input type="checkbox" id="quick-filter"> Màxim 30 min totals</label>
+                            <label for="gluten-filter">Gluten<select id="gluten-filter"><option value="all">Totes les receptes</option><option value="ingredients">Sense ingredients amb gluten · revisa etiquetes</option><option value="adapt">Amb adaptació sense gluten</option></select></label>
                             <label for="recipe-sort">Ordena per
                                 <select id="recipe-sort"><option value="default">Ordre habitual</option><option value="time">Menys temps</option><option value="name">Nom · A–Z</option><option value="fridge">Més coincidències amb la nevera</option></select>
                             </label>
@@ -142,6 +154,7 @@
                     </div>
                     <aside id="pantry-help" class="app-notice" hidden><strong>Sense res preparat i la nevera gairebé buida?</strong> Aquí tens receptes teves amb una base de rebost i complements senzills, com ous. «Nevera buida» és una col·lecció: no comprova què tens al rebost. Desactiva «Usar Nevera» si vols veure-les totes.</aside>
                     <p class="catalog-notice" id="catalog-notice" role="status" hidden></p>
+                    <p id="gluten-filter-notice" class="app-notice" hidden>Consulta la nota de cada recepta. Cal revisar les etiquetes i, si escau, evitar traces. El filtre no modifica la recepta ni els ingredients de la compra.</p>
                     <div class="recipes-grid" id="recipes-container">
                         <!-- Recipes will be injected here by JS -->
                     </div>
@@ -150,22 +163,20 @@
                 <!-- FRIDGE VIEW -->
                 <section id="fridge-view" class="view">
                     <div class="fridge-header">
-                        <h2>Què tens a la nevera?</h2>
-                        <p>Afegeix el que tens i tria com vols aprofitar-ho.</p>
+                        <h2><i class="bx bx-fridge" aria-hidden="true"></i> La meva nevera</h2>
                     </div>
                     <form class="add-ingredient-form" id="fridge-add-form">
                         <label class="sr-only" for="ingredient-input">Ingredients que tens</label>
-                        <input type="text" id="ingredient-input" placeholder="Ex.: ous i tomàquet" enterkeyhint="done" autocomplete="off" maxlength="1000" aria-describedby="fridge-input-help">
+                        <input type="text" id="ingredient-input" placeholder="Ex.: ous i tomàquet" enterkeyhint="done" autocomplete="off" maxlength="1000">
                         <button type="submit" class="btn-primary" id="add-ingredient-btn">Afegeix</button>
                     </form>
-                    <p class="planner-help" id="fridge-input-help">Separa els aliments amb comes o «i». Prem Afegeix o la tecla d’enviar del teclat.</p>
                     <div class="ingredients-container" id="ingredients-list">
                         <!-- Ingredients will be injected here by JS -->
                     </div>
                     <p id="fridge-status" class="planner-feedback" role="status"></p>
                     <div class="fridge-suggestions">
                         <h3>Què puc cuinar amb això?</h3>
-                        <div class="fridge-match-controls">
+                        <details class="fridge-match-controls"><summary>Opcions de coincidència</summary>
                             <label for="fridge-match-mode">Quines receptes vols veure?
                                 <select id="fridge-match-mode">
                                     <option value="any">Amb algun ingredient</option>
@@ -183,7 +194,7 @@
                                 <label><input type="checkbox" id="fridge-basic-spices" checked> Espècies seques</label>
                             </details>
                             <p class="planner-help">Comparació per nom d’aliment; comprova les quantitats i els ingredients de la fitxa abans de cuinar.</p>
-                        </div>
+                        </details>
                         <p id="fridge-recipe-summary" class="planner-help" role="status"></p>
                         <div id="fridge-recipes" class="fridge-recipe-list"></div>
                     </div>
@@ -583,6 +594,7 @@
     <!-- Scripts -->
     <script src="recipes.js"></script>
     <script src="seasonal-recipes.js"></script>
+    <script src="gluten-guide.js"></script>
     <script src="recipe-catalog.js"></script>
     <script src="weekly-planner.js"></script>
     <script src="menu-import.js"></script>
