@@ -1,5 +1,5 @@
 // El build calcula una versió a partir del contingut per detectar cada canvi.
-const BUILD_VERSION = '205393b9b887e174';
+const BUILD_VERSION = 'ae1dd2284fdf261d';
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `realfood-shell-${encodeURIComponent(new URL(SCOPE).pathname)}-`;
 const CACHE_NAME = CACHE_PREFIX + BUILD_VERSION;
@@ -10,6 +10,7 @@ const APP_FILES = [
     'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
     'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
     'icons/esquirol-v2-192.png', 'icons/esquirol-v2-512.png', 'icons/esquirol-v2-maskable-512.png',
+    'icons/esquirol-v3-192.png', 'icons/esquirol-v3-512.png', 'icons/esquirol-v3-maskable-512.png', 'icons/esquirol-v3-apple-180.png',
     'photos/recipe-101.jpg', 'photos/recipe-102.jpg', 'photos/recipe-103.jpg',
     'photos/recipe-104.jpg', 'photos/recipe-105.jpg', 'photos/recipe-106.jpg',
     'photos/recipe-107.jpg', 'photos/recipe-108.jpg', 'photos/recipe-201.jpg',
