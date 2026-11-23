@@ -1238,6 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const title = slot?.kind === 'recipe' ? recipe?.title || slot.title : slot?.kind === 'note' ? slot.title : slot?.kind === 'out' ? 'Menjo fora' : slot?.kind === 'leftovers' ? 'Aprofito restes' : 'Sense assignar';
                 return `<section class="planner-meal${slot?.locked ? ' is-locked' : ''}">
                     <div class="planner-meal-heading"><h4>${mealNames[meal]}</h4>${slot ? `<button type="button" class="planner-lock" data-day="${dayKey}" data-meal="${meal}" aria-pressed="${slot.locked}" aria-label="${slot.locked ? 'Desfixa' : 'Fixa'} ${label}">${slot.locked ? 'Fixat ✓' : 'Fixa'}</button>` : ''}</div>
+                    ${recipe?.image ? coverHtml(recipe) : ''}
                     ${recipe ? `<button type="button" class="planner-view-recipe" data-id="${recipe.id}">${escapeHtml(title)}</button>` : `<p class="planner-meal-title">${escapeHtml(title)}</p>`}
                     ${recipe ? `<p class="planner-meal-meta">${recipe.time ? escapeHtml(recipe.time) + ' · ' : ''}${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}${slot.batchKey ? ' · Bloc batch cooking' : ''}</p>` : slot?.kind === 'note' ? '<p class="planner-meal-meta">Plat escrit · ingredients a la compra manualment</p>' : slot?.title ? `<p class="planner-meal-meta">${escapeHtml(slot.title)}</p>` : ''}
                     <div class="planner-meal-actions"><button type="button" class="planner-choose" data-day="${dayKey}" data-meal="${meal}" aria-label="Tria ${label}">${slot ? 'Tria un altre' : 'Tria un àpat'}</button>
@@ -1247,6 +1248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
             plannerGrid.appendChild(dayEl);
         });
+        bindPhotoFallback(plannerGrid);
         document.querySelectorAll('.planner-choose').forEach(button => button.addEventListener('click', () => openMealPicker(button.dataset.day, button.dataset.meal)));
         document.querySelectorAll('.planner-view-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id))));
         document.querySelectorAll('.planner-lock').forEach(button => button.addEventListener('click', () => {
