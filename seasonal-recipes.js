@@ -311,7 +311,8 @@ const recipeSources = {
     peanutSauce: { title: 'Meghan Splawn · The Kitchn: Creamy Peanut Sauce', url: 'https://www.thekitchn.com/how-to-make-easy-creamy-peanut-sauce-246266' },
     maydenCream: { title: 'MaydenFit · Crema al curri amb pollastre (font indicada per l’usuari)', url: 'https://www.youtube.com/watch?v=g_bthu9MhgI' },
     maydenChickpeaOmelette: { title: 'MaydenFit · Truita de cigrons (ingredients de la descripció)', url: 'https://www.youtube.com/watch?v=2sLECGB-Re8' },
-    chickpeaOmeletteSteps: { title: 'HolyCook · Versió de la truita de cigrons de Mayden', url: 'https://holycook.es/noticias/recetas/tortilla-garbanzos-mozzarella-mayden/' }
+    chickpeaOmeletteSteps: { title: 'HolyCook · Versió de la truita de cigrons de Mayden', url: 'https://holycook.es/noticias/recetas/tortilla-garbanzos-mozzarella-mayden/' },
+    caprese: { title: 'La Cucina Italiana: Insalata caprese', url: 'https://www.lacucinaitaliana.it/ricetta/antipasti/caprese/' }
 };
 
 function seasonalRecipe(data) {
@@ -326,6 +327,28 @@ function seasonalRecipe(data) {
 }
 
 const seasonalRecipes = [
+    seasonalRecipe({
+        id: 311, title: 'Amanida caprese', collection: 'mine', emoji: '🥗',
+        image: 'photos/recipe-311.jpg',
+        description: 'Tomàquet madur, mozzarella fresca i alfàbrega amb un raig d’oli d’oliva. Un entrant per a dues persones, sense cocció.',
+        seasons: ['Estiu'], totalMinutes: 10, activeMinutes: 10, sourceChecked: '2026-11-23',
+        equipment: ['Ganivet', 'Taula de tallar', 'Plat'], tags: ['Amanida', 'Entrant', 'Sense cocció'],
+        sourceIds: ['caprese'],
+        ingredients: [
+            ['Tomàquet', '300 g'],
+            ['Mozzarella fresca', '125 g'],
+            ['Alfàbrega fresca', '10 fulles'],
+            ['Oli d’oliva verge extra', '15 ml'],
+            ['Sal', 'Al gust']
+        ],
+        steps: [
+            'Renta i eixuga els tomàquets i l’alfàbrega. Escorre la mozzarella.',
+            'Talla els tomàquets i la mozzarella a rodanxes d’un dit de gruix. Sala lleugerament el tomàquet i deixa’l escórrer uns minuts si deixa anar gaire suc.',
+            'Alterna les rodanxes al plat, reparteix-hi les fulles d’alfàbrega i amaneix-ho amb l’oli just abans de servir.'
+        ],
+        variations: ['Pots fer servir mozzarella fresca de vaca o de búfala.'],
+        adaptationNote: 'Quantitats adaptades a dues racions d’entrant. Imatge de referència generada amb IA.'
+    }),
     seasonalRecipe({
         id: 305, title: 'Fasols negres amb verdures i arròs', collection: 'mine', emoji: '🫘',
         description: 'Guisat de fasols negres ja cuits amb col, tomàquet i una ració d’arròs. Dues racions de plat únic.',
