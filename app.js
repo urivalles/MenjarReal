@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let fridgePreferences = recipeCatalog.fridgeSettings(readStored('fridgePreferences', null, value => value && typeof value === 'object'));
     let weeklyPlanner = weeklyPlannerEngine.normalizeState(readStored('weeklyPlanner', null,
         value => value && typeof value === 'object' && !Array.isArray(value)));
+    let recipeStatuses = JSON.parse(appData.getItem('recipeStatuses'));
     let adoptedRecipes = readStored('adoptedRecipes', [], value => Array.isArray(value) &&
         value.every(id => Number.isInteger(id) && recipes.some(recipe =>
             recipe.id === id && recipe.collection === 'recommended')));
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const seasonFilter = document.getElementById('season-filter');
     const quickFilter = document.getElementById('quick-filter');
     const glutenFilter = document.getElementById('gluten-filter');
+    const sourceFilter = document.getElementById('source-filter');
     const recipeResults = document.getElementById('recipe-results');
     const collectionSummary = document.getElementById('collection-summary');
     const catalogNotice = document.getElementById('catalog-notice');
@@ -104,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Planner DOM
     const plannerGrid = document.querySelector('.planner-grid');
     const clearPlannerBtn = document.getElementById('clear-planner-btn');
+    const plannerGenerationForm = document.getElementById('planner-generation');
     const generatePlannerBtn = document.getElementById('generate-planner-btn');
     const plannerStatus = document.getElementById('planner-status');
     const plannerPoolInfo = document.getElementById('planner-pool-info');
@@ -133,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mealType = document.getElementById('planner-meal-type');
     const mealChoice = document.getElementById('planner-meal-choice');
     const mealNote = document.getElementById('planner-meal-note');
+    const mealNoteLabel = document.getElementById('planner-meal-note-label');
     const mealFeedback = document.getElementById('planner-meal-feedback');
     let mealTrigger = null;
     
@@ -170,6 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const shoppingName = document.getElementById('shopping-name');
     const shoppingQuantity = document.getElementById('shopping-quantity');
     const shoppingStatus = document.getElementById('shopping-status');
+    const shoppingExport = document.getElementById('shopping-export');
+    const shoppingExportFormat = document.getElementById('shopping-export-format');
+    const shoppingCopy = document.getElementById('shopping-copy');
+    const shoppingShare = document.getElementById('shopping-share');
+    const shoppingExportText = document.getElementById('shopping-export-text');
+    const shoppingExportFallback = document.getElementById('shopping-export-fallback');
+    shoppingShare.hidden = typeof navigator.share !== 'function';
     const shoppingSummary = document.getElementById('shopping-summary');
     const shoppingClearBought = document.getElementById('shopping-clear-bought');
     const shoppingClearAll = document.getElementById('shopping-clear-all');
@@ -240,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function adoptionButton(recipe) {
-        if (recipe.collection !== 'recommended') return '';
+        if (recipe.incomplete || recipe.collection !== 'recommended') return '';
         const adopted = adoptedRecipes.includes(recipe.id);
         return `<button type="button" class="btn-adopt" data-id="${recipe.id}" aria-pressed="${adopted}"
             aria-label="${adopted ? 'Torna a Descobrir' : 'Fes teva'}: ${escapeHtml(recipe.title)}">
@@ -286,9 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${coverHtml(recipe)}
                 <div class="recipe-content">
                     <h3 class="recipe-title">${escapeHtml(recipe.title)}</h3>
-                    <p class="recipe-card-time"><i class='bx bx-time' aria-hidden="true"></i> ${escapeHtml(recipe.time)} totals</p>
+                    <p class="recipe-card-time"><i class='bx bx-time' aria-hidden="true"></i> ${recipe.incomplete ? 'Fitxa pendent de completar' : recipe.time ? escapeHtml(recipe.time) + ' totals' : 'Temps segons el vídeo'}</p>
                     <div class="recipe-actions">
-                        ${recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
+                        ${!recipe.incomplete && recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
                         ${adoptionButton(recipe)}
                     </div>
                 </div>
@@ -313,9 +324,17 @@ document.addEventListener('DOMContentLoaded', () => {
         pantryHelp.hidden = selectedCollection !== 'pantry';
         const activeDifficulty = document.querySelector('.filter-chips .chip.active:not(#filter-by-fridge-btn)')?.dataset.filter || 'all';
         const useFridgeFilter = filterByFridgeBtn.classList.contains('active');
+        const activeSource = sourceFilter.value;
+        const sources = new Map(recipes.map(recipe => {
+            const source = recipeCatalog.sourceFor(recipe);
+            return [source.key, source.name];
+        }));
+        sourceFilter.replaceChildren(new Option('Totes les fonts', 'all'), ...[...sources]
+            .sort((a, b) => a[1].localeCompare(b[1], 'ca')).map(([id, name]) => new Option(name, id)));
+        sourceFilter.value = sources.has(activeSource) ? activeSource : 'all';
         const filtered = recipeCatalog.select({
             query: searchInput.value, difficulty: activeDifficulty, collection: selectedCollection,
-            season: seasonFilter.value, quick: quickFilter.checked, gluten: glutenFilter.value || 'all',
+            season: seasonFilter.value, quick: quickFilter.checked, gluten: glutenFilter.value || 'all', source: sourceFilter.value,
             useFridge: useFridgeFilter, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences, sort: recipeSort.value || 'default'
         });
         const mine = recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adoptedRecipes) === 'mine').length;
@@ -327,7 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeDifficulty !== 'all') applied.push(activeDifficulty);
         if (seasonFilter.value !== 'all') applied.push(seasonFilter.value);
         if (quickFilter.checked) applied.push('Màxim 30 min');
-        if (glutenFilter.value && glutenFilter.value !== 'all') applied.push(glutenFilter.value === 'ingredients' ? 'Sense ingredients amb gluten · revisa etiquetes' : 'Adaptació sense gluten');
+        if (glutenFilter.value !== 'all') applied.push(glutenFilter.selectedOptions[0].textContent);
+        if (sourceFilter.value !== 'all') applied.push(sources.get(sourceFilter.value));
         document.getElementById('gluten-filter-notice').hidden = !glutenFilter.value || glutenFilter.value === 'all';
         if (useFridgeFilter) applied.push('Nevera: ' + fridgeModeNames[fridgePreferences.mode]);
         const sortNames = { time: 'menys temps', name: 'nom A–Z', fridge: 'coincidències de nevera' };
@@ -345,10 +365,11 @@ document.addEventListener('DOMContentLoaded', () => {
     seasonFilter.addEventListener('change', filterRecipes);
     quickFilter.addEventListener('change', filterRecipes);
     glutenFilter.addEventListener('change', filterRecipes);
+    sourceFilter.addEventListener('change', filterRecipes);
     recipeSort.addEventListener('change', filterRecipes);
     document.getElementById('reset-recipe-filters').addEventListener('click', () => {
         selectedCollection = 'all'; seasonFilter.value = 'all'; seasonFilter.disabled = false; quickFilter.checked = false; recipeSort.value = 'default';
-        glutenFilter.value = 'all';
+        glutenFilter.value = 'all'; sourceFilter.value = 'all';
         filterByFridgeBtn.classList.remove('active'); filterByFridgeBtn.setAttribute('aria-pressed', 'false');
         collectionButtons.forEach(button => { const active = button.dataset.collection === 'all'; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
         filterChips.forEach(chip => { const active = chip.dataset.filter === 'all'; chip.classList.toggle('active', active); chip.setAttribute('aria-pressed', String(active)); });
@@ -397,21 +418,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRecipeModal(recipeId) {
         const recipe = recipes.find(r => r.id === recipeId);
         if (!recipe) return;
-        const gluten = glutenGuide.review(recipe);
+        const gluten = glutenFilter.value === 'all' ? null : glutenGuide.review(recipe);
+        const source = recipeCatalog.sourceFor(recipe);
+        const defaultStatus = recipe.testedByUser === true ? 'tested' : 'pending';
+        const declared = recipe.declaredNutrition;
+        const number = new Intl.NumberFormat('ca');
+        const unit = declared?.unit ? '/' + declared.unit : '';
+        const extraNutrients = declared ? [['hidrats', declared.carbs], ['fibra', declared.fiber], ['greixos', declared.fat]]
+            .filter(([, value]) => value != null).map(([label, value]) => ` · ${number.format(value)} g de ${label}`).join('') : '';
 
         modalBody.innerHTML = `
             ${coverHtml(recipe, true)}
             <span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
             <h2 class="modal-title" id="recipe-detail-title">${escapeHtml(recipe.title)}</h2>
             <p>${escapeHtml(recipe.description)}</p>
-            <div class="modal-section detail-note"><h4>${escapeHtml(gluten.title)}</h4><p>${escapeHtml(gluten.note)}</p><details><summary>Etiquetes i preparació</summary><p>Comprova els productes i els opcionals que facis servir. Si cal evitar traces, també cal evitar el contacte amb gluten en utensilis, superfícies, aigua o oli compartits. Aquesta guia no certifica el plat ni canvia els ingredients de la compra.</p><ul class="detail-list">${glutenGuide.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul></details></div>
-            <div class="detail-facts"><span>${escapeHtml(recipe.time)} totals</span>
+            ${gluten ? `<div class="modal-section detail-note"><h4>${escapeHtml(gluten.title)}</h4><p>${escapeHtml(gluten.note)}</p><details><summary>Etiquetes i preparació</summary><p>Comprova els productes i els opcionals que facis servir. Si cal evitar traces, també cal evitar el contacte amb gluten en utensilis, superfícies, aigua o oli compartits. Aquesta guia no certifica el plat ni canvia els ingredients de la compra.</p><ul class="detail-list">${glutenGuide.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul></details></div>` : ''}
+            <div class="detail-facts">${recipe.time ? `<span>${escapeHtml(recipe.time)} totals</span>` : ''}
                 ${recipe.activeMinutes ? `<span>${recipe.activeMinutes} min de feina</span>` : ''}
-                ${recipe.servings ? `<span>Ingredients per a ${recipe.servings} racions</span>` : ''}
+                ${recipe.yieldLabel ? `<span>${escapeHtml(recipe.yieldLabel)}</span>` : recipe.servings ? `<span>Ingredients per a ${recipe.servings} racions</span>` : ''}
                 ${recipe.equipment ? `<span>${recipe.equipment.map(escapeHtml).join(' · ')}</span>` : ''}</div>
             
             <div class="modal-section">
                 <h4>Ingredients</h4>
+                ${recipe.dataNote || recipe.incomplete ? `<p>${escapeHtml(recipe.dataNote || 'Ingredients, quantitats i racions originals pendents de completar.')}</p>` : ''}
                 ${myFridge.length ? '<p class="planner-help">En verd, els ingredients que has anotat a la nevera. Comprova què et falta de la resta abans de cuinar.</p>' : ''}
                 <ul class="modal-ingredients-list">
                     ${recipe.ingredients.map(ing => {
@@ -424,18 +453,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 </ul>
             </div>
             ${recipe.optionalIngredients ? `<div class="modal-section"><h4>Ingredients opcionals</h4><ul class="detail-list">${recipe.optionalIngredients.map(ingredient => `<li>${escapeHtml(ingredientLabel(ingredient))}</li>`).join('')}</ul><p class="planner-help">No s’afegeixen automàticament a la compra ni es necessiten per a la coincidència amb la nevera.</p></div>` : ''}
+            ${declared ? `<div class="modal-section detail-note"><h4>Nutrició declarada per l’autor · sense verificar</h4>
+                <p>${number.format(declared.kcal)} kcal${unit} · ${number.format(declared.protein)} g${unit} de proteïnes${extraNutrients}.
+                ${escapeHtml(declared.base || 'Base de la declaració pendent de confirmar')}.</p></div>` : ''}
             ${recipe.nutritionNote ? `<div class="modal-section detail-note"><h4>Nutrició orientativa · sense verificar</h4><p>${escapeHtml(recipe.nutritionNote)}</p></div>` : ''}
             <div class="modal-section">
                 <h4>Preparació</h4>
-                <p class="modal-instructions">${escapeHtml(recipe.instructions)}</p>
+                <p class="modal-instructions">${escapeHtml(recipe.instructions || 'Preparació pendent de confirmar.')}</p>
             </div>
             ${recipe.balanceNote ? `<div class="modal-section detail-note"><h4>Com queda el plat</h4><p>${escapeHtml(recipe.balanceNote)}</p></div>` : ''}
             ${recipe.variations ? `<div class="modal-section"><h4>Alternatives fàcils</h4><ul class="detail-list">${recipe.variations.map(note => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div>` : ''}
             ${recipe.batchNote ? `<div class="modal-section"><h4>Per avançar feina</h4><p>${escapeHtml(recipe.batchNote)}</p></div>` : ''}
-            ${recipe.adaptationNote ? `<div class="modal-section detail-source"><h4>Origen i adaptació</h4><p>${escapeHtml(recipe.adaptationNote)}</p>
-                <ul class="detail-list">${(recipe.sourceIds || []).map(id => recipeSources[id]).filter(Boolean).map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul>
-                <p>${recipe.testedByUser ? 'Recepta ja provada per tu.' : 'Preparació adaptada, pendent de prova casolana.'} ${recipe.nutritionNote ? 'Les xifres nutricionals indicades no s’han verificat ni recalculat.' : 'No s’han calculat calories ni nutrients d’aquesta versió.'}</p></div>` : ''}
-            ${recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
+            <div class="modal-section detail-source"><h4>Font</h4><p>${escapeHtml(source.name)}</p>
+                ${source.links.length ? `<ul class="detail-list">${source.links.map(link => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title)}</a></li>`).join('')}</ul>` : recipe.incomplete ? '<p>Enllaç original pendent.</p>' : ''}
+                ${recipe.adaptationNote ? `<p>${escapeHtml(recipe.adaptationNote)}</p>` : ''}
+                <label for="recipe-status-select">Estat <select id="recipe-status-select"></select></label>
+                <p id="recipe-status-feedback" class="planner-feedback" role="status"></p>
+            </div>
+            ${!recipe.incomplete && recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}
             ${recipe.photoCredit ? `<details class="photo-credit"><summary>Crèdits de la foto</summary><p>Foto de referència: ${escapeHtml(recipe.photoCredit.note)}<br>
@@ -443,6 +478,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="${escapeHtml(recipe.photoCredit.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.license)}</a>. Imatge reduïda; retall visual a les targetes.</p></details>` : ''}
         `;
         bindPhotoFallback(modalBody);
+        const statusControl = modalBody.querySelector('#recipe-status-select');
+        statusControl.replaceChildren(...Object.entries(recipeCatalog.statusLabels).map(([value, label]) => new Option(label, value)));
+        statusControl.value = recipeStatuses[recipe.id] || defaultStatus;
+        statusControl.addEventListener('change', () => {
+            const feedback = modalBody.querySelector('#recipe-status-feedback');
+            const next = { ...recipeStatuses, [recipe.id]: statusControl.value };
+            try {
+                appData.update({ recipeStatuses: next });
+                recipeStatuses = next;
+                feedback.textContent = 'Estat desat.';
+            } catch (error) {
+                statusControl.value = recipeStatuses[recipe.id] || defaultStatus;
+                feedback.textContent = error.message;
+            }
+        });
         const planDetail = modalBody.querySelector('.btn-plan-detail');
         if (planDetail) planDetail.addEventListener('click', () => openRecipePlan(recipe.id));
         const edit = modalBody.querySelector('.btn-edit-recipe');
@@ -513,6 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
         customPantry.checked = recipe?.pantry === true;
         document.getElementById('custom-category').value = recipe?.category || (selectedCollection === 'dessert' ? 'dessert' : 'main');
         customFields.desc.value = recipe?.description || '';
+        document.getElementById('custom-source').value = recipe?.sourceName || '';
+        document.getElementById('custom-source-url').value = recipe?.sourceUrl || '';
         customFields.diff.value = recipe?.difficulty || 'Fàcil';
         customFields.time.value = recipe?.totalMinutes || '';
         customFields.servings.value = recipe?.servings || 2;
@@ -615,9 +667,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 difficulty: customFields.diff.value, totalMinutes: Number(customFields.time.value), servings: Number(customFields.servings.value),
                 seasons: customFields.seasons.value === 'all' ? ['Hivern', 'Primavera', 'Estiu', 'Tardor'] : customFields.seasons.value.split(','),
                 ingredients, instructions: customFields.instructions.value, batchNote: customFields.batch.value,
+                sourceName: document.getElementById('custom-source').value, sourceUrl: document.getElementById('custom-source-url').value,
                 image: typedUrl || customPhoto, category: document.getElementById('custom-category').value, pantry: customPantry.checked });
             const next = [...customRecipes.filter(item => item.id !== id), recipe];
-            appData.setItem('customRecipes', JSON.stringify(next));
+            savePlannerAndShopping(weeklyPlanner, { customRecipes: next }, [...recipes.filter(item => !item.custom), ...next]);
             customRecipes = next; recipeCatalog.replaceCustomRecipes(next);
             closeCustomRecipe();
             selectedCollection = 'mine'; searchInput.value = ''; seasonFilter.value = 'all'; quickFilter.checked = false;
@@ -672,7 +725,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const restored = appData.restore(pendingBackup);
             customRecipes = restored.customRecipes; recipeCatalog.replaceCustomRecipes(customRecipes);
             myFridge = restored.myFridge; fridgePreferences = restored.fridgePreferences; weeklyPlanner = restored.weeklyPlanner; adoptedRecipes = restored.adoptedRecipes;
-            shoppingList = restored.shoppingList; shoppingUndo = null;
+            shoppingList = restored.shoppingList; shoppingUndo = null; recipeStatuses = restored.recipeStatuses;
+            refreshSavedShopping();
             pendingBackup = null; restoreDataBtn.disabled = true; importDataFile.value = '';
             filterRecipes(); renderFridge(); renderPlanner(); dataSummary.textContent = dataDescription(restored);
             dataStatus.textContent = 'Còpia restaurada en aquest navegador. No s’ha activat cap sincronització al núvol.';
@@ -697,36 +751,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function generateShopping(goToList = false) {
+    function refreshSavedShopping() {
+        if (!shoppingList.items.some(item => item.origin === 'menu')) return;
+        try {
+            const next = shoppingListEngine.merge(shoppingList, shoppingListEngine.requirements(weeklyPlanner));
+            if (JSON.stringify(next) !== JSON.stringify(shoppingList)) commitShopping(next, 'Llista actualitzada amb els àpats del menú.');
+        } catch (error) {
+            shoppingStatus.textContent = `No s’ha pogut actualitzar la llista: ${error.message}`;
+        }
+    }
+
+    function generateShopping() {
         const required = shoppingListEngine.requirements(weeklyPlanner);
         const writtenMeals = weeklyPlannerEngine.days.flatMap(day => weeklyPlannerEngine.meals.map(meal => weeklyPlanner.days[day][meal])).filter(slot => slot?.kind === 'note');
         const writtenWarning = writtenMeals.length ? ` Hi ha ${writtenMeals.length} plats escrits sense recepta vinculada: els seus ingredients no s’han inclòs. Afegeix-los manualment.` : '';
-        if (!required.mealCount) {
-            const message = 'Afegeix primer receptes al menú. Els àpats fora de casa i les restes no generen ingredients.' + writtenWarning;
-            shoppingStatus.textContent = message;
-            if (goToList) plannerFeedback(message, true);
-            return;
-        }
-        if (required.missing.length) {
-            const message = `No s’han trobat aquestes receptes: ${required.missing.join(', ')}. Revisa el menú; la compra es conserva.`;
-            shoppingStatus.textContent = message;
-            if (goToList) plannerFeedback(message, true);
-            return;
-        }
         try {
             const next = shoppingListEngine.merge(shoppingList, required);
             const reviews = next.items.filter(item => item.needsReview).length;
-            const message = `Ingredients actualitzats a partir de ${required.mealCount} àpats per a ${weeklyPlanner.settings.people} ${weeklyPlanner.settings.people === 1 ? 'persona' : 'persones'}. S’han conservat els canvis manuals.${reviews ? ` Revisa ${reviews} quantitats editades: el menú ha canviat.` : ''}${required.unscaled.length ? ' Algunes receptes antigues no indiquen racions: n’hem comptat les quantitats de base per cada ús, sense ajustar-les a persones. Revisa-les a les receptes d’origen.' : ''}${writtenWarning}`;
-            if (commitShopping(next, message, true) && goToList) {
-                Array.from(navLinks).find(link => link.getAttribute('data-target') === 'shopping-view')?.click();
-            } else if (goToList) plannerFeedback(shoppingStatus.textContent, true);
+            const missingWarning = required.missing.length ? ` Receptes sense ingredients disponibles: ${required.missing.join(', ')}.` : '';
+            const message = `Ingredients actualitzats a partir de ${required.mealCount} àpats per a ${weeklyPlanner.settings.people} ${weeklyPlanner.settings.people === 1 ? 'persona' : 'persones'}. S’han conservat els canvis manuals.${reviews ? ` Revisa ${reviews} quantitats editades: el menú ha canviat.` : ''}${required.unscaled.length ? ' Algunes receptes antigues no indiquen racions: n’hem comptat les quantitats de base per cada ús, sense ajustar-les a persones. Revisa-les a les receptes d’origen.' : ''}${writtenWarning}${missingWarning}`;
+            commitShopping(next, message, true);
         } catch (error) {
             shoppingStatus.textContent = `No s’ha pogut preparar la llista: ${error.message}`;
-            if (goToList) plannerFeedback(shoppingStatus.textContent, true);
         }
     }
     generateShoppingBtn.addEventListener('click', () => generateShopping());
-    plannerToShoppingBtn.addEventListener('click', () => generateShopping(true));
+    plannerToShoppingBtn.addEventListener('click', () => {
+        Array.from(navLinks).find(link => link.dataset.target === 'shopping-view')?.click();
+    });
+
+    function showCopyFallback(text) {
+        shoppingExportText.value = text;
+        shoppingExportFallback.hidden = false;
+        shoppingExportText.focus();
+        shoppingExportText.select();
+        shoppingStatus.textContent = 'Mantén premut el text o utilitza l’opció de copiar del navegador.';
+    }
+    shoppingExportFormat.addEventListener('change', renderShoppingExport);
+    shoppingCopy.addEventListener('click', async () => {
+        const text = shoppingListEngine.exportText(shoppingList, shoppingExportFormat.value);
+        if (!text) return;
+        try {
+            await navigator.clipboard.writeText(text);
+            shoppingExportFallback.hidden = true;
+            shoppingStatus.textContent = 'Llista copiada.';
+        } catch { showCopyFallback(text); }
+    });
+    shoppingShare.addEventListener('click', async () => {
+        const text = shoppingListEngine.exportText(shoppingList, shoppingExportFormat.value);
+        if (!text) return;
+        try { await navigator.share({ text }); }
+        catch (error) {
+            if (error.name !== 'AbortError') showCopyFallback(text);
+        }
+    });
+
+    function renderShoppingExport() {
+        const text = shoppingListEngine.exportText(shoppingList, shoppingExportFormat.value);
+        shoppingCopy.disabled = shoppingShare.disabled = !text;
+        shoppingExportText.value = text;
+        if (!text || !shoppingExport.open) shoppingExportFallback.hidden = true;
+    }
 
     shoppingAddForm.addEventListener('submit', event => {
         event.preventDefault();
@@ -762,6 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderShopping() {
+        renderShoppingExport();
         const bought = shoppingList.items.filter(item => item.checked).length;
         const writtenCount = weeklyPlannerEngine.days.flatMap(day => weeklyPlannerEngine.meals.map(meal => weeklyPlanner.days[day][meal])).filter(slot => slot?.kind === 'note').length;
         shoppingSummary.textContent = `${shoppingList.items.length - bought} pendents · ${bought} comprats${writtenCount ? ` · ${writtenCount} plats escrits al menú: cal afegir-ne els ingredients manualment` : ''}`;
@@ -770,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
         shoppingUndoBtn.hidden = !shoppingUndo;
         shoppingContainer.innerHTML = '';
         if (!shoppingList.items.length) {
-            shoppingContainer.innerHTML = '<p class="shopping-empty">Encara no tens ingredients a la compra. Passa-hi el menú o afegeix-ne un manualment.</p>';
+            shoppingContainer.innerHTML = '<p class="shopping-empty">Encara no tens ingredients a la compra. Planifica un àpat o afegeix-ne un manualment.</p>';
             return;
         }
         const ordered = [...shoppingList.items].sort((a, b) => Number(a.checked) - Number(b.checked));
@@ -802,7 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const position = { left: window.scrollX || 0, top: window.scrollY || 0, behavior: 'instant' };
             const index = Array.from(shoppingContainer.querySelectorAll('.shopping-remove')).indexOf(button);
             const item = shoppingList.items.find(row => row.id === button.dataset.id);
-            commitShopping(shoppingListEngine.remove(shoppingList, button.dataset.id), `Ingredient eliminat. Pots desfer aquest canvi.${item?.origin === 'menu' ? ' No reapareixerà en actualitzar el mateix menú mentre la quantitat necessària no canviï.' : ''}`, true);
+            commitShopping(shoppingListEngine.remove(shoppingList, button.dataset.id), `Ingredient eliminat. Pots desfer aquest canvi.${item?.origin === 'menu' ? ' Es mantindrà fora de la compra fins que restableixis la llista.' : ''}`, true);
             const remaining = Array.from(shoppingContainer.querySelectorAll('.shopping-remove'));
             remaining[Math.min(index, remaining.length - 1)]?.focus({ preventScroll: true });
             window.scrollTo?.(position);
@@ -929,10 +1015,23 @@ document.addEventListener('DOMContentLoaded', () => {
         plannerStatus.setAttribute('data-error', String(error));
     }
 
+    function savePlannerAndShopping(next, changes = {}, nextRecipes = recipes) {
+        const previous = shoppingListEngine.requirements(weeklyPlanner);
+        const required = shoppingListEngine.requirements(next, nextRecipes);
+        const changed = JSON.stringify(previous.rows) !== JSON.stringify(required.rows);
+        const updatedShopping = changed ? shoppingListEngine.merge(shoppingList, required) : shoppingList;
+        appData.update({ weeklyPlanner: next, shoppingList: updatedShopping, ...changes });
+        weeklyPlanner = next;
+        if (changed) {
+            shoppingList = updatedShopping;
+            shoppingUndo = null;
+            shoppingStatus.textContent = 'Llista actualitzada amb els àpats del menú.';
+        }
+    }
+
     function commitPlanner(next, message) {
         try {
-            appData.setItem('weeklyPlanner', JSON.stringify(next));
-            weeklyPlanner = next;
+            savePlannerAndShopping(next);
             renderPlanner();
             if (message) plannerFeedback(message);
             return true;
@@ -944,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openRecipePlan(recipeId) {
-        const recipe = recipes.find(item => item.id === recipeId && item.collection !== 'legacy' && item.category !== 'dessert');
+        const recipe = recipes.find(item => item.id === recipeId && !item.incomplete && item.collection !== 'legacy' && item.category !== 'dessert');
         if (!recipe) return;
         recipeToPlan = recipe;
         planRecipeTrigger = document.activeElement;
@@ -993,8 +1092,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
             next.days[day][meal] = { kind: 'recipe', id: recipeToPlan.id, title: recipeToPlan.title, locked: true };
             const adopted = recipeToPlan.collection === 'recommended' && !adoptedRecipes.includes(recipeToPlan.id) ? [...adoptedRecipes, recipeToPlan.id] : [...adoptedRecipes];
-            appData.update({ weeklyPlanner: next, adoptedRecipes: adopted });
-            weeklyPlanner = next; adoptedRecipes = adopted;
+            savePlannerAndShopping(next, { adoptedRecipes: adopted });
+            adoptedRecipes = adopted;
             const message = `${recipeToPlan.title}: afegida a ${dayName(day).toLowerCase()} · ${mealNames[meal].toLowerCase()}.`;
             filterRecipes(); renderPlanner(); renderFridgeRecipes();
             if (modal.classList.contains('show')) openRecipeModal(recipeToPlan.id);
@@ -1019,12 +1118,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = weeklyPlanner.days[mealDay.value]?.[mealType.value];
         const own = weeklyPlannerEngine.ownRecipes(adoptedRecipes);
         mealChoice.innerHTML = `<option value="empty">Sense assignar</option><option value="leftovers">Aprofito restes</option><option value="out">Menjo fora</option><option value="note">Plat escrit · sense recepta</option>` +
-            own.map(recipe => `<option value="${recipe.id}">${escapeHtml(recipe.title)} · ${escapeHtml(recipe.time)}</option>`).join('') +
+            own.map(recipe => `<option value="${recipe.id}">${escapeHtml(recipe.title)}${recipe.time ? ' · ' + escapeHtml(recipe.time) : ''}</option>`).join('') +
             (current?.kind === 'recipe' && !own.some(recipe => recipe.id === current.id) ?
                 `<option value="${current.id}">${escapeHtml(current.title)} · Àpat ja desat</option>` : '');
         mealChoice.value = preselected != null ? String(preselected) : current?.kind === 'recipe' ? String(current.id) : current?.kind || 'empty';
         mealNote.value = ['out', 'leftovers', 'note'].includes(current?.kind) ? current.title : '';
+        updateMealNote();
+    }
+
+    function updateMealNote() {
+        const written = mealChoice.value === 'note';
+        mealNoteLabel.textContent = written ? 'Nom del plat' : 'Nota opcional';
         mealNote.disabled = !['leftovers', 'out', 'note'].includes(mealChoice.value);
+        mealNote.required = written;
     }
 
     function closeMealPicker() {
@@ -1034,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mealDay.addEventListener('change', () => updateMealChoices());
     mealType.addEventListener('change', () => updateMealChoices());
-    mealChoice.addEventListener('change', () => { mealNote.disabled = !['leftovers', 'out', 'note'].includes(mealChoice.value); });
+    mealChoice.addEventListener('change', updateMealNote);
     closeMealBtn.addEventListener('click', closeMealPicker);
     mealForm.addEventListener('submit', event => {
         event.preventDefault();
@@ -1071,21 +1177,31 @@ document.addEventListener('DOMContentLoaded', () => {
             batchDays: Number(plannerControls.batchDays.value), people,
             maxMinutes: Number(plannerControls.maxMinutes.value), preferFridge: plannerControls.preferFridge.checked
         });
-        commitPlanner(next, 'Preferències desades. Prem «Regenera la setmana» per aplicar-les als àpats; els fixats es conservaran.');
+        commitPlanner(next, 'Preferències desades. La nova configuració s’aplicarà quan generis àpats.');
     }));
 
-    generatePlannerBtn.addEventListener('click', () => {
-        const slots = Object.values(weeklyPlanner.days).flatMap(day => weeklyPlannerEngine.meals.map(meal => day[meal]));
-        if (slots.every(slot => slot?.locked)) {
-            plannerFeedback('Tots els àpats estan fixats. Desfixa els que vulguis que canviïn.');
+    plannerGenerationForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const selection = new FormData(plannerGenerationForm);
+        const selectedDays = selection.getAll('planner-target-day');
+        const selectedMeals = selection.getAll('planner-target-meal');
+        if (!selectedDays.length || !selectedMeals.length) {
+            plannerFeedback('Tria com a mínim un dia i un tipus d’àpat.', true);
             return;
         }
-        const result = weeklyPlannerEngine.generate(weeklyPlanner, { adopted: adoptedRecipes, fridge: myFridge });
+        const onlyEmpty = document.getElementById('planner-generation-mode').value === 'empty';
+        const result = weeklyPlannerEngine.generate(weeklyPlanner, {
+            adopted: adoptedRecipes, fridge: myFridge, selectedDays, selectedMeals, onlyEmpty
+        });
+        if (result.reason === 'no-targets') {
+            plannerFeedback(onlyEmpty ? 'Els àpats triats ja són plens.' : 'Tots els àpats triats estan fixats.');
+            return;
+        }
         if (!result.ok) {
             plannerFeedback('No hi ha receptes teves amb aquests filtres. Desactiva la temporada, amplia el temps o adopta més receptes. El menú es conserva.', true);
             return;
         }
-        commitPlanner(result.state, 'Setmana suggerida. Hem conservat els àpats fixats; pots canviar o triar qualsevol dels altres individualment.');
+        commitPlanner(result.state, result.filled === 1 ? 'S’ha generat un àpat.' : `S’han generat ${result.filled} àpats.`);
     });
 
     function renderPlanner() {
@@ -1107,10 +1223,9 @@ document.addEventListener('DOMContentLoaded', () => {
         plannerControls.season.querySelector?.('option[value="auto"]')?.replaceChildren(`Estació actual · ${season}`);
         const pool = weeklyPlannerEngine.eligible(settings, adoptedRecipes);
         const ownCount = weeklyPlannerEngine.ownRecipes(adoptedRecipes).length;
-        plannerPoolInfo.textContent = pool.length ? `${pool.length} de ${ownCount} receptes teves disponibles${settings.seasonEnabled ? ` · ${season}` : ' · Totes les estacions'}. ${!settings.batchDays && pool.length < 14 ? 'Per omplir 14 àpats caldrà repetir alguns plats; evitarem dinar i sopar iguals sempre que hi hagi alternatives.' : ''}` :
+        plannerPoolInfo.textContent = pool.length ? `${pool.length} de ${ownCount} receptes teves disponibles${settings.seasonEnabled ? ` · ${season}` : ' · Totes les estacions'}.` :
             'Cap recepta teva compleix els filtres. Prova de desactivar la temporada, ampliar el temps o adoptar més receptes. No s’ompliran àpats amb receptes fora dels filtres.';
         generatePlannerBtn.disabled = !pool.length;
-        generatePlannerBtn.textContent = Object.values(weeklyPlanner.days).some(day => day.lunch || day.dinner) ? 'Regenera la setmana' : 'Suggereix una setmana';
         plannerModeHelp.textContent = settings.batchDays ? `Blocs de ${settings.batchDays} ${settings.batchDays === 1 ? 'dia' : 'dies'}: proposem un dinar i un sopar per bloc, amb repeticions per avançar feina. ${settings.batchDays === 1 ? 'Amb un dia no es repeteixen plats entre dies expressament.' : ''} Les decisions fixades i els canvis individuals poden trencar el bloc.` :
             'Dia a dia: prioritzem plats diferents, alternem la proteïna principal i evitem repetir el mateix plat en dies seguits quan la llista ho permet. La nevera només es compara per nom, sense comprovar existències ni caducitats.';
         weeklyPlannerEngine.days.forEach(dayKey => {
@@ -1124,8 +1239,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<section class="planner-meal${slot?.locked ? ' is-locked' : ''}">
                     <div class="planner-meal-heading"><h4>${mealNames[meal]}</h4>${slot ? `<button type="button" class="planner-lock" data-day="${dayKey}" data-meal="${meal}" aria-pressed="${slot.locked}" aria-label="${slot.locked ? 'Desfixa' : 'Fixa'} ${label}">${slot.locked ? 'Fixat ✓' : 'Fixa'}</button>` : ''}</div>
                     ${recipe ? `<button type="button" class="planner-view-recipe" data-id="${recipe.id}">${escapeHtml(title)}</button>` : `<p class="planner-meal-title">${escapeHtml(title)}</p>`}
-                    ${recipe ? `<p class="planner-meal-meta">${escapeHtml(recipe.time)} · ${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}${slot.batchKey ? ' · Bloc batch cooking' : ''}</p>` : slot?.kind === 'note' ? '<p class="planner-meal-meta">Plat escrit · ingredients a la compra manualment</p>' : slot?.title ? `<p class="planner-meal-meta">${escapeHtml(slot.title)}</p>` : ''}
+                    ${recipe ? `<p class="planner-meal-meta">${recipe.time ? escapeHtml(recipe.time) + ' · ' : ''}${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}${slot.batchKey ? ' · Bloc batch cooking' : ''}</p>` : slot?.kind === 'note' ? '<p class="planner-meal-meta">Plat escrit · ingredients a la compra manualment</p>' : slot?.title ? `<p class="planner-meal-meta">${escapeHtml(slot.title)}</p>` : ''}
                     <div class="planner-meal-actions"><button type="button" class="planner-choose" data-day="${dayKey}" data-meal="${meal}" aria-label="Tria ${label}">${slot ? 'Tria un altre' : 'Tria un àpat'}</button>
+                        ${slot ? `<button type="button" class="planner-remove" data-day="${dayKey}" data-meal="${meal}" aria-label="Buida ${label}">Buida</button>` : ''}
                         ${!slot || slot.kind === 'recipe' ? `<button type="button" class="planner-replace" data-day="${dayKey}" data-meal="${meal}" aria-label="Suggereix una alternativa per a ${label}">↻ Canvia</button>` : ''}
                     </div></section>`;
             }).join('');
@@ -1137,7 +1253,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
             const slot = next.days[button.dataset.day][button.dataset.meal];
             slot.locked = !slot.locked;
-            commitPlanner(next, slot.locked ? 'Àpat fixat: es conservarà quan regeneris la setmana.' : 'Àpat desfixat: la pròxima regeneració el podrà canviar.');
+            commitPlanner(next, slot.locked ? 'Àpat fixat: es conservarà quan regeneris el menú.' : 'Àpat desfixat: la pròxima regeneració el podrà canviar.');
+        }));
+        plannerGrid.querySelectorAll('.planner-remove').forEach(button => button.addEventListener('click', () => {
+            const { day, meal } = button.dataset;
+            const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
+            next.days[day][meal] = null;
+            if (commitPlanner(next, `${dayName(day)} · ${mealNames[meal]}: àpat buidat.`)) {
+                plannerGrid.querySelector(`.planner-choose[data-day="${day}"][data-meal="${meal}"]`)?.focus();
+            }
         }));
         document.querySelectorAll('.planner-replace').forEach(button => button.addEventListener('click', () => {
             const result = weeklyPlannerEngine.replaceMeal(weeklyPlanner, button.dataset.day, button.dataset.meal, { adopted: adoptedRecipes, fridge: myFridge });
@@ -1166,6 +1290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Init ---
+    refreshSavedShopping();
     menuImportUI.mount({ getState: () => weeklyPlanner, getAdopted: () => adoptedRecipes, getFridge: () => myFridge, commit: commitPlanner });
     filterRecipes();
     renderFridge();

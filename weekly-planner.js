@@ -51,7 +51,7 @@ const weeklyPlannerEngine = (() => {
     }
 
     function ownRecipes(adopted = []) {
-        return recipeCatalog.recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adopted) === 'mine' && recipe.category !== 'dessert');
+        return recipeCatalog.recipes.filter(recipe => recipeCatalog.collectionOf(recipe, adopted) === 'mine' && recipe.category !== 'dessert' && !recipe.incomplete);
     }
 
     function eligible(settings, adopted = [], date = new Date()) {
@@ -114,37 +114,47 @@ const weeklyPlannerEngine = (() => {
         }).sort((a, b) => a.score - b.score)[0].recipe;
     }
 
-    function generate(raw, { adopted = [], fridge = [], date = new Date(), random = Math.random } = {}) {
+    function generate(raw, { adopted = [], fridge = [], date = new Date(), random = Math.random,
+        selectedDays = days, selectedMeals = meals, onlyEmpty = true } = {}) {
         const state = normalizeState(raw);
+        const targets = new Map();
+        for (const day of days) {
+            if (!selectedDays.includes(day)) continue;
+            const openMeals = meals.filter(meal => {
+                const slot = state.days[day][meal];
+                return selectedMeals.includes(meal) && (!slot || (!onlyEmpty && !slot.locked));
+            });
+            if (openMeals.length) targets.set(day, openMeals);
+        }
+        if (!targets.size) return { ok: false, reason: 'no-targets', state, count: 0 };
         const pool = eligible(state.settings, adopted, date);
         if (!pool.length) return { ok: false, reason: 'empty-pool', state, count: 0 };
         const original = normalizeState(raw);
-        // Es mantenen exclusivament les decisions fixades; la resta es regenera.
-        for (const day of days) for (const meal of meals) {
-            if (!state.days[day][meal]?.locked) state.days[day][meal] = null;
-        }
+        for (const [day, openMeals] of targets) for (const meal of openMeals) state.days[day][meal] = null;
+        let filled = 0;
         const width = state.settings.batchDays || 1;
         for (let start = 0; start < days.length; start += width) {
             const block = days.slice(start, start + width);
             for (const meal of meals) {
-                const targets = block.filter(day => !state.days[day][meal]?.locked);
-                if (!targets.length) continue;
-                const sameDayIds = block.flatMap(day => meals.filter(other => other !== meal)
+                const blockTargets = block.filter(day => targets.get(day)?.includes(meal));
+                if (!blockTargets.length) continue;
+                const sameDayIds = blockTargets.flatMap(day => meals.filter(other => other !== meal)
                     .map(other => state.days[day][other]).filter(slot => slot?.kind === 'recipe').map(slot => slot.id));
                 const previousDayIds = start > 0 ? snapshot([state.days[days[start - 1]]]).map(slot => slot.id) : [];
                 const recipe = pickRecipe(pool, {
                     assigned: snapshot(Object.values(state.days)), sameDayIds, previousDayIds,
                     previousPairs: recipePairs(days.slice(0, start).map(day => state.days[day])),
-                    oldIds: targets.map(day => original.days[day][meal]?.id).filter(Number.isInteger),
+                    oldIds: blockTargets.map(day => original.days[day][meal]?.id).filter(Number.isInteger),
                     fridge, preferFridge: state.settings.preferFridge, random
                 });
-                for (const day of targets) {
+                for (const day of blockTargets) {
+                    filled++;
                     state.days[day][meal] = { kind: 'recipe', id: recipe.id, title: recipe.title, locked: false,
                         ...(state.settings.batchDays ? { batchKey: `${block[0]}:${meal}:${recipe.id}` } : {}) };
                 }
             }
         }
-        return { ok: true, state, count: pool.length };
+        return { ok: true, state, count: pool.length, filled };
     }
 
     function replaceMeal(raw, day, meal, options = {}) {

@@ -320,7 +320,7 @@ function seasonalRecipe(data) {
         mealTypes: ['Dinar', 'Sopar'], sourceChecked: '2026-11-02',
         ...data,
         time: data.time || `${data.totalMinutes} min`,
-        ingredients: data.ingredients.map(([item, qty]) => ({ item, qty })),
+        ingredients: data.ingredients.map(([item, qty, servings]) => ({ item, qty, ...(servings ? { servings } : {}) })),
         instructions: data.steps.map((step, index) => `${index + 1}. ${step}`).join('\n')
     };
 }
@@ -406,15 +406,15 @@ const seasonalRecipes = [
         adaptationNote: 'Recepta del recull personal que has aportat, ajustada a dues racions. Quantitats, passos, temps i estimació nutricional transcrits del document.'
     }),
     seasonalRecipe({
-        id: 304, title: 'Amanida verda amb salsa de iogurt i mostassa', collection: 'mine', emoji: '🥗',
+        id: 304, sourceName: 'Recepta pròpia', title: 'Amanida verda amb salsa de iogurt i mostassa', collection: 'mine', emoji: '🥗',
         description: 'Enciam, ruca, verdura fresca, poma i olives amb una salsa cremosa. Base per a dues racions, amb opcions de proteïna.',
         seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], totalMinutes: 15, activeMinutes: 15, sourceChecked: null,
         equipment: ['Bol', 'Ganivet'], tags: ['Amanida', 'Recepta personal'], sourceIds: [],
-        ingredients: [['Enciam i ruca', '100–125 g'], ['Tomàquet', '1 unitat grossa'], ['Cogombre', '1/2 unitat'], ['Ceba morada', '1/2 unitat'], ['Poma', '1/2 unitat'], ['Olives negres', '8–10 unitats'], ['Iogurt natural', '125 g'], ['Mostassa', '2 culleradetes'], ['Suc de llimona o vinagre', '2 culleradetes'], ['Oli d’oliva', '1 cullerada'], ['Sal', 'Un pessic']],
+        ingredients: [['Enciam i ruca', '100–125 g'], ['Tomàquet', '1 unitat grossa'], ['Cogombre', '1/2 unitat'], ['Ceba morada', '1/2 unitat'], ['Poma', '1/2 unitat'], ['Olives negres', '8–10 unitats'], ['Iogurt natural', '125 g', 3], ['Mostassa', '2 culleradetes', 3], ['Suc de llimona o vinagre', '2 culleradetes', 3], ['Oli d’oliva', '1 cullerada', 3], ['Sal', 'Un pessic', 3]],
         optionalIngredients: [{ item: 'Nous', qty: 'Un grapat petit' }, { item: 'Pebre', qty: 'Al gust' }, { item: 'Ous durs', qty: '2 unitats · 1 per persona' }, { item: 'Tonyina', qty: 'Al gust · alternativa als ous' }, { item: 'Cigrons cuits', qty: 'Al gust · alternativa als ous' }],
         steps: ['Renta i prepara l’enciam, la ruca i les verdures. Talla el tomàquet, el cogombre, la ceba i la poma; barreja-ho amb les olives.', 'Per a la salsa, barreja els 125 g de iogurt, les dues culleradetes de mostassa, les dues de llimona o vinagre, la cullerada d’oli i la sal. Afegeix-hi pebre si vols i una mica d’aigua si queda massa espessa.', 'La fórmula original de salsa rendeix per a tres amanides, sense mida especificada. Amaneix aquestes dues racions al gust i reserva la salsa que no necessitis: no cal abocar-la tota.', 'Si vols completar-la, tria un ou dur per persona, tonyina o cigrons. Afegeix nous si et venen de gust. Amanir al moment manté la base més cruixent.'],
         balanceNote: 'La base és una amanida de verdura i fruita. Per fer-ne un àpat més complet pots triar una de les opcions de proteïna; no s’inclouen totes automàticament a la compra.',
-        variations: ['La compra compta els ingredients de dues racions de base i una tanda sencera de salsa de 125 g de iogurt. L’escala de persones manté aquesta proporció; pot sobrar salsa.', 'Nous, pebre i opcions de proteïna són opcionals: afegeix a la compra només els que vulguis. Si has de bullir els ous, calcula el temps addicional.', 'Pots aprofitar altres fulles verdes o verdures que tinguis a la nevera.'],
+        variations: ['La compra escala la base per a dues racions i la tanda sencera de salsa per a tres amanides.', 'Nous, pebre i opcions de proteïna són opcionals: afegeix a la compra només els que vulguis. Si has de bullir els ous, calcula el temps addicional.', 'Pots aprofitar altres fulles verdes o verdures que tinguis a la nevera.'],
         batchNote: 'Prepara la salsa a part i conserva-la refrigerada segons els ingredients utilitzats. Guarda l’amanida sense amanir i talla la poma quan la vagis a servir.',
         adaptationNote: 'Proposta personal que has compartit des d’un altre xat de ChatGPT. Amanida per a dues racions i recepta original de salsa per a tres amanides, amb el rendiment explicat. Temps orientatiu. S’ha afegit una foto de referència d’internet; no és la fotografia esmentada de l’altre xat, que no s’ha rebut.'
     }),
@@ -624,7 +624,7 @@ const seasonalRecipes = [
         adaptationNote: 'Inspirada en el saltat de Sara Buenfeld, sense salsa de cacauet i amb una guarnició i racions pròpies.'
     }),
     seasonalRecipe({
-        id: 302, title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', testedByUser: true, emoji: '🍄',
+        id: 302, sourceName: 'Recepta pròpia', title: 'Nyoquis cremosos amb bolets i cottage', collection: 'mine', testedByUser: true, emoji: '🍄',
         description: 'Nyoquis amb bolets congelats i una crema de cottage i parmesà. Dues racions, en uns 20–25 minuts.',
         totalMinutes: 25, activeMinutes: 20, equipment: ['Paella', 'Batedora'], sourceChecked: null,
         tags: ['Vegetarià', 'Amb formatge'], sourceIds: [],
@@ -638,7 +638,7 @@ const seasonalRecipes = [
         adaptationNote: 'Recepta pròpia, elaborada amb ChatGPT i ja provada per tu. Quantitats i estimacions transcrites de la teva proposta.'
     }),
     seasonalRecipe({
-        id: 303, title: 'Crema densa al curri amb pollastre', collection: 'mine', testedByUser: true, emoji: '🥣',
+        id: 303, sourceName: 'MaydenFit', title: 'Crema densa al curri amb pollastre', collection: 'mine', testedByUser: true, emoji: '🥣',
         description: 'Crema espessa de patata, ceba i pastanaga, amb pollastre esmicolat i un ou escalfat per persona. Dues racions grans.',
         totalMinutes: 30, activeMinutes: 10, equipment: ['Olla', 'Batedora', 'Cassó'], sourceChecked: null,
         tags: ['Pollastre', 'Crema', 'Racions grans'], sourceIds: ['maydenCream'],
@@ -651,7 +651,7 @@ const seasonalRecipes = [
         adaptationNote: 'Recepta ja provada per tu i incorporada a «Les meves». Font indicada: MaydenFit, que es conserva a sota. Preparació i xifres transcrites de la teva proposta; els valors nutricionals no s’han verificat.'
     }),
     seasonalRecipe({
-        id: 209, title: 'Truita de cigrons de MaydenFit', collection: 'recommended', testedByUser: false, emoji: '🍳',
+        id: 209, sourceName: 'MaydenFit', title: 'Truita de cigrons de MaydenFit', collection: 'recommended', testedByUser: false, emoji: '🍳',
         description: 'Per provar: cigrons cuits, ou i una mica de mozzarella en una truita de paella. Dues racions orientatives.',
         seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'], totalMinutes: 15, activeMinutes: 8,
         equipment: ['Bol', 'Forquilla', 'Paella antiadherent', 'Plat per girar'], sourceChecked: '2026-11-07',
@@ -665,3 +665,71 @@ const seasonalRecipes = [
         adaptationNote: 'Recepta de MaydenFit per provar. Ingredients comprovats a la descripció del vídeo enllaçat. Passos resumits a partir de la versió publicada per HolyCook; no s’han pogut contrastar directament amb el vídeo. Racions i temps orientatius de l’app.'
     })
 ];
+
+// Les racions i les xifres nutricionals indiquen el rendiment declarat per la font.
+const maydenRecipes = [
+    {
+        id: 501, title: 'Espaguetis asiàtics cremosos amb pollastre i verdures',
+        kcal: 920, protein: 69, base: 'Total del plat', carbs: 142, fiber: 19, fat: 8, video: 'gJFRNOxKGnk', time: '20 min',
+        ingredients: [['Espaguetis', '120 g'], ['Espinacs congelats', '100 g'], ['Pèsols congelats', '100 g'], ['Carbassó', '120 g'],
+            ['Xampinyons portobello', '75 g'], ['Ceba morada', '75 g'], ['Panotxa de blat de moro', '75 g'], ['Pit de pollastre', '150 g'],
+            ['Salsa de soja', '20 ml'], ['Salsa d’ostres', '10 ml'], ['Ssamjang', '20 g'], ['Curri', 'Al gust'],
+            ['Pebre vermell picant', 'Al gust'], ['Pebre negre', 'Al gust'], ['Aigua', '800 ml'], ['Formatget light per untar', '1 unitat']],
+        preparation: 'El vídeo comença per la base de verdures, hi incorpora les salses i les espècies i després hi afegeix la pasta, el pollastre i el formatget. Consulta el vídeo per veure la cocció.',
+        dataNote: 'La font dona les quantitats per al plat complet. El nombre de racions i els temps de cada pas queden pendents.'
+    },
+    {
+        id: 502, title: 'Entrepà de tonyina, ou i alvocat',
+        kcal: 596, protein: 54, base: 'Per un entrepà sencer', carbs: 39, fiber: 10, fat: 25, video: '26QAJ-sjIGo',
+        servings: 1, yieldLabel: 'Ingredients per a 1 entrepà',
+        ingredients: [['Ous', '2 unitats'], ['Tonyina clara al natural', '2 llaunes'], ['Alvocat madur', '1/2 unitat'],
+            ['Cottage 0% de greix', '30–40 g'], ['Pa de motlle integral', '2 llesques'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust']],
+        preparation: '1. Bull els ous 7–8 minuts i pela’ls.\n2. Escorre bé la tonyina i treu la polpa del mig alvocat.\n3. Aixafa la tonyina, els ous, l’alvocat i el cottage amb una forquilla. Amaneix-ho amb sal i pebre, i reparteix la barreja entre les dues llesques.'
+    },
+    {
+        id: 503, title: 'Amanida de pollastre i pasta de cigrons',
+        kcal: 481, protein: 43, carbs: 47, fiber: 14, fat: 12, video: 'wD0ORdko1Bk',
+        ingredients: [['Pasta de cigrons', '50 g'], ['Enciam', ''], ['Tomàquet', ''], ['Pollastre cuit', '100 g'],
+            ['Iogurt grec lleuger', '100 g'], ['Alvocat', '1/2 unitat'], ['Espinacs', ''], ['Ceba morada', ''], ['Espècies', '']],
+        preparation: 'El vídeo mostra com es prepara la pasta i el pollastre, com es fa la salsa i com es munta l’amanida. Consulta aquests capítols per veure els passos complets.',
+        dataNote: 'La font no concreta les quantitats de totes les verdures o les espècies ni el nombre de racions.'
+    },
+    {
+        id: 504, title: 'Quiche proteica d’espinacs i mozzarella',
+        kcal: 504, protein: 45, base: 'Per la quiche sencera', carbs: 19, fat: 26, video: 'epC4h3q4PHs',
+        yieldLabel: 'Ingredients per a 1 quiche',
+        ingredients: [['Tortilla de blat integral', '1 unitat'], ['Ous', '3 unitats'], ['Tomàquets cherry', '1 grapat'], ['Espinacs frescos', '1 grapat'],
+            ['Pernil cuit extra (mín. 95% carn)', '60 g'], ['Mozzarella fresca', '60 g'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust'], ['Nou moscada', '1 pessic']],
+        preparation: '1. Folra un motlle amb la tortilla integral.\n2. Bat-hi els ous amb la sal, el pebre i la nou moscada. Afegeix els tomàquets, els espinacs i el pernil tallats.\n3. Reparteix la mozzarella a sobre. Cou-ho a 180 °C: 20 minuts a la fregidora d’aire o 25 minuts al forn.',
+        dataNote: 'La font indica una quiche sencera i deixa obert en quantes racions es reparteix.',
+        variations: ['La font proposa tonyina al natural o pollastre en lloc de pernil, i cottage o ricotta en lloc de mozzarella.']
+    },
+    { id: 505, title: 'Boles de patata amb pernil i mozzarella', kcal: 706, protein: 45 },
+    {
+        id: 506, title: 'Pasta cremosa amb vedella a l’all',
+        kcal: 775, protein: 67, base: 'Per ració o carmanyola', carbs: 84, fiber: 6, fat: 19, video: 'N5JwrY7llVg',
+        servings: 5, time: '60 min', yieldLabel: 'Ingredients per a 5 carmanyoles',
+        ingredients: [['Oli d’oliva verge extra en esprai', 'Sense quantitat indicada'], ['Tomàquet', '4 unitats'],
+            ['Tomàquets cherry', '100 g'], ['Pebrot vermell', '2 unitats'], ['All', '1 cabeça'], ['Alfàbrega', ''],
+            ['Pebre vermell fumat', ''], ['Cottage', '150 g'], ['Parmesà o Grana Padano', '70 g'], ['Sal', 'Al gust'],
+            ['Pebre negre', 'Al gust'], ['Pasta', '500 g'], ['Vedella picada magra (5% de greix)', '1 kg'],
+            ['Pebre vermell', ''], ['All en pols', ''], ['Ceba en pols', '']],
+        preparation: '1. Prepara la pasta i rosteix les verdures per a la salsa.\n2. Cuina la vedella amb l’all i les espècies. Prepara la salsa de verdures amb el cottage i el parmesà.\n3. Reparteix la pasta, la salsa i la vedella en cinc carmanyoles.',
+        dataNote: 'Preparació resumida a partir dels capítols del vídeo. La descripció deixa pendents els detalls de temps i temperatura per rostir les verdures.',
+        batchNote: 'La font reparteix les quantitats en cinc carmanyoles.'
+    },
+    { id: 507, title: 'Arròs negre amb marisc i verdures', kcal: 665, protein: 47, unit: 'kg', base: 'Per quilogram' },
+    { id: 508, title: 'Pollastre cruixent estil KFC', kcal: 528, protein: 70.5 },
+    { id: 509, title: 'Bol de moniato amb carn picada, cottage i alvocat', kcal: 789, protein: 67 },
+    { id: 510, title: 'Cigrons amb ou i tres pebrots', kcal: 590, protein: 34, ingredients: [
+        ['Cigrons', ''], ['Ou', ''], ['Pebrot vermell', '1/2 unitat'], ['Pebrot verd', '1/2 unitat'], ['Pebrot groc', '1/2 unitat']
+    ] }
+].map(({ kcal, protein, unit, base, carbs, fiber, fat, video, ingredients = [], preparation, ...recipe }) => ({
+    ...recipe,
+    collection: 'recommended', sourceName: 'MaydenFit', seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'],
+    incomplete: !recipe.servings,
+    ingredients: ingredients.map(([item, qty]) => ({ item, qty })),
+    instructions: preparation,
+    sourceUrl: video ? 'https://www.youtube.com/watch?v=' + video : '',
+    declaredNutrition: { kcal, protein, unit, base, carbs, fiber, fat }
+}));

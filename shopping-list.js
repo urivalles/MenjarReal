@@ -2,7 +2,7 @@
 const shoppingListEngine = (() => {
     const empty = () => ({ version: 1, items: [], dismissed: [] });
     const nameKey = name => recipeCatalog.normalize(name).replace(/[’']/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-    const format = value => new Intl.NumberFormat('ca', { maximumFractionDigits: 2 }).format(value);
+    const format = value => new Intl.NumberFormat('ca', { maximumFractionDigits: 2, useGrouping: false }).format(value);
 
     function validate(value) {
         if (!value || value.version !== 1 || !Array.isArray(value.items) || value.items.length > 2000 || !Array.isArray(value.dismissed) || value.dismissed.length > 2000) throw new Error('La llista de la compra no té un format vàlid.');
@@ -28,8 +28,17 @@ const shoppingListEngine = (() => {
         return { version: 1, items, dismissed };
     }
 
+    const singular = { unitats: 'unitat', culleradetes: 'culleradeta', cullerades: 'cullerada', grans: 'gra', filets: 'filet', lloms: 'llom', grapats: 'grapat', llaunes: 'llauna', trossos: 'tros', gots: 'got', tasses: 'tassa', llesques: 'llesca', cabeces: 'cabeça' };
+
     function parseQuantity(quantity) {
         const raw = String(quantity || '').trim().replace(/(\d)\s*([½¼¾])/g, '$1 $2').replace(/½/g, '1/2').replace(/¼/g, '1/4').replace(/¾/g, '3/4');
+        const range = raw.match(/^(\d+(?:[.,]\d+)?)\s*[–—-]\s*(\d+(?:[.,]\d+)?)(.*)$/);
+        if (range) {
+            const low = parseQuantity(range[1] + range[3]);
+            const high = parseQuantity(range[2] + range[3]);
+            if (!low || !high || low.amount > high.amount) return null;
+            return { ...low, max: high.amount };
+        }
         // Un punt amb tres xifres pot indicar milers o decimals: conserva el text.
         if (/^[1-9]\d*\.\d{3}(?=\D|$)/.test(raw)) return null;
         const match = raw.match(/^(?:(\d+)\s+(\d+)\/(\d+)|(\d+)\/(\d+)|(\d+(?:[.,]\d+)?))\s*(.*)$/);
@@ -44,20 +53,35 @@ const shoppingListEngine = (() => {
             [/^(cullerada|cullerades)\b\s*/i, 'cullerades', 1], [/^(grans|gra|dents|dent)\b\s*/i, 'grans', 1],
             [/^filets?\b\s*/i, 'filets', 1], [/^lloms?\b\s*/i, 'lloms', 1], [/^grapats?\b\s*/i, 'grapats', 1],
             [/^(llauna|llaunes)\b\s*/i, 'llaunes', 1], [/^(tros|trossos)\b\s*/i, 'trossos', 1],
-            [/^gots?\b\s*/i, 'gots', 1], [/^(tassa|tasses)\b\s*/i, 'tasses', 1]
+            [/^gots?\b\s*/i, 'gots', 1], [/^(tassa|tasses)\b\s*/i, 'tasses', 1], [/^llesc(?:a|ues)\b\s*/i, 'llesques', 1],
+            [/^cabe(?:ça|ces)\b\s*/i, 'cabeces', 1]
         ];
         let unit = 'unitats';
         for (const [pattern, label, factor] of units) {
             if (pattern.test(tail)) { unit = label; amount *= factor; tail = tail.replace(pattern, ''); break; }
         }
         // Un descriptor desconegut es manté separat: no inventem equivalències.
-        const suffix = tail.replace(/^[,;\s]+/, '').trim();
+        const suffix = tail.replace(/^[,;·\s]+/, '').trim();
         // Intervals, sumes i equivalències necessiten revisar-se com un conjunt.
         if (/[\d+–—]/.test(suffix) || /\b(i|o)\b/i.test(suffix)) return null;
-        return { amount, unit, suffix, key: `${unit}|${recipeCatalog.normalize(suffix)}` };
+        return { amount, max: amount, unit, suffix, key: `${unit}|${recipeCatalog.normalize(suffix)}` };
     }
 
-    function requirements(rawPlanner) {
+    function addPart(parts, parsed, factor = 1) {
+        if (!parts.has(parsed.key)) parts.set(parsed.key, { ...parsed, amount: 0, max: 0 });
+        const part = parts.get(parsed.key);
+        part.amount += parsed.amount * factor;
+        part.max += parsed.max * factor;
+    }
+
+    function formatPart(part) {
+        const amount = format(part.amount);
+        const max = format(part.max);
+        const unit = part.amount === 1 && part.max === 1 ? singular[part.unit] || part.unit : part.unit;
+        return amount + (amount === max ? '' : '–' + max) + ' ' + unit + (part.suffix ? ' · ' + part.suffix : '');
+    }
+
+    function requirements(rawPlanner, recipes = recipeCatalog.recipes) {
         const planner = weeklyPlannerEngine.normalizeState(rawPlanner);
         const occurrences = new Map();
         const missing = [];
@@ -66,7 +90,7 @@ const shoppingListEngine = (() => {
             const slot = planner.days[day][meal];
             if (slot?.kind !== 'recipe') continue;
             mealCount++;
-            const recipe = recipeCatalog.recipes.find(item => item.id === slot.id);
+            const recipe = recipes.find(item => item.id === slot.id && !item.incomplete);
             if (!recipe) { missing.push(slot.title); continue; }
             if (!occurrences.has(recipe.id)) occurrences.set(recipe.id, { recipe, times: 0 });
             occurrences.get(recipe.id).times++;
@@ -74,9 +98,10 @@ const shoppingListEngine = (() => {
         const grouped = new Map();
         const unscaled = [];
         for (const { recipe, times } of occurrences.values()) {
-            const factor = recipe.servings ? times * planner.settings.people / recipe.servings : times;
             if (!recipe.servings) unscaled.push(recipe.title);
             for (const ingredient of recipe.ingredients) {
+                const servings = ingredient.servings || recipe.servings;
+                const factor = servings ? times * planner.settings.people / servings : times;
                 const name = recipeCatalog.ingredientName(ingredient).trim();
                 const quantity = typeof ingredient === 'string' ? '' : ingredient.qty;
                 const key = nameKey(name);
@@ -85,8 +110,7 @@ const shoppingListEngine = (() => {
                 row.sources.push({ recipeId: recipe.id, title: recipe.title, quantity: String(quantity || ''), factor });
                 const parsed = parseQuantity(quantity);
                 if (parsed) {
-                    if (!row.parts.has(parsed.key)) row.parts.set(parsed.key, { ...parsed, amount: 0 });
-                    row.parts.get(parsed.key).amount += parsed.amount * factor;
+                    addPart(row.parts, parsed, factor);
                 } else {
                     const description = String(quantity || 'Quantitat segons recepta');
                     const plain = /^(al gust|un pessic|una mica|unes gotes|fins cobrir)$/i.test(description);
@@ -96,8 +120,7 @@ const shoppingListEngine = (() => {
             }
         }
         const rows = [...grouped.values()].map(row => {
-            const singular = { unitats: 'unitat', culleradetes: 'culleradeta', cullerades: 'cullerada', grans: 'gra', filets: 'filet', lloms: 'llom', grapats: 'grapat', llaunes: 'llauna', trossos: 'tros', gots: 'got', tasses: 'tassa' };
-            const quantities = [...row.parts.values()].sort((a, b) => a.key.localeCompare(b.key)).map(part => `${format(part.amount)} ${part.amount === 1 ? singular[part.unit] || part.unit : part.unit}${part.suffix ? ` · ${part.suffix}` : ''}`);
+            const quantities = [...row.parts.values()].sort((a, b) => a.key.localeCompare(b.key)).map(formatPart);
             quantities.push(...[...row.free.values()].sort((a, b) => a.description.localeCompare(b.description)).map(part => part.plain || part.factor === 1 ? part.description : `${part.description} × ${format(part.factor)} (revisa)`));
             let quantity = quantities.join(' + ');
             if (quantity.length > 500) quantity = 'Quantitats diverses: consulta les receptes d’origen';
@@ -106,10 +129,17 @@ const shoppingListEngine = (() => {
         return { rows, mealCount, missing: [...new Set(missing)], unscaled: [...new Set(unscaled)] };
     }
 
+    function coversQuantity(previous, next) {
+        const available = previous.split(' + ').map(parseQuantity);
+        const needed = next.split(' + ').map(parseQuantity);
+        return available.every(Boolean) && needed.every(Boolean) && needed.every(part =>
+            available.some(old => old.key === part.key && old.amount >= part.amount && old.max >= part.max));
+    }
+
     function merge(rawList, required) {
         const current = validate(rawList);
         const generated = new Map(required.rows.map(row => [row.key, row]));
-        const dismissed = current.dismissed.filter(item => generated.get(item.key)?.quantity === item.quantity);
+        const dismissed = current.dismissed;
         const skipped = new Set(dismissed.map(item => item.key));
         const items = [];
         for (const previous of current.items) {
@@ -117,7 +147,11 @@ const shoppingListEngine = (() => {
             const next = generated.get(previous.key);
             if (next && !skipped.has(previous.key)) {
                 const changed = previous.menuQuantity !== next.quantity;
-                items.push(previous.edited ? { ...next, id: previous.id, name: previous.name, quantity: previous.quantity, edited: true, needsReview: changed || previous.needsReview, checked: changed ? false : previous.checked } : { ...next, id: previous.id, checked: changed ? false : previous.checked });
+                // Si el menú només perd racions d’aquestes receptes, el que ja s’ha comprat encara és suficient.
+                const stillCovered = next.sources.every(source => previous.sources.some(old =>
+                    old.recipeId === source.recipeId && old.quantity === source.quantity && old.factor >= source.factor));
+                const checked = previous.checked && (!changed || stillCovered || coversQuantity(previous.menuQuantity, next.quantity));
+                items.push(previous.edited ? { ...next, id: previous.id, name: previous.name, quantity: previous.quantity, edited: true, needsReview: changed || previous.needsReview, checked } : { ...next, id: previous.id, checked });
                 generated.delete(previous.key);
             } else if (!next && previous.edited) {
                 items.push({ id: previous.id, name: previous.name, quantity: previous.quantity, checked: previous.checked, origin: 'manual' });
@@ -149,5 +183,55 @@ const shoppingListEngine = (() => {
         return validate(list);
     }
 
-    return { empty, validate, nameKey, parseQuantity, requirements, merge, remove, edit };
+    const categories = [
+        ['Verdures i hortalisses', /^(enciam|ruca|tomaquet|cogombre|ceba|all(?! en pols)|patat[ae]|moniato|carbassa|carbasso|porro|col|pastanaga|pebrot|broquil|espinac|bleda|alberginia|verdur|bolet|xampinyo)/],
+        ['Fruita i fruita seca', /^(poma|pera|alvocat|llimona|llima|nous?\b|anou|avellan|ametlla)/],
+        ['Carn i ous', /^(carn|pit de pollastre|pollastre|gall dindi|llom|porc|vedella|pernil|ou\b|ous\b|clares)/],
+        ['Peix i marisc', /^(peix|lluc|salmo|bacalla|tonyina|sardina|marisc|gamba|musclo)/],
+        ['Llegums i proteïnes vegetals', /^(cigro|llentia|llenties|mongeta|fesol|fasol|tofu|edamame|pesol)/],
+        ['Lactis i formatges', /^(llet|iogurt|cottage|formatge|parmesa|paneer|mozzarella|grana padano)/],
+        ['Cereals, pasta i pa', /^(arros|pasta|noodle|nyoqui|macarro|espagueti|pa\b|quinoa|civada|farina)/],
+        ['Rebost i condiments', /^(oli|sal|pebre|vinagre|salsa|brou|mid[oó]|curri|mostassa|esp[eè]ci|canyella|farigola|llorer|gingebre|cumi|julivert|aigua|olives)/]
+    ];
+
+    function exportText(list, mode) {
+        const pending = list.items.filter(item => !item.checked);
+        if (mode === 'simple') {
+            const unique = new Map(pending.map(item => [nameKey(item.name), item.name]));
+            return [...unique.values()].sort((a, b) => a.localeCompare(b, 'ca')).map(name => '• ' + name).join('\n');
+        }
+        const blocks = ['Llista de la compra'];
+        for (const checked of [false, true]) {
+            const groups = new Map();
+            for (const item of list.items.filter(row => row.checked === checked)) {
+                const key = nameKey(item.name);
+                if (!groups.has(key)) groups.set(key, { name: item.name, parts: new Map(), other: new Set() });
+                const group = groups.get(key);
+                // El separador també apareix en quantitats manuscrites. Només dividim si totes les parts són llegibles.
+                const quantities = item.quantity.split(' + ');
+                const parts = quantities.map(parseQuantity);
+                if (parts.every(Boolean)) parts.forEach(part => addPart(group.parts, part));
+                else if (item.quantity) group.other.add(item.quantity);
+            }
+            if (!groups.size) continue;
+            if (checked) blocks.push('✓ Comprats');
+            const byCategory = new Map();
+            for (const [key, group] of groups) {
+                const category = categories.find(([, pattern]) => pattern.test(key))?.[0] || 'Altres';
+                if (!byCategory.has(category)) byCategory.set(category, []);
+                byCategory.get(category).push(group);
+            }
+            for (const category of [...categories.map(([name]) => name), 'Altres']) {
+                if (!byCategory.has(category)) continue;
+                const lines = byCategory.get(category).sort((a, b) => a.name.localeCompare(b.name, 'ca')).map(group => {
+                    const quantity = [...[...group.parts.values()].map(formatPart), ...group.other].join(' + ');
+                    return '• ' + group.name + (quantity ? ' — ' + quantity : '');
+                });
+                blocks.push([category, ...lines].join('\n'));
+            }
+        }
+        return blocks.length > 1 ? blocks.join('\n\n') : '';
+    }
+
+    return { empty, validate, nameKey, parseQuantity, requirements, merge, remove, edit, exportText };
 })();

@@ -3,7 +3,8 @@ const recipeCatalog = (() => {
     const recipes = [
         ...defaultRecipes.map(recipe => ({ ...recipe, collection: 'legacy' })),
         ...seasonalRecipes,
-        ...dessertRecipes
+        ...dessertRecipes,
+        ...maydenRecipes
     ].map(recipe => ({ ...recipe, ...recipePhotos[recipe.id] }));
     const builtInIds = new Set(recipes.map(recipe => recipe.id));
 
@@ -27,7 +28,14 @@ const recipeCatalog = (() => {
             try { url = new URL(image); } catch { throw new Error('La foto ha de ser una imatge o un enllaç HTTPS.'); }
             if (url.protocol !== 'https:' || url.username || url.password || image.length > 2000) throw new Error('Utilitza un enllaç HTTPS de foto, sense credencials.');
         }
+        const sourceUrl = text(value.sourceUrl ?? '', 2000);
+        if (sourceUrl) {
+            let url;
+            try { url = new URL(sourceUrl); } catch { throw new Error('L’enllaç de la font no és vàlid.'); }
+            if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Utilitza un enllaç HTTPS per a la font.');
+        }
         return {
+            sourceName: text(value.sourceName ?? '', 120), sourceUrl,
             id: value.id, custom: true, collection: 'mine', emoji: '🍽️',
             title: text(value.title, 120, true), description: text(value.description || '', 500),
             difficulty: value.difficulty, servings: value.servings, totalMinutes: value.totalMinutes,
@@ -94,17 +102,28 @@ const recipeCatalog = (() => {
         return { accepted, matchCount: matched.length, missingCount: ingredients.length - matched.length };
     }
 
+    function sourceFor(recipe) {
+        const links = (recipe.sourceIds || []).map(id => recipeSources[id]).filter(Boolean);
+        if (recipe.sourceUrl) links.unshift({ title: 'Obre la font original', url: recipe.sourceUrl });
+        const name = recipe.sourceName || (recipe.custom || (recipe.collection === 'mine' && !links.length) ? 'Recepta pròpia' :
+            links[0]?.title.split(/[:·]/)[0].trim() || 'Font per indicar');
+        return { key: normalize(name), name, links };
+    }
+
+    const statusLabels = { pending: 'Pendent de provar', tested: 'Provada', favorite: 'Preferida' };
+
     function select(options = {}) {
         const { query = '', difficulty = 'all', collection = 'all', season = 'all',
-            quick = false, batch = false, gluten = 'all', useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
+            quick = false, batch = false, gluten = 'all', source = 'all', useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
         const term = normalize(query.trim());
         let selected = recipes.filter(recipe => {
             const kind = collectionOf(recipe, adopted);
             const matchesCollection = collection === 'all' ? kind !== 'legacy' : collection === 'dessert' ? recipe.category === 'dessert' : collection === 'pantry' ? kind === 'mine' && recipe.pantry === true : kind === collection;
             const matchesQuery = !term || normalize([recipe.title, recipe.description,
                 ...recipe.ingredients.map(ingredientName), ...(recipe.tags || [])].join(' ')).includes(term);
-            const matchesGluten = gluten === 'all' || (gluten === 'ingredients' ? glutenGuide.review(recipe).status === 'ingredients' : gluten === 'adapt' && glutenGuide.review(recipe).status === 'adapt');
-            return matchesCollection && matchesQuery && matchesGluten &&
+            const matchesGluten = gluten === 'all' || glutenGuide.review(recipe).status === gluten;
+            const matchesSource = source === 'all' || sourceFor(recipe).key === source;
+            return matchesCollection && matchesQuery && matchesGluten && matchesSource &&
                 (difficulty === 'all' || recipe.difficulty === difficulty) &&
                 (season === 'all' || (recipe.seasons || []).includes(season)) &&
                 (!quick || (recipe.totalMinutes || parseInt(recipe.time, 10)) <= 30) &&
@@ -112,13 +131,16 @@ const recipeCatalog = (() => {
         });
         if (useFridge || sort === 'fridge') {
             selected = selected.map(recipe => ({ ...recipe, ...fridgeMatch(recipe, fridge, fridgeOptions) }));
-            if (useFridge) selected = selected.filter(recipe => recipe.accepted);
+            if (useFridge) selected = selected.filter(recipe => !recipe.incomplete && recipe.accepted);
             selected.sort((a, b) => b.matchCount - a.matchCount || a.missingCount - b.missingCount);
         }
-        if (sort === 'time') selected.sort((a, b) => (a.totalMinutes || parseInt(a.time, 10)) - (b.totalMinutes || parseInt(b.time, 10)));
+        if (sort === 'time') {
+            const minutes = recipe => recipe.totalMinutes || parseInt(recipe.time, 10) || Infinity;
+            selected.sort((a, b) => minutes(a) - minutes(b));
+        }
         if (sort === 'name') selected.sort((a, b) => a.title.localeCompare(b.title, 'ca'));
         return selected;
     }
 
-    return { recipes, normalize, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
+    return { recipes, normalize, sourceFor, statusLabels, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
 })();

@@ -39,9 +39,15 @@ const glutenGuide = (() => {
     "309": "[\"Patata\",\"Ous\",\"Clares pasteuritzades\",\"Ceba\",\"Oli d’oliva\",\"Olives\",\"Pebre\",\"Tomàquet\",\"Vinagre o suc de llimona\",\"Tonyina\"]",
     "310": "[\"Tofu ferm\",\"Patata\",\"Ceba\",\"Verdures variades\",\"Brou desgreixat\",\"All\",\"Oli d’oliva\",\"Salsa de soja\",\"Gingebre\",\"Pebre vermell\"]",
     "401": "[\"Poma\",\"Aigua\",\"Canyella\"]",
+    "502": "[\"Ous\",\"Tonyina clara al natural\",\"Alvocat madur\",\"Cottage 0% de greix\",\"Pa de motlle integral\",\"Sal\",\"Pebre negre\"]",
+    "504": "[\"Tortilla de blat integral\",\"Ous\",\"Tomàquets cherry\",\"Espinacs frescos\",\"Pernil cuit extra (mín. 95% carn)\",\"Mozzarella fresca\",\"Sal\",\"Pebre negre\",\"Nou moscada\"]",
+    "506": "[\"Oli d’oliva verge extra en esprai\",\"Tomàquet\",\"Tomàquets cherry\",\"Pebrot vermell\",\"All\",\"Alfàbrega\",\"Pebre vermell fumat\",\"Cottage\",\"Parmesà o Grana Padano\",\"Sal\",\"Pebre negre\",\"Pasta\",\"Vedella picada magra (5% de greix)\",\"Pebre vermell\",\"All en pols\",\"Ceba en pols\"]",
     "402": "[\"Pera\",\"Aigua\",\"Canyella\"]"
 };
     const changes = {
+        502: 'Canvia les dues llesques de pa integral per pa etiquetat «sense gluten» i comprova la tonyina i el cottage.',
+        504: 'Canvia la tortilla de blat per una d’etiquetada «sense gluten». Revisa també el pernil cuit, el formatge i els condiments.',
+        506: 'Canvia la pasta per pasta etiquetada «sense gluten» i cou-la segons l’envàs. Comprova els formatges, la carn si és un preparat i les espècies.',
         5: 'Canvia la salsa de soja per la mateixa quantitat de tamari o salsa de soja etiquetats «sense gluten». Revisa també el tofu.',
         7: 'Fes servir dues llesques de pa etiquetat «sense gluten». Si el torres, evita una torradora amb restes de pa amb gluten.',
         9: 'Canvia els 160 g de pasta integral per 160 g de pasta etiquetada «sense gluten», de blat de moro o arròs. Cou-la segons el paquet.',
@@ -84,6 +90,7 @@ const glutenGuide = (() => {
         307: 'Utilitza llom fresc sense preparats afegits i revisa el tomàquet triturat i els condiments.',
         309: 'Revisa les clares pasteuritzades, les olives i els condiments. Per amanir, pots fer servir llimona o vinagre amb etiqueta revisada. Comprova també la tonyina si hi afegeixes aquest opcional.'
     };
+    const aptIngredients = new Set([1, 3, 401, 402]);
     const signature = recipe => JSON.stringify([...(recipe.ingredients || []), ...(recipe.optionalIngredients || [])].map(item => typeof item === 'string' ? item : item.item));
     function review(recipe) {
         if (recipe.custom || !signatures[recipe.id] || signatures[recipe.id] !== signature(recipe)) return {
@@ -91,7 +98,8 @@ const glutenGuide = (() => {
             note: 'Aquesta llista d’ingredients encara no té una revisió específica. No es classifica com a sense gluten. Comprova tots els ingredients, productes i opcionals.'
         };
         if (changes[recipe.id]) return { status: 'adapt', title: 'Adaptació sense gluten', note: changes[recipe.id] };
-        return { status: 'ingredients', title: 'Sense ingredients amb gluten · revisa etiquetes', note: checks[recipe.id] };
+        if (!aptIngredients.has(recipe.id)) return { status: 'unreviewed', title: 'Gluten · comprova la composició dels productes', note: checks[recipe.id] };
+        return { status: 'ingredients', title: 'Apta pels ingredients de la recepta', note: checks[recipe.id] };
     }
     return { review, signature, sources: [
         { title: 'FACE · Etiquetes i aliments sense gluten', url: 'https://celiacos.org/recien-diagnosticados/preguntas-frecuentes/' },

@@ -142,7 +142,8 @@
                                 </select>
                             </label>
                             <label><input type="checkbox" id="quick-filter"> Màxim 30 min totals</label>
-                            <label for="gluten-filter">Gluten<select id="gluten-filter"><option value="all">Totes les receptes</option><option value="ingredients">Sense ingredients amb gluten · revisa etiquetes</option><option value="adapt">Amb adaptació sense gluten</option></select></label>
+                            <label for="gluten-filter">Sense gluten<select id="gluten-filter"><option value="all">Desactivat</option><option value="ingredients">Aptes pels ingredients</option><option value="adapt">Adaptables</option><option value="unreviewed">Composició per revisar</option></select></label>
+                            <label for="source-filter">Font<select id="source-filter"><option value="all">Totes les fonts</option></select></label>
                             <label for="recipe-sort">Ordena per
                                 <select id="recipe-sort"><option value="default">Ordre habitual</option><option value="time">Menys temps</option><option value="name">Nom · A–Z</option><option value="fridge">Més coincidències amb la nevera</option></select>
                             </label>
@@ -155,7 +156,7 @@
                     </div>
                     <aside id="pantry-help" class="app-notice" hidden><strong>Sense res preparat i la nevera gairebé buida?</strong> Aquí tens receptes teves amb una base de rebost i complements senzills, com ous. «Nevera buida» és una col·lecció: no comprova què tens al rebost. Desactiva «Usar Nevera» si vols veure-les totes.</aside>
                     <p class="catalog-notice" id="catalog-notice" role="status" hidden></p>
-                    <p id="gluten-filter-notice" class="app-notice" hidden>Consulta la nota de cada recepta. Cal revisar les etiquetes i, si escau, evitar traces. El filtre no modifica la recepta ni els ingredients de la compra.</p>
+                    <p id="gluten-filter-notice" class="app-notice" hidden>Consulta la nota de cada recepta. Revisa les etiquetes i evita les traces si escau. Per a les receptes adaptades, ajusta els ingredients a la llista de la compra.</p>
                     <div class="recipes-grid" id="recipes-container">
                         <!-- Recipes will be injected here by JS -->
                     </div>
@@ -198,8 +199,7 @@
                     <div class="planner-header">
                         <div><span class="eyebrow">LA TEVA SETMANA, AL TEU RITME</span><h2>Què mengem aquesta setmana?</h2></div>
                         <div class="planner-header-actions">
-                            <button class="btn-primary" id="generate-planner-btn">Suggereix una setmana</button>
-                            <button class="btn-outline" id="planner-to-shopping-btn">Passa els ingredients a la compra</button>
+                            <button class="btn-outline" id="planner-to-shopping-btn">Obre la llista de la compra</button>
                             <button class="btn-outline" id="clear-planner-btn">Buida el menú</button>
                         </div>
                     </div>
@@ -240,7 +240,17 @@
                         <label class="planner-check"><input id="planner-fridge" type="checkbox"> Prioritzar els aliments de la meva nevera</label>
                         <p id="planner-mode-help" class="planner-help"></p>
                     </div>
-                    <p class="planner-help">Suggereix només receptes de «Les meves». Alterna plats i fonts de proteïna; les racions són orientatives. Pots fixar un àpat, menjar fora o aprofitar restes i regenerar la resta.</p>
+                    <form id="planner-generation" class="planner-generation">
+                        <fieldset><legend>Dies</legend><div class="planner-day-options"><label><input type="checkbox" name="planner-target-day" value="dilluns" checked><span aria-hidden="true">Dl</span><span class="sr-only">Dilluns</span></label><label><input type="checkbox" name="planner-target-day" value="dimarts" checked><span aria-hidden="true">Dt</span><span class="sr-only">Dimarts</span></label><label><input type="checkbox" name="planner-target-day" value="dimecres" checked><span aria-hidden="true">Dc</span><span class="sr-only">Dimecres</span></label><label><input type="checkbox" name="planner-target-day" value="dijous" checked><span aria-hidden="true">Dj</span><span class="sr-only">Dijous</span></label><label><input type="checkbox" name="planner-target-day" value="divendres" checked><span aria-hidden="true">Dv</span><span class="sr-only">Divendres</span></label><label><input type="checkbox" name="planner-target-day" value="dissabte" checked><span aria-hidden="true">Ds</span><span class="sr-only">Dissabte</span></label><label><input type="checkbox" name="planner-target-day" value="diumenge" checked><span aria-hidden="true">Dg</span><span class="sr-only">Diumenge</span></label></div></fieldset>
+                        <fieldset><legend>Àpats</legend><div class="planner-meal-options">
+                            <label><input type="checkbox" name="planner-target-meal" value="lunch" checked> Dinars</label>
+                            <label><input type="checkbox" name="planner-target-meal" value="dinner" checked> Sopars</label>
+                        </div></fieldset>
+                        <label for="planner-generation-mode">Què vols omplir?
+                            <select id="planner-generation-mode"><option value="empty">Només buits</option><option value="selected">Buits i no fixats</option></select>
+                        </label>
+                        <button type="submit" class="btn-primary" id="generate-planner-btn">Genera els àpats triats</button>
+                    </form>
                     <p class="planner-help" id="planner-pool-info"></p>
                     <p class="planner-feedback" id="planner-status" role="status" aria-live="polite"></p>
                     <div class="planner-grid">
@@ -388,10 +398,10 @@
                         <h2>Llista de la Compra</h2>
                         <p>Ingredients per al teu menú i el que vulguis afegir-hi. Pots ajustar cada línia abans d’anar a comprar.</p>
                         <button class="btn-primary" id="generate-shopping-btn" style="margin-top: 1rem;">
-                            <i class='bx bx-refresh'></i> Afegeix / actualitza ingredients del menú
+                            <i class='bx bx-refresh'></i> Recalcula els ingredients del menú
                         </button>
                     </div>
-                    <p class="planner-help">S’ajusten les racions i s’agrupen els noms iguals. Les unitats diferents es mostren separades i les quantitats ambigües s’han de revisar. Les línies automàtiques es recalculen; els afegits i els canvis manuals es conserven.</p>
+                    <p class="planner-help">La compra s’actualitza quan canvies els àpats o el nombre de persones. Els ingredients afegits o editats a mà es conserven.</p>
                     <p class="planner-help">La nevera només indica noms: no en restem quantitats. Si ja tens un ingredient, comprova’n la quantitat i ajusta’l o elimina’l de la compra.</p>
                     <form id="shopping-add-form" class="shopping-add-form">
                         <div class="form-group"><label for="shopping-name">Afegeix un ingredient</label><input id="shopping-name" maxlength="150" required placeholder="Ex.: Pomes"></div>
@@ -399,6 +409,18 @@
                         <button type="submit" class="btn-primary">Afegeix</button>
                     </form>
                     <div class="shopping-toolbar"><p id="shopping-summary" role="status"></p><button type="button" id="shopping-clear-bought" class="btn-outline">Treu els comprats</button><button type="button" id="shopping-clear-all" class="btn-outline btn-danger-outline">Buida la llista</button><button type="button" id="shopping-undo" class="btn-outline" hidden>Desfés l’últim canvi</button></div>
+                    <details class="shopping-export" id="shopping-export">
+                        <summary>Copiar llista</summary>
+                        <label for="shopping-export-format">Format<select id="shopping-export-format">
+                            <option value="full">Completa · quantitats i categories</option>
+                            <option value="simple">Simplificada · pendents</option>
+                        </select></label>
+                        <div class="shopping-export-actions">
+                            <button type="button" id="shopping-copy" class="btn-primary">Copia</button>
+                            <button type="button" id="shopping-share" class="btn-outline" hidden>Comparteix</button>
+                        </div>
+                        <label id="shopping-export-fallback" hidden>Text per copiar<textarea id="shopping-export-text" rows="6" readonly></textarea></label>
+                    </details>
                     <p id="shopping-status" class="planner-feedback" role="status"></p>
                     <div class="shopping-list-container" id="shopping-list-container">
                         <!-- Shopping list will be generated by JS -->
@@ -454,7 +476,7 @@
                 <label for="planner-meal-day">Dia<select id="planner-meal-day"><option value="dilluns">Dilluns</option><option value="dimarts">Dimarts</option><option value="dimecres">Dimecres</option><option value="dijous">Dijous</option><option value="divendres">Divendres</option><option value="dissabte">Dissabte</option><option value="diumenge">Diumenge</option></select></label>
                 <label for="planner-meal-type">Àpat<select id="planner-meal-type"><option value="lunch">Dinar</option><option value="dinner">Sopar</option></select></label>
                 <label for="planner-meal-choice">Què faràs?<select id="planner-meal-choice"></select></label>
-                <label for="planner-meal-note">Nota opcional<input id="planner-meal-note" type="text" maxlength="160" placeholder="Ex.: crema que va sobrar, dinar a la feina…"></label>
+                <label for="planner-meal-note"><span id="planner-meal-note-label">Nota opcional</span><input id="planner-meal-note" type="text" maxlength="160" placeholder="Ex.: crema que va sobrar, dinar a la feina…"></label>
                 <p id="planner-meal-feedback" class="planner-feedback" role="status"></p>
                 <p class="planner-help">La tria manual permet qualsevol recepta teva, encara que quedi fora dels filtres. Es desa fixada perquè «Regenera» la respecti.</p>
                 <button type="submit" class="btn-primary">Desa i fixa aquest àpat</button>
@@ -498,6 +520,8 @@
                     <label for="custom-seasons">Temporada</label>
                     <select id="custom-seasons"><option value="all">Tot l’any</option><option value="Tardor,Hivern">Tardor i hivern</option><option value="Primavera,Estiu">Primavera i estiu</option><option value="Hivern">Hivern</option><option value="Primavera">Primavera</option><option value="Estiu">Estiu</option><option value="Tardor">Tardor</option></select>
                 </div>
+                <label for="custom-source">Font <input id="custom-source" maxlength="120" placeholder="Recepta pròpia"></label>
+                <label for="custom-source-url">Enllaç de la font <input id="custom-source-url" type="url" maxlength="2000" placeholder="https://…"></label>
                 <label for="custom-category">Tipus de recepta<select id="custom-category"><option value="main">Dinar o sopar</option><option value="dessert">Postres</option></select></label>
                 <label class="planner-check"><input id="custom-pantry" type="checkbox"> Recepta de rebost · inclou-la a «Nevera buida»</label>
                 <div class="form-group">

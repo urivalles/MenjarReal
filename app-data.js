@@ -3,8 +3,8 @@
 const appData = (() => {
     const key = 'realfood.data.v1';
     const requiredFields = ['customRecipes', 'myFridge', 'weeklyPlanner', 'adoptedRecipes'];
-    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences'];
-    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
+    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences', 'recipeStatuses'];
+    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], recipeStatuses: {}, shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
     let warning = '';
     let unreadablePrimary = false;
     let lastStoredDocument = null;
@@ -24,7 +24,12 @@ const appData = (() => {
         }
         const shoppingList = shoppingListEngine.validate(Object.hasOwn(value, 'shoppingList') ? value.shoppingList : shoppingListEngine.empty());
         const fridgePreferences = recipeCatalog.fridgeSettings(value.fridgePreferences);
-        return { version: 1, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
+        const recipeStatuses = value.recipeStatuses ?? {};
+        if (typeof recipeStatuses !== 'object' || Array.isArray(recipeStatuses) ||
+            !Object.entries(recipeStatuses).every(([id, status]) => /^[1-9]\d*$/.test(id) && Number.isSafeInteger(Number(id)) && Object.hasOwn(recipeCatalog.statusLabels, status))) {
+            throw new Error('Hi ha estats de receptes no vàlids.');
+        }
+        return { version: 1, recipeStatuses: { ...recipeStatuses }, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
     }
 
     function readLegacy(name, fallback) {
