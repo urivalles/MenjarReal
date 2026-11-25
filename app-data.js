@@ -3,8 +3,9 @@
 const appData = (() => {
     const key = 'realfood.data.v1';
     const requiredFields = ['customRecipes', 'myFridge', 'weeklyPlanner', 'adoptedRecipes'];
-    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences', 'recipeStatuses'];
-    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], recipeStatuses: {}, shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
+    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences', 'recipeStatuses', 'recipeNotes'];
+    const recipeNoteLimit = 1000;
+    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], recipeStatuses: {}, recipeNotes: {}, shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
     let warning = '';
     let unreadablePrimary = false;
     let lastStoredDocument = null;
@@ -29,7 +30,13 @@ const appData = (() => {
             !Object.entries(recipeStatuses).every(([id, status]) => /^[1-9]\d*$/.test(id) && Number.isSafeInteger(Number(id)) && Object.hasOwn(recipeCatalog.statusLabels, status))) {
             throw new Error('Hi ha estats de receptes no vàlids.');
         }
-        return { version: 1, recipeStatuses: { ...recipeStatuses }, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
+        const recipeNotes = value.recipeNotes ?? {};
+        if (typeof recipeNotes !== 'object' || Array.isArray(recipeNotes) ||
+            !Object.entries(recipeNotes).every(([id, note]) => /^[1-9]\d*$/.test(id) && Number.isSafeInteger(Number(id)) &&
+                typeof note === 'string' && note.trim() && note.length <= recipeNoteLimit)) {
+            throw new Error('Hi ha notes de receptes no vàlides.');
+        }
+        return { version: 1, recipeStatuses: { ...recipeStatuses }, recipeNotes: { ...recipeNotes }, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
     }
 
     function readLegacy(name, fallback) {
@@ -101,5 +108,5 @@ const appData = (() => {
         return validate(value.data);
     }
 
-    return { key, getItem, setItem, update, snapshot, restore: value => replace(value, true), backup, parseBackup, validate, get warning() { return warning; } };
+    return { key, recipeNoteLimit, getItem, setItem, update, snapshot, restore: value => replace(value, true), backup, parseBackup, validate, get warning() { return warning; } };
 })();

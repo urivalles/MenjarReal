@@ -94,12 +94,17 @@ const recipeCatalog = (() => {
         const { mode } = fridgeSettings(settings);
         const foods = fridge.filter(food => !isBasic(food));
         const ingredients = recipe.ingredients.filter(ingredient => !isBasic(ingredient));
-        const matched = ingredients.filter(ingredient => foods.some(food => matchesIngredient(ingredient, food)));
+        const matchedIngredients = [];
+        const missingIngredients = [];
+        for (const ingredient of ingredients) {
+            const list = foods.some(food => matchesIngredient(ingredient, food)) ? matchedIngredients : missingIngredients;
+            list.push(ingredient);
+        }
         const allFoodsUsed = foods.every(food => ingredients.some(ingredient => matchesIngredient(ingredient, food)));
-        const canMake = ingredients.length > 0 && matched.length === ingredients.length;
-        const accepted = foods.length > 0 && (mode === 'any' ? matched.length > 0 : mode === 'available' ? canMake :
+        const canMake = ingredients.length > 0 && !missingIngredients.length;
+        const accepted = foods.length > 0 && (mode === 'any' ? matchedIngredients.length > 0 : mode === 'available' ? canMake :
             mode === 'all' ? allFoodsUsed : canMake && allFoodsUsed);
-        return { accepted, matchCount: matched.length, missingCount: ingredients.length - matched.length };
+        return { accepted, matchedIngredients, missingIngredients, matchCount: matchedIngredients.length, missingCount: missingIngredients.length };
     }
 
     function sourceFor(recipe) {

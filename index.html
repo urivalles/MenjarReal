@@ -122,6 +122,7 @@
                             <button class="collection-chip" data-collection="recommended" aria-pressed="false">Descobrir</button>
                             <button class="collection-chip" data-collection="legacy" aria-pressed="false">Exemples anteriors</button>
                         </div>
+                        <label id="recipe-favorites-option" class="planner-check recipe-favorites-option" hidden><input type="checkbox" id="recipe-favorites-only"> Només preferides</label>
                         <div class="filter-chips">
                             <button class="chip active" data-filter="all" aria-pressed="true">Tota dificultat</button>
                             <button class="chip" data-filter="Fàcil" aria-pressed="false">Fàcils</button>
@@ -213,6 +214,10 @@
                             <button class="btn-outline" id="clear-planner-btn">Buida el menú</button>
                         </div>
                     </div>
+                    <section id="planner-today" class="planner-today" aria-labelledby="planner-today-title">
+                        <h3 id="planner-today-title">Avui</h3>
+                        <div id="planner-today-meals" class="planner-today-meals"></div>
+                    </section>
                     <div class="planner-preferences-bar">
                         <p id="planner-preferences-summary" role="status"></p>
                         <button type="button" id="open-menu-import" class="filter-icon-button" aria-label="Importa un menú" title="Importa un menú" aria-haspopup="dialog">

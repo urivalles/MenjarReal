@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let weeklyPlanner = weeklyPlannerEngine.normalizeState(readStored('weeklyPlanner', null,
         value => value && typeof value === 'object' && !Array.isArray(value)));
     let recipeStatuses = JSON.parse(appData.getItem('recipeStatuses'));
+    let recipeNotes = JSON.parse(appData.getItem('recipeNotes'));
     let adoptedRecipes = readStored('adoptedRecipes', [], value => Array.isArray(value) &&
         value.every(id => Number.isInteger(id) && recipes.some(recipe =>
             recipe.id === id && recipe.collection === 'recommended')));
@@ -61,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterByFridgeBtn = document.getElementById('filter-by-fridge-btn');
     const searchInput = document.getElementById('search-recipe');
     const collectionButtons = document.querySelectorAll('.collection-chip');
+    const favoritesOption = document.getElementById('recipe-favorites-option');
+    const favoritesOnly = document.getElementById('recipe-favorites-only');
     const seasonFilter = document.getElementById('season-filter');
     const quickFilter = document.getElementById('quick-filter');
     const glutenFilter = document.getElementById('gluten-filter');
@@ -105,6 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Planner DOM
     const plannerGrid = document.querySelector('.planner-grid');
+    const plannerToday = document.getElementById('planner-today');
+    const plannerTodayTitle = document.getElementById('planner-today-title');
+    const plannerTodayMeals = document.getElementById('planner-today-meals');
     const clearPlannerBtn = document.getElementById('clear-planner-btn');
     const plannerGenerationForm = document.getElementById('planner-generation');
     const generatePlannerBtn = document.getElementById('generate-planner-btn');
@@ -210,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pageTitle.textContent = viewTitles[targetId];
         document.getElementById('app-options').open = false;
         activeView = targetId;
+        if (targetId === 'planner-view') renderPlannerToday();
         if (updateHistory && window.location?.hash !== '#' + targetId) window.history?.pushState(null, '', '#' + targetId);
         window.scrollTo?.({ top: scrollPositions.get(targetId) || 0, behavior: 'instant' });
     }
@@ -322,6 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function filterRecipes() {
         pantryHelp.hidden = selectedCollection !== 'pantry';
+        favoritesOption.hidden = selectedCollection !== 'mine';
+        if (favoritesOption.hidden) favoritesOnly.checked = false;
         const activeDifficulty = document.querySelector('.filter-chips .chip.active:not(#filter-by-fridge-btn)')?.dataset.filter || 'all';
         const useFridgeFilter = filterByFridgeBtn.classList.contains('active');
         const activeSource = sourceFilter.value;
@@ -343,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const applied = [];
         const collections = { dessert: 'Postres', mine: 'Les meves', pantry: 'Nevera buida', recommended: 'Descobrir', legacy: 'Exemples anteriors' };
         if (selectedCollection !== 'all') applied.push(collections[selectedCollection]);
+        if (favoritesOnly.checked) applied.push('Només preferides');
         if (activeDifficulty !== 'all') applied.push(activeDifficulty);
         if (seasonFilter.value !== 'all') applied.push(seasonFilter.value);
         if (quickFilter.checked) applied.push('Màxim 30 min');
@@ -356,8 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleRecipeFilters.setAttribute('aria-label', `Filtres i ordre${applied.length ? ` · ${applied.length} opcions aplicades` : ''}`);
         activeFilterSummary.hidden = !applied.length;
         activeFilterSummary.textContent = applied.join(' · ');
-        recipeResults.textContent = `${filtered.length} ${filtered.length === 1 ? 'recepta' : 'receptes'}${selectedCollection === 'legacy' ? ' · Exemples anteriors' : ''}`;
-        renderRecipes(filtered);
+        const visibleRecipes = favoritesOnly.checked ? filtered.filter(recipe => recipeStatuses[recipe.id] === 'favorite') : filtered;
+        recipeResults.textContent = `${visibleRecipes.length} ${visibleRecipes.length === 1 ? 'recepta' : 'receptes'}${selectedCollection === 'legacy' ? ' · Exemples anteriors' : ''}`;
+        renderRecipes(visibleRecipes);
     }
 
     // Filter Event Listeners
@@ -367,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     glutenFilter.addEventListener('change', filterRecipes);
     sourceFilter.addEventListener('change', filterRecipes);
     recipeSort.addEventListener('change', filterRecipes);
+    favoritesOnly.addEventListener('change', filterRecipes);
     document.getElementById('reset-recipe-filters').addEventListener('click', () => {
         selectedCollection = 'all'; seasonFilter.value = 'all'; seasonFilter.disabled = false; quickFilter.checked = false; recipeSort.value = 'default';
         glutenFilter.value = 'all'; sourceFilter.value = 'all';
@@ -415,12 +427,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Modal Logic ---
-    function openRecipeModal(recipeId) {
+    function openRecipeModal(recipeId, trigger = document.activeElement) {
         const recipe = recipes.find(r => r.id === recipeId);
         if (!recipe) return;
         const gluten = glutenFilter.value === 'all' ? null : glutenGuide.review(recipe);
         const source = recipeCatalog.sourceFor(recipe);
         const defaultStatus = recipe.testedByUser === true ? 'tested' : 'pending';
+        const personalNote = recipeNotes[recipe.id] || '';
         const declared = recipe.declaredNutrition;
         const number = new Intl.NumberFormat('ca');
         const unit = declared?.unit ? '/' + declared.unit : '';
@@ -460,6 +473,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="modal-section">
                 <h4>Preparació</h4>
                 <p class="modal-instructions">${escapeHtml(recipe.instructions || 'Preparació pendent de confirmar.')}</p>
+                <details class="recipe-personal-note"${personalNote ? ' open' : ''}>
+                    <summary>La meva nota</summary>
+                    <form id="recipe-note-form" class="form-group">
+                        <label class="sr-only" for="recipe-note">La meva nota</label>
+                        <textarea id="recipe-note" rows="3" maxlength="${appData.recipeNoteLimit}" placeholder="Què vols recordar el proper cop?">${escapeHtml(personalNote)}</textarea>
+                        <button type="submit" class="btn-outline">Desa la nota</button>
+                        <p class="planner-feedback" role="status"></p>
+                    </form>
+                </details>
             </div>
             ${recipe.balanceNote ? `<div class="modal-section detail-note"><h4>Com queda el plat</h4><p>${escapeHtml(recipe.balanceNote)}</p></div>` : ''}
             ${recipe.variations ? `<div class="modal-section"><h4>Alternatives fàcils</h4><ul class="detail-list">${recipe.variations.map(note => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div>` : ''}
@@ -479,6 +501,27 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.photoNote ? `<p class="photo-credit">${escapeHtml(recipe.photoNote)}</p>` : ''}
         `;
         bindPhotoFallback(modalBody);
+        const noteForm = modalBody.querySelector('#recipe-note-form');
+        const noteInput = noteForm.querySelector('textarea');
+        const noteFeedback = noteForm.querySelector('[role="status"]');
+        noteInput.addEventListener('input', () => { noteFeedback.textContent = ''; });
+        noteForm.addEventListener('submit', event => {
+            event.preventDefault();
+            const note = noteInput.value.trim();
+            const next = { ...recipeNotes };
+            if (note) next[recipe.id] = note;
+            else delete next[recipe.id];
+            try {
+                appData.update({ recipeNotes: next });
+                recipeNotes = next;
+                noteInput.value = note;
+                noteFeedback.dataset.error = 'false';
+                noteFeedback.textContent = note ? 'Nota desada.' : 'Nota esborrada.';
+            } catch (error) {
+                noteFeedback.dataset.error = 'true';
+                noteFeedback.textContent = error.message;
+            }
+        });
         const statusControl = modalBody.querySelector('#recipe-status-select');
         statusControl.replaceChildren(...Object.entries(recipeCatalog.statusLabels).map(([value, label]) => new Option(label, value)));
         statusControl.value = recipeStatuses[recipe.id] || defaultStatus;
@@ -489,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 appData.update({ recipeStatuses: next });
                 recipeStatuses = next;
                 feedback.textContent = 'Estat desat.';
+                if (favoritesOnly.checked) filterRecipes();
             } catch (error) {
                 statusControl.value = recipeStatuses[recipe.id] || defaultStatus;
                 feedback.textContent = error.message;
@@ -506,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleAdoption(recipeId);
             openRecipeModal(recipeId);
         });
-        if (!modal.classList.contains('show')) modalTrigger = document.activeElement;
+        if (!modal.classList.contains('show')) modalTrigger = trigger;
         modal.classList.add('show');
         closeModalBtn.focus();
     }
@@ -674,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
             savePlannerAndShopping(weeklyPlanner, { customRecipes: next }, [...recipes.filter(item => !item.custom), ...next]);
             customRecipes = next; recipeCatalog.replaceCustomRecipes(next);
             closeCustomRecipe();
-            selectedCollection = 'mine'; searchInput.value = ''; seasonFilter.value = 'all'; quickFilter.checked = false;
+            selectedCollection = 'mine'; searchInput.value = ''; seasonFilter.value = 'all'; quickFilter.checked = false; favoritesOnly.checked = false;
             filterByFridgeBtn.classList.remove('active'); filterByFridgeBtn.setAttribute('aria-pressed', 'false');
             filterChips.forEach(chip => { const active = chip.dataset.filter === 'all'; chip.classList.toggle('active', active); chip.setAttribute('aria-pressed', String(active)); });
             collectionButtons.forEach(button => { const active = button.dataset.collection === 'mine'; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
@@ -726,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const restored = appData.restore(pendingBackup);
             customRecipes = restored.customRecipes; recipeCatalog.replaceCustomRecipes(customRecipes);
             myFridge = restored.myFridge; fridgePreferences = restored.fridgePreferences; weeklyPlanner = restored.weeklyPlanner; adoptedRecipes = restored.adoptedRecipes;
-            shoppingList = restored.shoppingList; shoppingUndo = null; recipeStatuses = restored.recipeStatuses;
+            shoppingList = restored.shoppingList; shoppingUndo = null; recipeStatuses = restored.recipeStatuses; recipeNotes = restored.recipeNotes;
             refreshSavedShopping();
             pendingBackup = null; restoreDataBtn.disabled = true; importDataFile.value = '';
             filterRecipes(); renderFridge(); renderPlanner(); dataSummary.textContent = dataDescription(restored);
@@ -934,15 +978,18 @@ document.addEventListener('DOMContentLoaded', () => {
             fridgeRecipeSummary.textContent = '';
             return;
         }
-        const matches = recipeCatalog.select({ useFridge: true, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences });
+        const matches = recipeCatalog.select({ useFridge: true, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences })
+            .sort((a, b) => a.missingCount - b.missingCount);
         fridgeRecipeSummary.textContent = matches.length
             ? `${matches.length} receptes`
             : 'Cap recepta amb aquests filtres.';
         matches.forEach(recipe => {
             const row = document.createElement('article');
             row.className = 'fridge-recipe';
+            const names = ingredients => escapeHtml(ingredients.map(recipeCatalog.ingredientName).join(', '));
             row.innerHTML = `${coverHtml(recipe)}<div><h4>${escapeHtml(recipe.title)}</h4>
-                <p>${escapeHtml(recipe.time)} · Aprofita: ${recipe.ingredients.filter(hasIngredient).map(ingredient => escapeHtml(recipeCatalog.ingredientName(ingredient))).join(', ')}</p>
+                <p>${escapeHtml(recipe.time)}${recipe.matchCount ? ` · Aprofita: ${names(recipe.matchedIngredients)}` : ''}</p>
+                <p class="fridge-recipe-missing">${recipe.missingCount ? `<strong>${recipe.missingCount === 1 ? 'Et falta' : 'Et falten'}</strong> ${names(recipe.missingIngredients)}` : 'Tens els ingredients principals anotats.'}</p>
                 <div class="fridge-recipe-actions"><button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta</button>
                 ${recipe.category !== 'dessert' ? `<button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button>` : '<span class="planner-help">Postres</span>'}</div></div>`;
             fridgeRecipeList.appendChild(row);
@@ -1205,6 +1252,40 @@ document.addEventListener('DOMContentLoaded', () => {
         commitPlanner(result.state, result.filled === 1 ? 'S’ha generat un àpat.' : `S’han generat ${result.filled} àpats.`);
     });
 
+    function plannerMealContent(slot) {
+        const recipe = slot?.kind === 'recipe' ? recipes.find(item => item.id === slot.id) : null;
+        const title = slot?.kind === 'out' ? 'Menjo fora' : slot?.kind === 'leftovers' ? 'Aprofito restes' :
+            recipe?.title || slot?.title || 'Sense assignar';
+        const titleHtml = recipe ? `<button type="button" class="planner-view-recipe" data-id="${recipe.id}">${escapeHtml(title)}</button>` :
+            `<p class="planner-meal-title">${escapeHtml(title)}</p>`;
+        return { recipe, titleHtml };
+    }
+
+    function renderPlannerToday({ refresh = false } = {}) {
+        const today = weeklyPlannerEngine.days[(new Date().getDay() + 6) % 7];
+        if (!refresh && plannerToday.dataset.day === today) return;
+        plannerToday.dataset.day = today;
+        plannerTodayTitle.textContent = `Avui · ${dayName(today)}`;
+        plannerTodayMeals.innerHTML = weeklyPlannerEngine.meals.map(meal => {
+            const { titleHtml } = plannerMealContent(weeklyPlanner.days[today][meal]);
+            return `<div><h4>${mealNames[meal]}</h4>${titleHtml}</div>`;
+        }).join('');
+        plannerGrid.querySelectorAll('.planner-day').forEach(day => {
+            const current = day.dataset.day === today;
+            if (current) day.setAttribute('aria-current', 'date');
+            else day.removeAttribute('aria-current');
+            day.querySelector('.planner-today-label').hidden = !current;
+        });
+    }
+
+    plannerTodayMeals.addEventListener('click', event => {
+        const button = event.target.closest('.planner-view-recipe');
+        if (button) openRecipeModal(Number(button.dataset.id), button);
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && activeView === 'planner-view') renderPlannerToday();
+    });
+
     function renderPlanner() {
         plannerGrid.innerHTML = '';
         const settings = weeklyPlanner.settings;
@@ -1232,15 +1313,15 @@ document.addEventListener('DOMContentLoaded', () => {
         weeklyPlannerEngine.days.forEach(dayKey => {
             const dayEl = document.createElement('div');
             dayEl.className = 'planner-day';
-            dayEl.innerHTML = `<h3>${dayName(dayKey)}</h3>` + weeklyPlannerEngine.meals.map(meal => {
+            dayEl.dataset.day = dayKey;
+            dayEl.innerHTML = `<h3>${dayName(dayKey)} <span class="planner-today-label" hidden>Avui</span></h3>` + weeklyPlannerEngine.meals.map(meal => {
                 const slot = weeklyPlanner.days[dayKey][meal];
-                const recipe = slot?.kind === 'recipe' ? recipes.find(item => item.id === slot.id) : null;
+                const { recipe, titleHtml } = plannerMealContent(slot);
                 const label = `${dayName(dayKey)} ${mealNames[meal].toLowerCase()}`;
-                const title = slot?.kind === 'recipe' ? recipe?.title || slot.title : slot?.kind === 'note' ? slot.title : slot?.kind === 'out' ? 'Menjo fora' : slot?.kind === 'leftovers' ? 'Aprofito restes' : 'Sense assignar';
                 return `<section class="planner-meal${slot?.locked ? ' is-locked' : ''}">
                     <div class="planner-meal-heading"><h4>${mealNames[meal]}</h4>${slot ? `<button type="button" class="planner-lock" data-day="${dayKey}" data-meal="${meal}" aria-pressed="${slot.locked}" aria-label="${slot.locked ? 'Desfixa' : 'Fixa'} ${label}">${slot.locked ? 'Fixat ✓' : 'Fixa'}</button>` : ''}</div>
                     ${recipe?.image ? coverHtml(recipe) : ''}
-                    ${recipe ? `<button type="button" class="planner-view-recipe" data-id="${recipe.id}">${escapeHtml(title)}</button>` : `<p class="planner-meal-title">${escapeHtml(title)}</p>`}
+                    ${titleHtml}
                     ${recipe ? `<p class="planner-meal-meta">${recipe.time ? escapeHtml(recipe.time) + ' · ' : ''}${settings.people} ${settings.people === 1 ? 'persona' : 'persones'}${slot.batchKey ? ' · Bloc batch cooking' : ''}</p>` : slot?.kind === 'note' ? '<p class="planner-meal-meta">Plat escrit · ingredients a la compra manualment</p>' : slot?.title ? `<p class="planner-meal-meta">${escapeHtml(slot.title)}</p>` : ''}
                     <div class="planner-meal-actions"><button type="button" class="planner-choose" data-day="${dayKey}" data-meal="${meal}" aria-label="Tria ${label}">${slot ? 'Tria un altre' : 'Tria un àpat'}</button>
                         ${slot ? `<button type="button" class="planner-remove" data-day="${dayKey}" data-meal="${meal}" aria-label="Buida ${label}">Buida</button>` : ''}
@@ -1249,9 +1330,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
             plannerGrid.appendChild(dayEl);
         });
+        renderPlannerToday({ refresh: true });
         bindPhotoFallback(plannerGrid);
         document.querySelectorAll('.planner-choose').forEach(button => button.addEventListener('click', () => openMealPicker(button.dataset.day, button.dataset.meal)));
-        document.querySelectorAll('.planner-view-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id))));
+        plannerGrid.querySelectorAll('.planner-view-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id), button)));
         document.querySelectorAll('.planner-lock').forEach(button => button.addEventListener('click', () => {
             const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
             const slot = next.days[button.dataset.day][button.dataset.meal];
