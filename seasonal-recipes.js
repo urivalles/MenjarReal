@@ -313,6 +313,7 @@ const recipeSources = {
     maydenChickpeaOmelette: { title: 'MaydenFit · Truita de cigrons (ingredients de la descripció)', url: 'https://www.youtube.com/watch?v=2sLECGB-Re8' },
     maydenPotatoBalls: { title: 'MaydenFit · Ingredients i preparació de les boles de patata', url: 'https://www.youtube.com/watch?v=CcNG3ydeRHQ&t=528s' },
     chickpeaOmeletteSteps: { title: 'HolyCook · Versió de la truita de cigrons de Mayden', url: 'https://holycook.es/noticias/recetas/tortilla-garbanzos-mozzarella-mayden/' },
+    cuttlefishStew: { title: 'Penchi Briones García · Cookpad: Cassola de sípia guisada amb verdures', url: 'https://cookpad.com/es/recetas/103369' },
     caprese: { title: 'La Cucina Italiana: Insalata caprese', url: 'https://www.lacucinaitaliana.it/ricetta/antipasti/caprese/' }
 };
 
@@ -693,6 +694,26 @@ const seasonalRecipes = [
         variations: ['La recepta original inclou mozzarella; si prefereixes canviar-la, la textura i els valors nutricionals variaran.', 'Els 15 minuts totals i les dues racions són una proposta orientativa per organitzar l’app, no dades especificades a la descripció del vídeo.'],
         batchNote: 'Pots deixar els cigrons escorreguts abans. Barreja i qualla la truita quan l’hagis de menjar.',
         adaptationNote: 'Recepta de MaydenFit per provar. Ingredients comprovats a la descripció del vídeo enllaçat. Passos resumits a partir de la versió publicada per HolyCook; no s’han pogut contrastar directament amb el vídeo. Racions i temps orientatius de l’app.'
+    }),
+    seasonalRecipe({
+        id: 210, sourceName: 'Cookpad', title: 'Cassola de sípia guisada amb verdures', collection: 'recommended', testedByUser: false, emoji: '🦑',
+        description: 'Sípia guisada amb carxofes, pèsols, pebrot i tomàquet. Un plat de cassola amb un toc de vi blanc i julivert.',
+        servings: 4, totalMinutes: 30, seasons: ['Tardor', 'Hivern', 'Primavera'], sourceChecked: '2026-11-25',
+        equipment: ['Cassola', 'Ganivet', 'Ratllador'], tags: ['Sípia', 'Guisat', 'Verdures'], sourceIds: ['cuttlefishStew'],
+        ingredients: [
+            ['Sípia', '500–600 g'], ['All', '4 grans'], ['Pebrot', '1 unitat'], ['Ceba', '1 unitat'],
+            ['Carxofes', '4 unitats'], ['Pèsols', '200 g'], ['Tomàquets madurs', '3 unitats'], ['Vi blanc', '1 gotet'], ['Aigua', '1 got'],
+            ['Oli d’oliva', 'Un raig'], ['Sal', 'Al gust'], ['Pebre mòlt', 'Al gust'], ['Julivert', 'Al gust']
+        ],
+        steps: [
+            'Neteja la sípia, talla-la a trossos i reserva-la. Talla el pebrot i neteja i talla les carxofes a quarts.',
+            'Escalfa un raig d’oli en una cassola i salta-hi el pebrot i les carxofes. Quan comencin a estovar-se, incorpora la ceba i l’all picats.',
+            'Quan la ceba sigui transparent, afegeix-hi els pèsols i la sípia. Remena-ho i incorpora el tomàquet ratllat, la sal, el pebre i el julivert.',
+            'Afegeix-hi el vi blanc i l’aigua. Deixa-ho coure fins que el líquid hagi reduït i la sípia i les verdures siguin tendres. Rectifica de sal i serveix.'
+        ],
+        dataNote: 'La font indica dues sípies mitjanes de 500–600 g en total, quatre racions i 30 minuts. En provar-la, anota el pes de la sípia neta i mesura la quantitat d’oli, aigua i vi.',
+        variations: ['Hi pots posar pèsols congelats.'],
+        adaptationNote: 'Recepta de Penchi Briones García publicada a Cookpad. Passos resumits en català.'
     })
 ];
 
