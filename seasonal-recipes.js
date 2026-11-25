@@ -311,6 +311,7 @@ const recipeSources = {
     peanutSauce: { title: 'Meghan Splawn · The Kitchn: Creamy Peanut Sauce', url: 'https://www.thekitchn.com/how-to-make-easy-creamy-peanut-sauce-246266' },
     maydenCream: { title: 'MaydenFit · Crema al curri amb pollastre (font indicada per l’usuari)', url: 'https://www.youtube.com/watch?v=g_bthu9MhgI' },
     maydenChickpeaOmelette: { title: 'MaydenFit · Truita de cigrons (ingredients de la descripció)', url: 'https://www.youtube.com/watch?v=2sLECGB-Re8' },
+    maydenPotatoBalls: { title: 'MaydenFit · Ingredients i preparació de les boles de patata', url: 'https://www.youtube.com/watch?v=CcNG3ydeRHQ&t=528s' },
     chickpeaOmeletteSteps: { title: 'HolyCook · Versió de la truita de cigrons de Mayden', url: 'https://holycook.es/noticias/recetas/tortilla-garbanzos-mozzarella-mayden/' },
     caprese: { title: 'La Cucina Italiana: Insalata caprese', url: 'https://www.lacucinaitaliana.it/ricetta/antipasti/caprese/' }
 };
@@ -693,62 +694,110 @@ const seasonalRecipes = [
 const maydenRecipes = [
     {
         id: 501, title: 'Espaguetis asiàtics cremosos amb pollastre i verdures',
-        kcal: 920, protein: 69, base: 'Total del plat', carbs: 142, fiber: 19, fat: 8, video: 'gJFRNOxKGnk', time: '20 min',
+        description: 'Espaguetis amb pollastre, portobellos, carbassó i pèsols. La soja, la salsa d’ostres i el ssamjang donen sabor a la salsa, lligada amb un formatget.',
+        kcal: 920, protein: 69, base: 'Total del plat', carbs: 142, fiber: 19, fat: 8, video: 'gJFRNOxKGnk', servings: 2, time: '20 min',
         ingredients: [['Espaguetis', '120 g'], ['Espinacs congelats', '100 g'], ['Pèsols congelats', '100 g'], ['Carbassó', '120 g'],
             ['Xampinyons portobello', '75 g'], ['Ceba morada', '75 g'], ['Panotxa de blat de moro', '75 g'], ['Pit de pollastre', '150 g'],
             ['Salsa de soja', '20 ml'], ['Salsa d’ostres', '10 ml'], ['Ssamjang', '20 g'], ['Curri', 'Al gust'],
             ['Pebre vermell picant', 'Al gust'], ['Pebre negre', 'Al gust'], ['Aigua', '800 ml'], ['Formatget light per untar', '1 unitat']],
-        preparation: 'El vídeo comença per la base de verdures, hi incorpora les salses i les espècies i després hi afegeix la pasta, el pollastre i el formatget. Consulta el vídeo per veure la cocció.',
-        dataNote: 'La font dona les quantitats per al plat complet. El nombre de racions i els temps de cada pas queden pendents.'
+        preparation: '1. Talla el carbassó, els bolets, la ceba i el pollastre, i desgrana el blat de moro. Escalfa les verdures en una cassola ampla amb una mica de l’aigua.\n2. Afegeix-hi la soja, la salsa d’ostres, el ssamjang, el curri i els pebres. Aboca-hi la resta de l’aigua i porta-la a ebullició.\n3. Incorpora-hi els espaguetis i el pollastre a daus petits. Cou la pasta el temps indicat al paquet, remenant de tant en tant, i comprova que el pollastre arribi a 74 °C al centre.\n4. Afegeix el formatget al final i remena fins que es desfaci. Si queda massa líquid, destapa la cassola perquè la salsa redueixi.',
+        dataNote: 'Les quantitats i els 20 minuts són de la font. MenjarReal proposa repartir el plat en dues racions i concreta els passos a partir del resum del vídeo.'
     },
     {
         id: 502, title: 'Entrepà de tonyina, ou i alvocat',
+        description: 'Pa integral amb un farcit cremós de tonyina, ou dur, alvocat i formatge cottage, aixafats amb una forquilla.',
         kcal: 596, protein: 54, base: 'Per un entrepà sencer', carbs: 39, fiber: 10, fat: 25, video: '26QAJ-sjIGo',
-        servings: 1, yieldLabel: 'Ingredients per a 1 entrepà',
+        servings: 1, time: '15 min', yieldLabel: 'Ingredients per a 1 entrepà',
         ingredients: [['Ous', '2 unitats'], ['Tonyina clara al natural', '2 llaunes'], ['Alvocat madur', '1/2 unitat'],
             ['Cottage 0% de greix', '30–40 g'], ['Pa de motlle integral', '2 llesques'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust']],
-        preparation: '1. Bull els ous 7–8 minuts i pela’ls.\n2. Escorre bé la tonyina i treu la polpa del mig alvocat.\n3. Aixafa la tonyina, els ous, l’alvocat i el cottage amb una forquilla. Amaneix-ho amb sal i pebre, i reparteix la barreja entre les dues llesques.'
+        preparation: '1. Bull els ous 7–8 minuts i pela’ls.\n2. Escorre bé la tonyina i treu la polpa del mig alvocat.\n3. Aixafa la tonyina, els ous, l’alvocat i el cottage amb una forquilla. Amaneix-ho amb sal i pebre, i reparteix la barreja entre les dues llesques.',
+        dataNote: 'Temps total orientatiu de MenjarReal.'
     },
     {
         id: 503, title: 'Amanida de pollastre i pasta de cigrons',
-        kcal: 481, protein: 43, carbs: 47, fiber: 14, fat: 12, video: 'wD0ORdko1Bk',
-        ingredients: [['Pasta de cigrons', '50 g'], ['Enciam', ''], ['Tomàquet', ''], ['Pollastre cuit', '100 g'],
-            ['Iogurt grec lleuger', '100 g'], ['Alvocat', '1/2 unitat'], ['Espinacs', ''], ['Ceba morada', ''], ['Espècies', '']],
-        preparation: 'El vídeo mostra com es prepara la pasta i el pollastre, com es fa la salsa i com es munta l’amanida. Consulta aquests capítols per veure els passos complets.',
-        dataNote: 'La font no concreta les quantitats de totes les verdures o les espècies ni el nombre de racions.'
+        description: 'Amanida freda de pasta de cigrons amb pollastre, enciam, espinacs i tomàquet. L’alvocat i el iogurt grec fan la salsa cremosa.',
+        kcal: 481, protein: 43, carbs: 47, fiber: 14, fat: 12, video: 'wD0ORdko1Bk', servings: 1, time: '20 min',
+        ingredients: [['Pasta de cigrons', '50 g'], ['Enciam', '1 grapat'], ['Tomàquet', '1 unitat'], ['Pollastre cuit', '100 g'],
+            ['Iogurt grec lleuger', '100 g'], ['Alvocat', '1/2 unitat'], ['Espinacs', '1 grapat'], ['Ceba morada', '1/4 unitat'], ['Espècies', 'Al gust']],
+        preparation: '1. Cou la pasta segons el paquet, escorre-la i deixa-la refredar. Talla el pollastre cuit a daus.\n2. Aixafa l’alvocat amb el iogurt i les espècies fins a fer una salsa.\n3. Talla l’enciam, els espinacs, el tomàquet i la ceba. Barreja-ho amb la pasta, el pollastre i la salsa.',
+        dataNote: 'La font dona els pesos de la pasta, el pollastre i el iogurt, i indica mig alvocat. La resta de quantitats, la ració i el temps total són orientatius de MenjarReal.'
     },
     {
         id: 504, title: 'Quiche proteica d’espinacs i mozzarella',
+        description: 'Una tortilla integral fa de base per als ous, els espinacs, els tomàquets cherry i el pernil cuit. Es cou amb mozzarella per sobre, al forn o a la fregidora d’aire.',
         kcal: 504, protein: 45, base: 'Per la quiche sencera', carbs: 19, fat: 26, video: 'epC4h3q4PHs',
-        yieldLabel: 'Ingredients per a 1 quiche',
+        servings: 2, time: '35 min', yieldLabel: 'Ingredients per a 1 quiche (2 racions orientatives)',
         ingredients: [['Tortilla de blat integral', '1 unitat'], ['Ous', '3 unitats'], ['Tomàquets cherry', '1 grapat'], ['Espinacs frescos', '1 grapat'],
             ['Pernil cuit extra (mín. 95% carn)', '60 g'], ['Mozzarella fresca', '60 g'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust'], ['Nou moscada', '1 pessic']],
         preparation: '1. Folra un motlle amb la tortilla integral.\n2. Bat-hi els ous amb la sal, el pebre i la nou moscada. Afegeix els tomàquets, els espinacs i el pernil tallats.\n3. Reparteix la mozzarella a sobre. Cou-ho a 180 °C: 20 minuts a la fregidora d’aire o 25 minuts al forn.',
-        dataNote: 'La font indica una quiche sencera i deixa obert en quantes racions es reparteix.',
+        dataNote: 'La font indica els temps de cocció. MenjarReal estima 35 minuts totals i proposa repartir la quiche en dues racions.',
         variations: ['La font proposa tonyina al natural o pollastre en lloc de pernil, i cottage o ricotta en lloc de mozzarella.']
     },
-    { id: 505, title: 'Boles de patata amb pernil i mozzarella', kcal: 706, protein: 45 },
+    {
+        id: 505, title: 'Boles de patata amb pernil i mozzarella', kcal: 706, protein: 45,
+        description: 'Boles de patata aixafada amb pernil cuit i mozzarella, daurades a la fregidora d’aire i servides amb ous a la planxa.',
+        video: 'CTmdd2IN0qE', sourceIds: ['maydenPotatoBalls'], carbs: 83, fiber: 7, fat: 22, servings: 2, time: '30 min',
+        ingredients: [['Patates cuites de pot', '400 g'], ['Pernil cuit extra', '100 g'], ['Mozzarella ratllada', '30 g'],
+            ['Ous', '2 unitats'], ['Oli d’oliva verge extra en esprai', 'Una mica'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust']],
+        preparation: '1. Escorre les patates i aixafa-les a temperatura ambient amb el pernil picat, la mozzarella, sal i pebre.\n2. Forma les boles, ruixa-les amb una mica d’oli i cou-les a la fregidora d’aire a 180 °C durant 20 minuts.\n3. Mentrestant, cou els ous en una paella tapada fins que la clara qualli. Serveix-los amb les boles.',
+        dataNote: 'Ingredients i cocció de la font. MenjarReal proposa dues racions i estima el temps total.'
+    },
     {
         id: 506, title: 'Pasta cremosa amb vedella a l’all',
+        description: 'Pasta amb vedella picada a l’all i una salsa cremosa de tomàquet i pebrot rostits, cottage i parmesà. La recepta dona per a cinc carmanyoles.',
         kcal: 775, protein: 67, base: 'Per ració o carmanyola', carbs: 84, fiber: 6, fat: 19, video: 'N5JwrY7llVg',
         servings: 5, time: '60 min', yieldLabel: 'Ingredients per a 5 carmanyoles',
         ingredients: [['Oli d’oliva verge extra en esprai', 'Sense quantitat indicada'], ['Tomàquet', '4 unitats'],
-            ['Tomàquets cherry', '100 g'], ['Pebrot vermell', '2 unitats'], ['All', '1 cabeça'], ['Alfàbrega', ''],
-            ['Pebre vermell fumat', ''], ['Cottage', '150 g'], ['Parmesà o Grana Padano', '70 g'], ['Sal', 'Al gust'],
+            ['Tomàquets cherry', '100 g'], ['Pebrot vermell', '2 unitats'], ['All', '1 cabeça'], ['Alfàbrega', 'Al gust'],
+            ['Pebre vermell fumat', 'Al gust'], ['Cottage', '150 g'], ['Parmesà o Grana Padano', '70 g'], ['Sal', 'Al gust'],
             ['Pebre negre', 'Al gust'], ['Pasta', '500 g'], ['Vedella picada magra (5% de greix)', '1 kg'],
-            ['Pebre vermell', ''], ['All en pols', ''], ['Ceba en pols', '']],
-        preparation: '1. Prepara la pasta i rosteix les verdures per a la salsa.\n2. Cuina la vedella amb l’all i les espècies. Prepara la salsa de verdures amb el cottage i el parmesà.\n3. Reparteix la pasta, la salsa i la vedella en cinc carmanyoles.',
-        dataNote: 'Preparació resumida a partir dels capítols del vídeo. La descripció deixa pendents els detalls de temps i temperatura per rostir les verdures.',
+            ['Pebre vermell', 'Al gust'], ['All en pols', 'Al gust'], ['Ceba en pols', 'Al gust']],
+        preparation: '1. Posa el tomàquet, els cherry, els pebrots i la cabeça d’all en una safata amb oli, alfàbrega i pebre vermell fumat. Rosteix-ho a 200 °C fins que el pebrot sigui tendre, uns 35–40 minuts.\n2. Mentrestant, cou la pasta segons el paquet i daura la vedella amb el pebre vermell, l’all i la ceba en pols, sal i pebre.\n3. Extreu la polpa de l’all rostit i tritura les verdures amb el cottage i el parmesà. Barreja la salsa amb la pasta i reparteix-la amb la vedella en cinc carmanyoles.',
+        dataNote: 'La temperatura i el temps de forn són orientatius de MenjarReal. La font indica cinc carmanyoles i una hora de preparació total.',
         batchNote: 'La font reparteix les quantitats en cinc carmanyoles.'
     },
-    { id: 507, title: 'Arròs negre amb marisc i verdures', kcal: 665, protein: 47, unit: 'kg', base: 'Per quilogram' },
-    { id: 508, title: 'Pollastre cruixent estil KFC', kcal: 528, protein: 70.5 },
-    { id: 509, title: 'Bol de moniato amb carn picada, cottage i alvocat', kcal: 789, protein: 67 },
-    { id: 510, title: 'Cigrons amb ou i tres pebrots', kcal: 590, protein: 34, ingredients: [
-        ['Cigrons', ''], ['Ou', ''], ['Pebrot vermell', '1/2 unitat'], ['Pebrot verd', '1/2 unitat'], ['Pebrot groc', '1/2 unitat']
-    ] }
+    {
+        id: 507, title: 'Arròs negre amb marisc i verdures', kcal: 665, protein: 47, unit: 'kg', base: 'Per quilogram',
+        description: 'Arròs rodó cuit amb fumet, pop, llagostins i calamar. Porta una base de tomàquet, ceba, carbassó i albergínia.',
+        difficulty: 'Mitjana',
+        video: 'LQOO0Y4v5SM', carbs: 110, fiber: 11, fat: 6, servings: 6, time: '55 min',
+        yieldLabel: 'Ingredients per a uns 3 kg (6 racions orientatives)',
+        ingredients: [['Arròs rodó', '300 g'], ['Fumet', '900 g'], ['Pop', '150 g'], ['Llagostins', '150 g'], ['Calamar a tires', '150 g'],
+            ['Carbassó', '700 g'], ['Albergínia', '600 g'], ['Tomàquet triturat', '400 g'], ['Tomàquet', '150 g'], ['Ceba', '400 g'], ['Oli d’oliva verge extra', '5 g']],
+        preparation: '1. Talla la ceba, el carbassó, l’albergínia i el tomàquet. Sofregeix la ceba amb l’oli en una cassola ampla, afegeix el carbassó i l’albergínia i deixa que s’estovin.\n2. Afegeix els tomàquets i redueix el sofregit. Incorpora-hi el calamar i el pop, i remena-hi l’arròs.\n3. Aboca-hi el fumet calent i cou l’arròs fins que sigui tendre, uns 17–20 minuts segons el gra. Afegeix els llagostins al tram final i cou-los fins que siguin opacs. Deixa reposar l’arròs uns minuts abans de servir.',
+        dataNote: 'Ingredients i rendiment de la font. Les sis racions, el temps total i els passos són orientatius de MenjarReal. Les xifres de MaydenFit són per quilogram de plat cuinat.'
+    },
+    {
+        id: 508, title: 'Pollastre cruixent estil KFC', kcal: 528, protein: 70.5,
+        description: 'Pit de pollastre arrebossat amb flocs de blat de moro, cuit a la fregidora d’aire i acompanyat d’una salsa de iogurt i mostassa.',
+        video: 'mg7fdw3vFZg', carbs: 42.5, fat: 4.6, servings: 2, time: '25 min',
+        ingredients: [['Pit de pollastre', '300 g'], ['Flocs de blat de moro sense sucre', '50 g'], ['Iogurt grec lleuger', '125 g'],
+            ['Espècies', 'Al gust'], ['Quètxup sense sucre', '1 cullerada'], ['Mostassa', '1 culleradeta'], ['Líquid dels cogombrets en vinagre', '1 culleradeta']],
+        preparation: '1. Talla el pollastre a trossos de mida semblant i tritura els flocs de blat de moro a molles gruixudes.\n2. Reserva la meitat del iogurt per a la salsa. Barreja l’altra meitat amb les espècies, passa-hi el pollastre i arrebossa’l amb els flocs.\n3. Cou-lo en una sola capa a la fregidora d’aire a 190 °C. Gira els trossos a mitja cocció i comprova el punt a partir de 12 minuts. El centre del tros més gruixut ha d’arribar a 74 °C.\n4. Barreja el iogurt reservat amb el quètxup, la mostassa i el líquid dels cogombrets i serveix-lo amb el pollastre.',
+        dataNote: 'La descripció del vídeo enumera els ingredients. Les quantitats, les dues racions i els temps són orientatius de MenjarReal. Les xifres nutricionals corresponen a la declaració de la font.'
+    },
+    {
+        id: 509, title: 'Bol de moniato amb carn picada, cottage i alvocat', kcal: 789, protein: 67,
+        description: 'Moniato rostit amb carn picada daurada, cottage i alvocat. Un fil de mel hi dona el toc final.',
+        video: 'TZcfiO6c7Q0', carbs: 78, fiber: 16, fat: 24, servings: 2, time: '35 min',
+        ingredients: [['Moniato cuit', '400 g'], ['Carn picada magra (5% de greix)', '200 g'], ['Formatge cottage', '125 g'], ['Alvocat', '50 g'], ['Mel', '5 g']],
+        preparation: '1. Si parteixes de moniato cru, talla’l a daus i rosteix-lo a 200 °C uns 25–30 minuts, fins que sigui tendre. Pesa’n 400 g un cop cuit.\n2. Mentrestant, daura la carn picada en una paella, desfent els grumolls, fins que estigui cuita.\n3. Reparteix el moniato i la carn als bols. Afegeix-hi el cottage, l’alvocat i un fil de mel.',
+        dataNote: 'El pes del moniato és un cop cuit. Les dues racions i el temps de forn són orientatius de MenjarReal.'
+    },
+    {
+        id: 510, title: 'Cigrons amb ou i tres pebrots', kcal: 590, protein: 34,
+        description: 'Cigrons guisats amb tomàquet, ceba i pebrots vermell, verd i groc, amb els ous quallats a sobre.',
+        video: 'KR2ikrynag0', carbs: 69, fiber: 20, fat: 19, servings: 2, time: '25 min',
+        ingredients: [['Ceba', '1 unitat'], ['Pebrot vermell', '1/2 unitat'], ['Pebrot verd', '1/2 unitat'], ['Pebrot groc', '1/2 unitat'],
+            ['Cigrons cuits', '200 g'], ['Tomàquet triturat', '200 g'], ['Ous', '2 unitats'], ['Oli d’oliva verge extra en esprai', 'Una mica'], ['Sal', 'Al gust'], ['Espècies', 'Al gust']],
+        preparation: '1. Talla la ceba i els pebrots a daus petits i sofregeix-los en una paella amb una mica d’oli.\n2. Incorpora-hi el tomàquet, la sal i les espècies. Quan la salsa hagi reduït una mica, afegeix els cigrons escorreguts i escalfa’ls.\n3. Fes dos clots i trenca-hi els ous. Tapa la paella i cou-los a foc suau fins que quallin.',
+        dataNote: 'Ingredients de la descripció del vídeo. Les dues racions, el temps i la manera de quallar els ous són orientatius de MenjarReal.'
+    }
 ].map(({ kcal, protein, unit, base, carbs, fiber, fat, video, ingredients = [], preparation, ...recipe }) => ({
     ...recipe,
+    image: `photos/recipe-${recipe.id}.jpg`,
+    photoNote: 'Imatge de referència generada amb IA.',
+    difficulty: 'Fàcil', mealTypes: ['Dinar', 'Sopar'],
     collection: 'recommended', sourceName: 'MaydenFit', seasons: ['Hivern', 'Primavera', 'Estiu', 'Tardor'],
     incomplete: !recipe.servings,
     ingredients: ingredients.map(([item, qty]) => ({ item, qty })),

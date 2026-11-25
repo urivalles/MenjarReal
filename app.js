@@ -476,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.photoCredit ? `<details class="photo-credit"><summary>Crèdits de la foto</summary><p>Foto de referència: ${escapeHtml(recipe.photoCredit.note)}<br>
                 <a href="${escapeHtml(recipe.photoCredit.source)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.author)} · Wikimedia Commons</a> ·
                 <a href="${escapeHtml(recipe.photoCredit.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(recipe.photoCredit.license)}</a>. Imatge reduïda; retall visual a les targetes.</p></details>` : ''}
+            ${recipe.photoNote ? `<p class="photo-credit">${escapeHtml(recipe.photoNote)}</p>` : ''}
         `;
         bindPhotoFallback(modalBody);
         const statusControl = modalBody.querySelector('#recipe-status-select');

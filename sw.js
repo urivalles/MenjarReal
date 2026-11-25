@@ -1,5 +1,5 @@
 // El build calcula una versió a partir del contingut per detectar cada canvi.
-const BUILD_VERSION = 'ab0d44ab182c6f89';
+const BUILD_VERSION = '5671673ede008dc6';
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `realfood-shell-${encodeURIComponent(new URL(SCOPE).pathname)}-`;
 const CACHE_NAME = CACHE_PREFIX + BUILD_VERSION;
@@ -21,7 +21,9 @@ const APP_FILES = [
     'photos/recipe-304.jpg', 'photos/recipe-401.jpg', 'photos/recipe-402.jpg',
     'photos/recipe-305.jpg', 'photos/recipe-306.jpg', 'photos/recipe-307.jpg',
     'photos/recipe-308.jpg', 'photos/recipe-309.jpg', 'photos/recipe-310.jpg',
-    'photos/recipe-311.jpg'
+    'photos/recipe-311.jpg',
+    'photos/recipe-501.jpg', 'photos/recipe-502.jpg', 'photos/recipe-503.jpg', 'photos/recipe-504.jpg', 'photos/recipe-505.jpg',
+    'photos/recipe-506.jpg', 'photos/recipe-507.jpg', 'photos/recipe-508.jpg', 'photos/recipe-509.jpg', 'photos/recipe-510.jpg'
 ];
 const APP_URLS = new Set(APP_FILES.map(file => new URL(file, SCOPE).href));
 const INDEX_URL = new URL('index.html', SCOPE).href;
