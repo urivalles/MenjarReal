@@ -703,6 +703,18 @@ select:disabled, input:disabled { background: #f1f5f9; color: #64748b; }
     color: var(--clr-text-main);
     white-space: pre-line;
 }
+.recipe-ingredients-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: .5rem; }
+.recipe-ingredients-heading h4 { margin: 0; }
+.recipe-ingredients-heading label { display: flex; align-items: center; gap: .5rem; font-size: .9rem; }
+.recipe-ingredients-heading select { min-height: 44px; padding: .45rem .6rem; border: 1px solid #cbd5e1; border-radius: .5rem; background: white; color: inherit; font: inherit; }
+.recipe-step-mode > summary { width: fit-content; min-height: 44px; padding: .55rem 0; color: #145c43; cursor: pointer; font-size: .9rem; font-weight: 600; }
+.recipe-step-mode[open] + .modal-instructions { display: none; }
+.recipe-step-card { padding: 1rem; background: #f0f7ef; border-radius: var(--radius-md); }
+.recipe-step-progress { color: #145c43; font-size: .85rem; font-weight: 600; margin-bottom: .4rem; }
+.recipe-step-text { font-size: 1.12rem; white-space: pre-line; overflow-wrap: anywhere; }
+.recipe-step-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .9rem; }
+.recipe-step-actions button { min-height: 44px; }
+.recipe-step-actions button[aria-disabled="true"] { opacity: .55; cursor: default; }
 
 /* Receptari personal: col·leccions, descoberta i detalls de cuina. */
 .collection-intro {

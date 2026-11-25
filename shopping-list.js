@@ -28,7 +28,7 @@ const shoppingListEngine = (() => {
         return { version: 1, items, dismissed };
     }
 
-    const singular = { unitats: 'unitat', culleradetes: 'culleradeta', cullerades: 'cullerada', grans: 'gra', filets: 'filet', lloms: 'llom', grapats: 'grapat', llaunes: 'llauna', trossos: 'tros', gots: 'got', tasses: 'tassa', llesques: 'llesca', cabeces: 'cabeça' };
+    const singular = { unitats: 'unitat', culleradetes: 'culleradeta', cullerades: 'cullerada', grans: 'gra', filets: 'filet', lloms: 'llom', grapats: 'grapat', llaunes: 'llauna', trossos: 'tros', gots: 'got', tasses: 'tassa', llesques: 'llesca', cabeces: 'cabeça', fulles: 'fulla', pessics: 'pessic' };
 
     function parseQuantity(quantity) {
         const raw = String(quantity || '').trim().replace(/(\d)\s*([½¼¾])/g, '$1 $2').replace(/½/g, '1/2').replace(/¼/g, '1/4').replace(/¾/g, '3/4');
@@ -79,6 +79,22 @@ const shoppingListEngine = (() => {
         const max = format(part.max);
         const unit = part.amount === 1 && part.max === 1 ? singular[part.unit] || part.unit : part.unit;
         return amount + (amount === max ? '' : '–' + max) + ' ' + unit + (part.suffix ? ' · ' + part.suffix : '');
+    }
+
+    const recipeCountUnits = { fulla: 'fulles', fulles: 'fulles', llesca: 'llesques', llesques: 'llesques', pessic: 'pessics', pessics: 'pessics' };
+
+    function scaleRecipeQuantity(quantity, factor) {
+        if (!quantity || factor === 1) return quantity;
+        const note = quantity.match(/\s*·\s*1 per (?:persona|ració)$|,\s+\p{L}[^\d+]*$/iu)?.[0] || '';
+        const amount = quantity.slice(0, quantity.length - note.length);
+        const perPiece = /^(\d+\s+(?:filets?|lloms?|trossos|tros))((?: de | d[’'])\d.+)$/i.exec(amount);
+        const parsed = parseQuantity(perPiece?.[1] ?? amount);
+        if (!parsed) return /^\s*[\d½¼¾]/.test(quantity) ? `${quantity} · quantitat original` : quantity;
+        if (parsed.unit === 'unitats' && Object.hasOwn(recipeCountUnits, parsed.suffix)) {
+            parsed.unit = recipeCountUnits[parsed.suffix];
+            parsed.suffix = '';
+        }
+        return formatPart({ ...parsed, amount: parsed.amount * factor, max: parsed.max * factor }) + (perPiece?.[2] || '') + note;
     }
 
     function requirements(rawPlanner, recipes = recipeCatalog.recipes) {
@@ -233,5 +249,5 @@ const shoppingListEngine = (() => {
         return blocks.length > 1 ? blocks.join('\n\n') : '';
     }
 
-    return { empty, validate, nameKey, parseQuantity, requirements, merge, remove, edit, exportText };
+    return { empty, validate, nameKey, parseQuantity, scaleRecipeQuantity, requirements, merge, remove, edit, exportText };
 })();

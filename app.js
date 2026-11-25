@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
         })[char]);
     }
 
-    function ingredientLabel(ingredient) {
+    function ingredientLabel(ingredient, quantity = ingredient.qty) {
         return typeof ingredient === 'string' ? ingredient :
-            [ingredient.item, ingredient.qty].filter(Boolean).join(' — ');
+            [ingredient.item, quantity].filter(Boolean).join(' — ');
     }
 
     function hasIngredient(ingredient) {
@@ -427,13 +427,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Modal Logic ---
-    function openRecipeModal(recipeId, trigger = document.activeElement) {
+    function mountRecipeServings(recipe, initialServings) {
+        const control = modalBody.querySelector('#recipe-servings');
+        if (!control) return;
+        const ingredients = [...recipe.ingredients, ...(recipe.optionalIngredients || [])];
+        const labels = modalBody.querySelectorAll('.recipe-ingredient-label');
+        const originalYield = modalBody.querySelector('#recipe-yield');
+        const reminder = modalBody.querySelector('#recipe-servings-help');
+        control.replaceChildren(...Array.from({ length: 20 }, (_, index) => new Option(index + 1, index + 1)));
+        control.value = String(initialServings ?? recipe.servings);
+        const update = () => {
+            const servings = Number(control.value);
+            const adjusted = servings !== recipe.servings;
+            if (originalYield) originalYield.hidden = adjusted;
+            reminder.hidden = !adjusted;
+            ingredients.forEach((ingredient, index) => {
+                const factor = adjusted ? servings / (ingredient.servings || recipe.servings) : 1;
+                const quantity = shoppingListEngine.scaleRecipeQuantity(ingredient.qty, factor);
+                labels[index].textContent = ingredientLabel(ingredient, quantity);
+            });
+        };
+        control.addEventListener('change', update);
+        update();
+    }
+
+    function mountRecipeSteps(steps) {
+        if (steps.length < 2) return;
+        const progress = modalBody.querySelector('#recipe-step-progress');
+        const text = modalBody.querySelector('#recipe-step-text');
+        const previous = modalBody.querySelector('#recipe-step-previous');
+        const next = modalBody.querySelector('#recipe-step-next');
+        let current = 0;
+        const showStep = index => {
+            if (index < 0 || index >= steps.length) return;
+            current = index;
+            progress.textContent = `Pas ${current + 1} de ${steps.length}`;
+            text.textContent = steps[current];
+            previous.setAttribute('aria-disabled', String(current === 0));
+            next.setAttribute('aria-disabled', String(current === steps.length - 1));
+        };
+        previous.addEventListener('click', () => showStep(current - 1));
+        next.addEventListener('click', () => showStep(current + 1));
+        showStep(0);
+    }
+
+    function openRecipeModal(recipeId, trigger = document.activeElement, initialServings = null) {
         const recipe = recipes.find(r => r.id === recipeId);
         if (!recipe) return;
         const gluten = glutenFilter.value === 'all' ? null : glutenGuide.review(recipe);
         const source = recipeCatalog.sourceFor(recipe);
         const defaultStatus = recipe.testedByUser === true ? 'tested' : 'pending';
         const personalNote = recipeNotes[recipe.id] || '';
+        const instructions = recipe.instructions || 'Preparació pendent de confirmar.';
+        const steps = instructions.trim().split(/(?:^|\n)\s*\d+[.)]\s+/).filter(step => step.trim()).map(step => step.trim());
         const declared = recipe.declaredNutrition;
         const number = new Intl.NumberFormat('ca');
         const unit = declared?.unit ? '/' + declared.unit : '';
@@ -448,11 +494,15 @@ document.addEventListener('DOMContentLoaded', () => {
             ${gluten ? `<div class="modal-section detail-note"><h4>${escapeHtml(gluten.title)}</h4><p>${escapeHtml(gluten.note)}</p><details><summary>Etiquetes i preparació</summary><p>Comprova els productes i els opcionals que facis servir. Si cal evitar traces, també cal evitar el contacte amb gluten en utensilis, superfícies, aigua o oli compartits. Aquesta guia no certifica el plat ni canvia els ingredients de la compra.</p><ul class="detail-list">${glutenGuide.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul></details></div>` : ''}
             <div class="detail-facts">${recipe.time ? `<span>${escapeHtml(recipe.time)} totals</span>` : ''}
                 ${recipe.activeMinutes ? `<span>${recipe.activeMinutes} min de feina</span>` : ''}
-                ${recipe.yieldLabel ? `<span>${escapeHtml(recipe.yieldLabel)}</span>` : recipe.servings ? `<span>Ingredients per a ${recipe.servings} racions</span>` : ''}
+                ${recipe.yieldLabel ? `<span id="recipe-yield">${escapeHtml(recipe.yieldLabel)}</span>` : ''}
                 ${recipe.equipment ? `<span>${recipe.equipment.map(escapeHtml).join(' · ')}</span>` : ''}</div>
             
             <div class="modal-section">
-                <h4>Ingredients</h4>
+                <div class="recipe-ingredients-heading">
+                    <h4>Ingredients</h4>
+                    ${recipe.servings ? '<label for="recipe-servings">Racions <select id="recipe-servings" aria-describedby="recipe-servings-help"></select></label>' : ''}
+                </div>
+                ${recipe.servings ? '<p id="recipe-servings-help" class="planner-help" hidden>El selector ajusta la llista d’ingredients d’aquesta fitxa. Revisa les mesures i els temps dels passos.</p>' : ''}
                 ${recipe.dataNote || recipe.incomplete ? `<p>${escapeHtml(recipe.dataNote || 'Ingredients, quantitats i racions originals pendents de completar.')}</p>` : ''}
                 ${myFridge.length ? '<p class="planner-help">En verd, els ingredients que has anotat a la nevera. Comprova què et falta de la resta abans de cuinar.</p>' : ''}
                 <ul class="modal-ingredients-list">
@@ -460,19 +510,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Highlight if in fridge
                         const hasIng = hasIngredient(ing);
                         return `<li ${hasIng ? 'style="color: var(--clr-primary-dark); font-weight: 500;"' : ''}>
-                                    ${hasIng ? "<i class='bx bx-check'></i>" : ""} ${escapeHtml(ingredientLabel(ing))}
+                                    ${hasIng ? "<i class='bx bx-check' aria-hidden='true'></i>" : ""} <span class="recipe-ingredient-label">${escapeHtml(ingredientLabel(ing))}</span>
                                 </li>`;
                     }).join('')}
                 </ul>
             </div>
-            ${recipe.optionalIngredients ? `<div class="modal-section"><h4>Ingredients opcionals</h4><ul class="detail-list">${recipe.optionalIngredients.map(ingredient => `<li>${escapeHtml(ingredientLabel(ingredient))}</li>`).join('')}</ul><p class="planner-help">No s’afegeixen automàticament a la compra ni es necessiten per a la coincidència amb la nevera.</p></div>` : ''}
+            ${recipe.optionalIngredients ? `<div class="modal-section"><h4>Ingredients opcionals</h4><ul class="detail-list">${recipe.optionalIngredients.map(ingredient => `<li class="recipe-ingredient-label">${escapeHtml(ingredientLabel(ingredient))}</li>`).join('')}</ul><p class="planner-help">No s’afegeixen automàticament a la compra ni es necessiten per a la coincidència amb la nevera.</p></div>` : ''}
             ${declared ? `<div class="modal-section detail-note"><h4>Nutrició declarada per l’autor · sense verificar</h4>
                 <p>${number.format(declared.kcal)} kcal${unit} · ${number.format(declared.protein)} g${unit} de proteïnes${extraNutrients}.
                 ${escapeHtml(declared.base || 'Base de la declaració pendent de confirmar')}.</p></div>` : ''}
             ${recipe.nutritionNote ? `<div class="modal-section detail-note"><h4>Nutrició orientativa · sense verificar</h4><p>${escapeHtml(recipe.nutritionNote)}</p></div>` : ''}
             <div class="modal-section">
                 <h4>Preparació</h4>
-                <p class="modal-instructions">${escapeHtml(recipe.instructions || 'Preparació pendent de confirmar.')}</p>
+                ${steps.length >= 2 ? `<details class="recipe-step-mode">
+                    <summary>Cuina pas a pas</summary>
+                    <div class="recipe-step-card">
+                        <div role="status" aria-atomic="true">
+                            <p id="recipe-step-progress" class="recipe-step-progress"></p>
+                            <p id="recipe-step-text" class="recipe-step-text"></p>
+                        </div>
+                        <div class="recipe-step-actions">
+                            <button id="recipe-step-previous" type="button" class="btn-outline">Anterior</button>
+                            <button id="recipe-step-next" type="button" class="btn-primary">Següent</button>
+                        </div>
+                    </div>
+                </details>` : ''}
+                <p class="modal-instructions">${escapeHtml(instructions)}</p>
                 <details class="recipe-personal-note"${personalNote ? ' open' : ''}>
                     <summary>La meva nota</summary>
                     <form id="recipe-note-form" class="form-group">
@@ -501,6 +564,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.photoNote ? `<p class="photo-credit">${escapeHtml(recipe.photoNote)}</p>` : ''}
         `;
         bindPhotoFallback(modalBody);
+        mountRecipeServings(recipe, initialServings);
+        mountRecipeSteps(steps);
         const noteForm = modalBody.querySelector('#recipe-note-form');
         const noteInput = noteForm.querySelector('textarea');
         const noteFeedback = noteForm.querySelector('[role="status"]');
@@ -1280,7 +1345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     plannerTodayMeals.addEventListener('click', event => {
         const button = event.target.closest('.planner-view-recipe');
-        if (button) openRecipeModal(Number(button.dataset.id), button);
+        if (button) openRecipeModal(Number(button.dataset.id), button, weeklyPlanner.settings.people);
     });
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden && activeView === 'planner-view') renderPlannerToday();
@@ -1333,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPlannerToday({ refresh: true });
         bindPhotoFallback(plannerGrid);
         document.querySelectorAll('.planner-choose').forEach(button => button.addEventListener('click', () => openMealPicker(button.dataset.day, button.dataset.meal)));
-        plannerGrid.querySelectorAll('.planner-view-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id), button)));
+        plannerGrid.querySelectorAll('.planner-view-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id), button, weeklyPlanner.settings.people)));
         document.querySelectorAll('.planner-lock').forEach(button => button.addEventListener('click', () => {
             const next = weeklyPlannerEngine.normalizeState(weeklyPlanner);
             const slot = next.days[button.dataset.day][button.dataset.meal];
