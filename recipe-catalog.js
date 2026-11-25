@@ -117,6 +117,20 @@ const recipeCatalog = (() => {
 
     const statusLabels = { pending: 'Pendent de provar', tested: 'Provada', favorite: 'Preferida' };
 
+    function stepTimerOptions(step) {
+        const text = step.replace(/\b(\d{1,3})\s*(?:hores?|h)\s*(?:i\s+)?(\d{1,2})\s*(?:minuts?|mins?)\b/gi,
+            (_, hours, minutes) => `${Number(hours) * 60 + Number(minutes)} min`);
+        const times = new Set();
+        for (const [, from, to, unit] of text.matchAll(/\b(\d+(?:[.,]\d+)?)(?:\s*[–—-]\s*(\d+(?:[.,]\d+)?))?\s*(hores?|h|minuts?|mins?|segons?|segs?)\b/gi)) {
+            const multiplier = { h: 3600, m: 60, s: 1 }[unit[0].toLowerCase()];
+            for (const value of [from, to ?? from]) {
+                const seconds = Math.round(Number(value.replace(',', '.')) * multiplier);
+                if (seconds > 0 && seconds <= 86400) times.add(seconds);
+            }
+        }
+        return [...times];
+    }
+
     function select(options = {}) {
         const { query = '', difficulty = 'all', collection = 'all', season = 'all',
             quick = false, batch = false, gluten = 'all', source = 'all', useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
@@ -147,5 +161,5 @@ const recipeCatalog = (() => {
         return selected;
     }
 
-    return { recipes, normalize, sourceFor, statusLabels, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
+    return { recipes, normalize, sourceFor, statusLabels, stepTimerOptions, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
 })();

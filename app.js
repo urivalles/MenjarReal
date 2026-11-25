@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         value => value && typeof value === 'object' && !Array.isArray(value)));
     let recipeStatuses = JSON.parse(appData.getItem('recipeStatuses'));
     let recipeNotes = JSON.parse(appData.getItem('recipeNotes'));
+    let savedMenus = JSON.parse(appData.getItem('savedMenus'));
     let adoptedRecipes = readStored('adoptedRecipes', [], value => Array.isArray(value) &&
         value.every(id => Number.isInteger(id) && recipes.some(recipe =>
             recipe.id === id && recipe.collection === 'recommended')));
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let photoVersion = 0;
     let photoBusy = false;
     let pendingBackup = null;
+    let releaseRecipeTimer;
 
     const daysOfWeek = ['Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte', 'Diumenge'];
     const fridgeModeNames = { any: 'algun ingredient', available: 'només el que tinc', all: 'tots els triats', exact: 'exactament aquests' };
@@ -111,6 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const plannerToday = document.getElementById('planner-today');
     const plannerTodayTitle = document.getElementById('planner-today-title');
     const plannerTodayMeals = document.getElementById('planner-today-meals');
+    const savedMenuForm = document.getElementById('saved-menu-form');
+    const savedMenuName = document.getElementById('saved-menu-name');
+    const saveCurrentMenu = document.getElementById('save-current-menu');
+    const savedMenuChoice = document.getElementById('saved-menu-choice');
+    const savedMenuSelect = document.getElementById('saved-menu-select');
+    const savedMenuPreview = document.getElementById('saved-menu-preview');
+    const savedMenuPeople = document.getElementById('saved-menu-people');
+    const savedMenuDays = document.getElementById('saved-menu-days');
+    const savedMenuStatus = document.getElementById('saved-menu-status');
     const clearPlannerBtn = document.getElementById('clear-planner-btn');
     const plannerGenerationForm = document.getElementById('planner-generation');
     const generatePlannerBtn = document.getElementById('generate-planner-btn');
@@ -451,8 +462,97 @@ document.addEventListener('DOMContentLoaded', () => {
         update();
     }
 
+    function mountRecipeTimer() {
+        const options = modalBody.querySelector('#recipe-timer-options');
+        const timer = modalBody.querySelector('#recipe-timer');
+        const countdown = timer.querySelector('[role="timer"]');
+        const feedback = timer.querySelector('[role="status"]');
+        const stop = timer.querySelector('button');
+        let interval = null;
+        let audio;
+
+        function finishCountdown() {
+            clearInterval(interval);
+            interval = null;
+            options.querySelectorAll('button').forEach(button => { button.disabled = false; });
+        }
+
+        function playTimerAlert() {
+            if (audio?.state !== 'running') return;
+            const sound = audio.createOscillator();
+            const volume = audio.createGain();
+            const now = audio.currentTime;
+            sound.frequency.value = 740;
+            volume.gain.setValueAtTime(.15, now);
+            volume.gain.exponentialRampToValueAtTime(.001, now + .6);
+            sound.connect(volume).connect(audio.destination);
+            sound.start(now);
+            sound.stop(now + .6);
+        }
+
+        function start(seconds) {
+            if (interval !== null) return;
+            if (typeof AudioContext === 'function') {
+                try {
+                    audio ??= new AudioContext();
+                    audio.resume().catch(() => {});
+                } catch { /* El compte enrere també funciona sense so. */ }
+            }
+            const deadline = Date.now() + seconds * 1000;
+            timer.hidden = false;
+            stop.textContent = 'Atura';
+            feedback.textContent = '';
+            stop.focus();
+            options.querySelectorAll('button').forEach(button => { button.disabled = true; });
+            const tick = () => {
+                const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+                const minutes = Math.floor(left / 60);
+                countdown.textContent = `${minutes}:${String(left % 60).padStart(2, '0')}`;
+                if (left) return;
+                finishCountdown();
+                feedback.textContent = 'S’ha acabat el temps.';
+                stop.textContent = 'Tanca';
+                playTimerAlert();
+            };
+            interval = setInterval(tick, 250);
+            tick();
+        }
+
+        stop.addEventListener('click', () => {
+            finishCountdown();
+            timer.hidden = true;
+            const stepMode = options.closest('details');
+            const nextFocus = stepMode.open && options.querySelector('button');
+            (nextFocus || stepMode.querySelector('summary')).focus();
+        });
+        releaseRecipeTimer = () => {
+            clearInterval(interval);
+            if (audio && audio.state !== 'closed') audio.close().catch(() => {});
+            releaseRecipeTimer = null;
+        };
+
+        return step => {
+            const buttons = recipeCatalog.stepTimerOptions(step).map(seconds => {
+                const button = document.createElement('button');
+                const minutes = Math.floor(seconds / 60);
+                const secondsLeft = seconds % 60;
+                const label = [minutes ? `${minutes} min` : '', secondsLeft ? `${secondsLeft} s` : ''].filter(Boolean).join(' ');
+                button.type = 'button';
+                button.className = 'btn-outline';
+                button.textContent = label;
+                button.setAttribute('aria-label', `Inicia un temporitzador de ${label}`);
+                button.disabled = interval !== null;
+                button.addEventListener('click', () => start(seconds));
+                return button;
+            });
+            options.hidden = !buttons.length;
+            options.replaceChildren(...buttons);
+        };
+    }
+
     function mountRecipeSteps(steps) {
         if (steps.length < 2) return;
+        const showTimerOptions = mountRecipeTimer();
         const progress = modalBody.querySelector('#recipe-step-progress');
         const text = modalBody.querySelector('#recipe-step-text');
         const previous = modalBody.querySelector('#recipe-step-previous');
@@ -463,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
             current = index;
             progress.textContent = `Pas ${current + 1} de ${steps.length}`;
             text.textContent = steps[current];
+            showTimerOptions(steps[current]);
             previous.setAttribute('aria-disabled', String(current === 0));
             next.setAttribute('aria-disabled', String(current === steps.length - 1));
         };
@@ -474,6 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRecipeModal(recipeId, trigger = document.activeElement, initialServings = null) {
         const recipe = recipes.find(r => r.id === recipeId);
         if (!recipe) return;
+        releaseRecipeTimer?.();
         const gluten = glutenFilter.value === 'all' ? null : glutenGuide.review(recipe);
         const source = recipeCatalog.sourceFor(recipe);
         const defaultStatus = recipe.testedByUser === true ? 'tested' : 'pending';
@@ -529,6 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p id="recipe-step-progress" class="recipe-step-progress"></p>
                             <p id="recipe-step-text" class="recipe-step-text"></p>
                         </div>
+                        <div id="recipe-timer-options" class="recipe-timer-options" role="group" aria-label="Temporitzador" hidden></div>
                         <div class="recipe-step-actions">
                             <button id="recipe-step-previous" type="button" class="btn-outline">Anterior</button>
                             <button id="recipe-step-next" type="button" class="btn-primary">Següent</button>
@@ -536,6 +639,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </details>` : ''}
                 <p class="modal-instructions">${escapeHtml(instructions)}</p>
+                ${steps.length >= 2 ? `<div id="recipe-timer" class="recipe-timer" hidden>
+                    <strong role="timer" aria-label="Temps restant"></strong>
+                    <span role="status"></span>
+                    <button type="button" class="btn-outline">Atura</button>
+                </div>` : ''}
                 <details class="recipe-personal-note"${personalNote ? ' open' : ''}>
                     <summary>La meva nota</summary>
                     <form id="recipe-note-form" class="form-group">
@@ -607,6 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (planDetail) planDetail.addEventListener('click', () => openRecipePlan(recipe.id));
         const edit = modalBody.querySelector('.btn-edit-recipe');
         if (edit) edit.addEventListener('click', () => {
+            releaseRecipeTimer?.();
             modal.classList.remove('show');
             openCustomRecipe(recipeId);
         });
@@ -621,6 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function closeRecipeModal() {
+        releaseRecipeTimer?.();
         modal.classList.remove('show');
         if (modalTrigger?.isConnected) modalTrigger.focus();
         else if (document.getElementById('planner-view').classList.contains('active-view')) generatePlannerBtn.focus();
@@ -795,9 +905,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Còpies completes: exportació i restauració revisada ---
+    function plannedMealCount(planner) {
+        return Object.values(planner.days).flatMap(day => [day.lunch, day.dinner]).filter(Boolean).length;
+    }
+
     function dataDescription(data) {
-        const meals = Object.values(data.weeklyPlanner.days).flatMap(day => [day.lunch, day.dinner]).filter(Boolean).length;
-        return `${data.customRecipes.length} receptes personals · ${data.adoptedRecipes.length} adoptades · ${data.myFridge.length} aliments · ${meals} àpats planificats · ${data.shoppingList.items.length} elements de compra`;
+        return `${data.customRecipes.length} receptes personals · ${data.adoptedRecipes.length} adoptades · ${data.myFridge.length} aliments · ${plannedMealCount(data.weeklyPlanner)} àpats planificats · ${data.savedMenus.length} menús desats · ${data.shoppingList.items.length} elements de compra`;
     }
     function closeDataModal() { dataModal.classList.remove('show'); openDataBtn.focus(); }
     openDataBtn.addEventListener('click', () => {
@@ -836,9 +949,10 @@ document.addEventListener('DOMContentLoaded', () => {
             customRecipes = restored.customRecipes; recipeCatalog.replaceCustomRecipes(customRecipes);
             myFridge = restored.myFridge; fridgePreferences = restored.fridgePreferences; weeklyPlanner = restored.weeklyPlanner; adoptedRecipes = restored.adoptedRecipes;
             shoppingList = restored.shoppingList; shoppingUndo = null; recipeStatuses = restored.recipeStatuses; recipeNotes = restored.recipeNotes;
+            savedMenus = restored.savedMenus;
             refreshSavedShopping();
             pendingBackup = null; restoreDataBtn.disabled = true; importDataFile.value = '';
-            filterRecipes(); renderFridge(); renderPlanner(); dataSummary.textContent = dataDescription(restored);
+            filterRecipes(); renderFridge(); renderPlanner(); renderSavedMenus(); savedMenuStatus.textContent = ''; dataSummary.textContent = dataDescription(restored);
             dataStatus.textContent = 'Còpia restaurada en aquest navegador. No s’ha activat cap sincronització al núvol.';
             importPreview.textContent = 'Restauració completada.';
         } catch (error) { dataStatus.textContent = `No s’ha restaurat la còpia: ${error.message} Les dades anteriors es conserven.`; }
@@ -923,12 +1037,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!text || !shoppingExport.open) shoppingExportFallback.hidden = true;
     }
 
+    function appendManualShoppingItem(list, name, quantity) {
+        let id = `manual:${Date.now()}`;
+        while (list.items.some(item => item.id === id)) id += ':new';
+        list.items.push({ id, name, quantity, checked: false, origin: 'manual' });
+    }
+
     shoppingAddForm.addEventListener('submit', event => {
         event.preventDefault();
-        let id = `manual:${Date.now()}`;
-        while (shoppingList.items.some(item => item.id === id)) id += ':new';
         const next = shoppingListEngine.validate(shoppingList);
-        next.items.push({ id, name: shoppingName.value.trim(), quantity: shoppingQuantity.value.trim(), checked: false, origin: 'manual' });
+        appendManualShoppingItem(next, shoppingName.value.trim(), shoppingQuantity.value.trim());
         if (commitShopping(next, 'Ingredient afegit a la compra.')) {
             shoppingName.value = ''; shoppingQuantity.value = ''; shoppingName.focus();
         }
@@ -1056,12 +1174,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>${escapeHtml(recipe.time)}${recipe.matchCount ? ` · Aprofita: ${names(recipe.matchedIngredients)}` : ''}</p>
                 <p class="fridge-recipe-missing">${recipe.missingCount ? `<strong>${recipe.missingCount === 1 ? 'Et falta' : 'Et falten'}</strong> ${names(recipe.missingIngredients)}` : 'Tens els ingredients principals anotats.'}</p>
                 <div class="fridge-recipe-actions"><button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta</button>
-                ${recipe.category !== 'dessert' ? `<button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button>` : '<span class="planner-help">Postres</span>'}</div></div>`;
+                ${recipe.category !== 'dessert' ? `<button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button>` : '<span class="planner-help">Postres</span>'}
+                ${recipe.missingCount ? '<button type="button" class="btn-outline fridge-shop-missing">Afegeix el que falta a la compra</button>' : ''}</div>
+                ${recipe.missingCount ? '<p class="fridge-shopping-feedback" role="status"></p>' : ''}</div>`;
+            row.querySelector('.fridge-shop-missing')?.addEventListener('click', () => {
+                const feedback = row.querySelector('.fridge-shopping-feedback');
+                addMissingToShopping(recipe.missingIngredients, feedback);
+            });
             fridgeRecipeList.appendChild(row);
         });
         bindPhotoFallback(fridgeRecipeList);
         fridgeRecipeList.querySelectorAll('.fridge-open-recipe').forEach(button => button.addEventListener('click', () => openRecipeModal(Number(button.dataset.id))));
         fridgeRecipeList.querySelectorAll('.fridge-plan-recipe').forEach(button => button.addEventListener('click', () => openRecipePlan(Number(button.dataset.id))));
+    }
+
+    function addMissingToShopping(ingredients, feedback) {
+        const next = shoppingListEngine.validate(shoppingList);
+        const pending = new Set(next.items.filter(item => !item.checked).map(item => shoppingListEngine.nameKey(item.name)));
+        for (const ingredient of ingredients) {
+            const name = recipeCatalog.ingredientName(ingredient);
+            const key = shoppingListEngine.nameKey(name);
+            if (pending.has(key)) continue;
+            appendManualShoppingItem(next, name, ingredient.qty || '');
+            pending.add(key);
+        }
+        const added = next.items.length - shoppingList.items.length;
+        if (!added) {
+            feedback.textContent = 'Ja tens aquests ingredients pendents a la compra.';
+            return;
+        }
+        const message = added === 1 ? '1 ingredient afegit a la compra.' : `${added} ingredients afegits a la compra.`;
+        feedback.textContent = commitShopping(next, message, true) ? message : shoppingStatus.textContent;
     }
     function saveFridgePreferences(mode) {
         try {
@@ -1122,6 +1265,72 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Planner Logic ---
     const mealNames = { lunch: 'Dinar', dinner: 'Sopar' };
     const dayName = day => daysOfWeek[weeklyPlannerEngine.days.indexOf(day)];
+
+    function showSavedMenuPreview() {
+        const menu = savedMenus[savedMenuSelect.value];
+        savedMenuPreview.hidden = !menu;
+        if (!menu) return;
+        const { people } = menu.planner.settings;
+        savedMenuPeople.textContent = people === 1 ? '1 persona per àpat' : `${people} persones per àpat`;
+        savedMenuDays.innerHTML = weeklyPlannerEngine.days.map(day => {
+            const meals = weeklyPlannerEngine.meals.map(meal => {
+                const slot = menu.planner.days[day][meal];
+                const { title } = plannerMealContent(slot);
+                const note = ['out', 'leftovers'].includes(slot?.kind) && slot.title ? ` · ${slot.title}` : '';
+                return `<span><strong>${mealNames[meal]}</strong> ${escapeHtml(title + note)}</span>`;
+            }).join('');
+            return `<li><strong>${dayName(day)}</strong>${meals}</li>`;
+        }).join('');
+    }
+
+    function renderSavedMenus(selection = '') {
+        savedMenuChoice.hidden = !savedMenus.length;
+        savedMenuSelect.replaceChildren(new Option('Tria un menú desat', ''), ...savedMenus.map((menu, index) => new Option(menu.name, index)));
+        savedMenuSelect.value = selection;
+        showSavedMenuPreview();
+    }
+
+    function saveMenuList(next, message, selection) {
+        try {
+            savedMenus = appData.update({ savedMenus: next }).savedMenus;
+            renderSavedMenus(selection);
+            savedMenuStatus.dataset.error = 'false';
+            savedMenuStatus.textContent = message;
+            return true;
+        } catch (error) {
+            savedMenuStatus.dataset.error = 'true';
+            savedMenuStatus.textContent = error.message;
+            return false;
+        }
+    }
+
+    savedMenuName.maxLength = appData.savedMenuNameLimit;
+    savedMenuForm.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!plannedMealCount(weeklyPlanner)) return;
+        const name = savedMenuName.value.trim();
+        const next = [...savedMenus, { name, planner: weeklyPlanner }];
+        if (saveMenuList(next, `«${name}» desat.`, String(next.length - 1))) savedMenuName.value = '';
+    });
+    savedMenuSelect.addEventListener('change', () => {
+        savedMenuStatus.textContent = '';
+        showSavedMenuPreview();
+    });
+    document.getElementById('apply-saved-menu').addEventListener('click', () => {
+        const saved = savedMenus[savedMenuSelect.value];
+        if (!saved) return;
+        const message = `Menú «${saved.name}» recuperat.`;
+        const applied = commitPlanner(weeklyPlannerEngine.normalizeState(saved.planner), message);
+        savedMenuStatus.dataset.error = String(!applied);
+        savedMenuStatus.textContent = applied ? message : plannerStatus.textContent;
+    });
+    document.getElementById('remove-saved-menu').addEventListener('click', () => {
+        const saved = savedMenus[savedMenuSelect.value];
+        if (!saved || !window.confirm(`Vols eliminar «${saved.name}» dels menús desats?`)) return;
+        if (saveMenuList(savedMenus.filter(menu => menu !== saved), `«${saved.name}» eliminat.`)) {
+            (savedMenuChoice.hidden ? savedMenuName : savedMenuSelect).focus();
+        }
+    });
 
     function plannerFeedback(message, error = false) {
         plannerStatus.textContent = message;
@@ -1323,7 +1532,7 @@ document.addEventListener('DOMContentLoaded', () => {
             recipe?.title || slot?.title || 'Sense assignar';
         const titleHtml = recipe ? `<button type="button" class="planner-view-recipe" data-id="${recipe.id}">${escapeHtml(title)}</button>` :
             `<p class="planner-meal-title">${escapeHtml(title)}</p>`;
-        return { recipe, titleHtml };
+        return { recipe, title, titleHtml };
     }
 
     function renderPlannerToday({ refresh = false } = {}) {
@@ -1353,6 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPlanner() {
         plannerGrid.innerHTML = '';
+        saveCurrentMenu.disabled = !plannedMealCount(weeklyPlanner);
         const settings = weeklyPlanner.settings;
         for (const [key, control] of Object.entries(plannerControls)) {
             if (typeof settings[key] === 'boolean') control.checked = settings[key];
@@ -1445,6 +1655,7 @@ document.addEventListener('DOMContentLoaded', () => {
     filterRecipes();
     renderFridge();
     renderPlanner();
+    renderSavedMenus();
     showView(window.location?.hash.slice(1));
     if (appData.warning) { catalogNotice.hidden = false; catalogNotice.textContent = appData.warning; }
 });

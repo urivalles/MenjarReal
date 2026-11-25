@@ -227,6 +227,28 @@
                             <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>
                         </button>
                     </div>
+                    <details class="saved-menus">
+                        <summary>Menús desats</summary>
+                        <form id="saved-menu-form" class="saved-menu-form">
+                            <label class="form-group" for="saved-menu-name">Nom del menú
+                                <input type="text" id="saved-menu-name" required placeholder="Ex.: Setmana de tardor">
+                            </label>
+                            <button type="submit" class="btn-outline" id="save-current-menu">Desa el menú actual</button>
+                        </form>
+                        <label id="saved-menu-choice" class="form-group" for="saved-menu-select" hidden>Recupera un menú
+                            <select id="saved-menu-select"></select>
+                        </label>
+                        <div id="saved-menu-preview" class="saved-menu-preview" hidden>
+                            <p id="saved-menu-people"></p>
+                            <ul id="saved-menu-days" class="saved-menu-days"></ul>
+                            <p class="planner-help">En recuperar-lo, se substituiran el menú actual i les seves preferències. Si canvien els ingredients del menú, es recalcularà la compra.</p>
+                            <div class="saved-menu-actions">
+                                <button type="button" class="btn-primary" id="apply-saved-menu">Recupera aquest menú</button>
+                                <button type="button" class="btn-outline btn-danger-outline" id="remove-saved-menu">Elimina el menú desat</button>
+                            </div>
+                        </div>
+                        <p class="planner-feedback" id="saved-menu-status" role="status"></p>
+                    </details>
                     <div class="planner-settings" id="planner-settings-panel" hidden>
                         <div class="planner-setting">
                             <label for="planner-cooking">Com vols cuinar?</label>

@@ -3,12 +3,22 @@
 const appData = (() => {
     const key = 'realfood.data.v1';
     const requiredFields = ['customRecipes', 'myFridge', 'weeklyPlanner', 'adoptedRecipes'];
-    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences', 'recipeStatuses', 'recipeNotes'];
+    const fields = [...requiredFields, 'shoppingList', 'fridgePreferences', 'recipeStatuses', 'recipeNotes', 'savedMenus'];
     const recipeNoteLimit = 1000;
-    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], recipeStatuses: {}, recipeNotes: {}, shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
+    const savedMenuNameLimit = 80;
+    const empty = () => ({ version: 1, customRecipes: [], myFridge: [], weeklyPlanner: weeklyPlannerEngine.normalizeState(null), adoptedRecipes: [], recipeStatuses: {}, recipeNotes: {}, savedMenus: [], shoppingList: shoppingListEngine.empty(), fridgePreferences: recipeCatalog.fridgeDefaults() });
     let warning = '';
     let unreadablePrimary = false;
     let lastStoredDocument = null;
+
+    function validatePlanner(planner) {
+        if (!planner || planner.version !== 2 || !planner.settings || typeof planner.settings !== 'object' || !planner.days || !weeklyPlannerEngine.days.every(day => planner.days[day] && weeklyPlannerEngine.meals.every(meal => Object.hasOwn(planner.days[day], meal)))) throw new Error('El menú de la còpia no és vàlid.');
+        const normalized = weeklyPlannerEngine.normalizeState(planner);
+        for (const day of weeklyPlannerEngine.days) for (const meal of weeklyPlannerEngine.meals) {
+            if (planner.days[day][meal] !== null && normalized.days[day][meal] === null) throw new Error('Hi ha un àpat no vàlid a la còpia.');
+        }
+        return normalized;
+    }
 
     function validate(value) {
         if (!value || value.version !== 1 || !requiredFields.every(field => Object.hasOwn(value, field))) throw new Error('El format de les dades no és compatible.');
@@ -17,12 +27,14 @@ const appData = (() => {
         if (new Set(customRecipes.map(recipe => recipe.id)).size !== customRecipes.length) throw new Error('Hi ha receptes duplicades.');
         if (!Array.isArray(value.myFridge) || value.myFridge.length > 500 || !value.myFridge.every(food => typeof food === 'string' && food.trim() && food.length <= 150)) throw new Error('La nevera de la còpia no és vàlida.');
         if (!Array.isArray(value.adoptedRecipes) || !value.adoptedRecipes.every(id => Number.isInteger(id) && recipeCatalog.recipes.some(recipe => recipe.id === id && recipe.collection === 'recommended'))) throw new Error('La llista de receptes adoptades no és vàlida.');
-        const planner = value.weeklyPlanner;
-        if (!planner || planner.version !== 2 || !planner.settings || typeof planner.settings !== 'object' || !planner.days || !weeklyPlannerEngine.days.every(day => planner.days[day] && weeklyPlannerEngine.meals.every(meal => Object.hasOwn(planner.days[day], meal)))) throw new Error('El menú de la còpia no és vàlid.');
-        const normalizedPlanner = weeklyPlannerEngine.normalizeState(planner);
-        for (const day of weeklyPlannerEngine.days) for (const meal of weeklyPlannerEngine.meals) {
-            if (planner.days[day][meal] !== null && normalizedPlanner.days[day][meal] === null) throw new Error('Hi ha un àpat no vàlid a la còpia.');
-        }
+        const normalizedPlanner = validatePlanner(value.weeklyPlanner);
+        const menuEntries = value.savedMenus ?? [];
+        if (!Array.isArray(menuEntries) || menuEntries.length > 100) throw new Error('La llista de menús desats no és vàlida.');
+        const savedMenus = menuEntries.map(menu => {
+            if (typeof menu?.name !== 'string' || !menu.name.trim() || menu.name.length > savedMenuNameLimit) throw new Error('Hi ha un menú desat amb un nom no vàlid.');
+            return { name: menu.name.trim(), planner: validatePlanner(menu.planner) };
+        });
+        if (new Set(savedMenus.map(menu => recipeCatalog.normalize(menu.name))).size !== savedMenus.length) throw new Error('Ja hi ha un menú desat amb aquest nom.');
         const shoppingList = shoppingListEngine.validate(Object.hasOwn(value, 'shoppingList') ? value.shoppingList : shoppingListEngine.empty());
         const fridgePreferences = recipeCatalog.fridgeSettings(value.fridgePreferences);
         const recipeStatuses = value.recipeStatuses ?? {};
@@ -36,7 +48,7 @@ const appData = (() => {
                 typeof note === 'string' && note.trim() && note.length <= recipeNoteLimit)) {
             throw new Error('Hi ha notes de receptes no vàlides.');
         }
-        return { version: 1, recipeStatuses: { ...recipeStatuses }, recipeNotes: { ...recipeNotes }, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
+        return { version: 1, recipeStatuses: { ...recipeStatuses }, recipeNotes: { ...recipeNotes }, savedMenus, customRecipes, myFridge: [...value.myFridge], weeklyPlanner: normalizedPlanner, adoptedRecipes: [...new Set(value.adoptedRecipes)], shoppingList, fridgePreferences };
     }
 
     function readLegacy(name, fallback) {
@@ -108,5 +120,5 @@ const appData = (() => {
         return validate(value.data);
     }
 
-    return { key, recipeNoteLimit, getItem, setItem, update, snapshot, restore: value => replace(value, true), backup, parseBackup, validate, get warning() { return warning; } };
+    return { key, recipeNoteLimit, savedMenuNameLimit, getItem, setItem, update, snapshot, restore: value => replace(value, true), backup, parseBackup, validate, get warning() { return warning; } };
 })();
