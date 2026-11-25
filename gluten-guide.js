@@ -59,7 +59,7 @@ const glutenGuide = (() => {
         206: 'Acompanya la truita amb 100 g de pa etiquetat «sense gluten», en lloc del pa integral habitual.',
         208: 'Substitueix la salsa de soja per la mateixa quantitat de tamari o soja etiquetats «sense gluten».',
         301: 'Utilitza 140 g de noodles d’arròs etiquetats «sense gluten» i una cullerada de tamari o soja també etiquetats «sense gluten». Revisa la crema de cacauet i la resta de salses; cou els noodles segons el paquet.',
-        302: 'Tria 200 g de nyoquis etiquetats «sense gluten». Si no en trobes, fes servir 200 g de pasta de blat de moro o arròs etiquetada «sense gluten», cou-la a part segons el paquet i barreja-la amb la crema al final. El temps pot variar.',
+        302: 'Tria 200 g de nyoquis etiquetats «sense gluten». Si no en trobes, fes servir 200 g de pasta de blat de moro o arròs etiquetada «sense gluten». Cou-la a part segons el paquet i aboca-hi la crema al final, amb el foc apagat. El temps pot variar.',
         306: 'Canvia els 120 g de macarrons per pasta etiquetada «sense gluten» i els 10 ml de soja per 10 ml de tamari o soja etiquetats «sense gluten». Revisa el tofu, les espècies i el formatge; cou la pasta segons el paquet.',
         308: 'Canvia els 15 ml de soja per 15 ml de tamari o soja etiquetats «sense gluten». Revisa el tofu i el midó de blat de moro, així com els condiments.',
         310: 'Canvia els 10 ml de soja per 10 ml de tamari o soja etiquetats «sense gluten». Revisa també el tofu, el brou i les verdures preparades si les compres congelades.'

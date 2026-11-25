@@ -654,11 +654,17 @@ const seasonalRecipes = [
         tags: ['Vegetarià', 'Amb formatge'], sourceIds: [],
         ingredients: [['Nyoquis', '200 g'], ['Cottage', '180 g'], ['Bolets congelats', '150 g'], ['Ceba', '1/2 unitat'], ['Parmesà', '10–15 g'], ['All', 'Al gust'], ['Julivert', 'Al gust'], ['Pebre negre', 'Al gust'], ['Nou moscada', 'Al gust'], ['Farigola', 'Al gust'], ['Caiena', 'Al gust'], ['Oli d’oliva', 'Una mica'], ['Sal', 'Al gust']],
         optionalIngredients: [{ item: 'Llimona', qty: 'Unes gotes' }, { item: 'Ous', qty: '2 unitats · 1 per ració' }],
-        steps: ['Sofregeix la mitja ceba i l’all amb una mica d’oli.', 'Afegeix els bolets congelats i deixa que alliberin l’aigua.', 'Incorpora els nyoquis i cou-los 2–4 minuts, seguint també les indicacions del paquet. Afegeix una mica d’aigua si cal.', 'Tritura el cottage amb el parmesà, la nou moscada i una mica del líquid dels bolets.', 'Incorpora la crema a foc baix, sense deixar-la bullir.', 'Condimenta amb pebre, farigola, julivert i una mica de caiena. Si vols, acaba amb unes gotes de llimona i serveix amb un ou cuit al teu gust per ració.'],
+        steps: [
+            'Sofregeix la mitja ceba i l’all amb una mica d’oli.',
+            'Afegeix els bolets congelats i deixa que alliberin l’aigua.',
+            'Incorpora els nyoquis i cou-los 2–4 minuts, seguint també les indicacions del paquet. Afegeix una mica d’aigua si cal.',
+            'Tritura el cottage amb el parmesà, la nou moscada i una mica del líquid dels bolets. Condimenta els nyoquis amb pebre, farigola, julivert i una mica de caiena.',
+            'Apaga el foc i, al final de tot, aboca la salsa de cottage sobre els nyoquis ja cuits. Si tires els nyoquis calents dins la salsa, el contrast de temperatura la pot tallar. Si vols, serveix-los amb unes gotes de llimona i un ou cuit al teu gust per ració.'
+        ],
         nutritionNote: 'Valors aproximats aportats per l’usuari, no verificats ni recalculats: 325–375 kcal i 16–18 g de proteïnes per ració. Amb un ou: 395–455 kcal i 22–25 g de proteïnes. Poden variar segons el producte i les quantitats.',
         balanceNote: 'Combina nyoquis, bolets i lactis. Pots acompanyar-ho amb més verdura si et ve de gust; no s’han calculat necessitats nutricionals personals.',
         variations: ['Llimona, altres verdures i ou són opcionals. No entren a la compra automàtica ni són necessaris per coincidir amb la nevera; afegeix-los a la compra si els vols.', 'Modera la caiena i evita que la salsa de cottage bulli. L’ou opcional augmenta l’aportació de proteïna.'],
-        batchNote: 'Pots deixar la ceba i els bolets cuinats. Acaba els nyoquis i la salsa a foc baix quan els hagis de menjar.',
+        batchNote: 'Pots deixar la ceba i els bolets cuinats. Quan hagis de menjar, cou els nyoquis i aboca-hi la salsa de cottage al final, amb el foc apagat.',
         adaptationNote: 'Recepta pròpia, elaborada amb ChatGPT i ja provada per tu. Quantitats i estimacions transcrites de la teva proposta.'
     }),
     seasonalRecipe({
