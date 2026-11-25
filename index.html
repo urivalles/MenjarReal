@@ -142,13 +142,23 @@
                                 </select>
                             </label>
                             <label><input type="checkbox" id="quick-filter"> Màxim 30 min totals</label>
-                            <label for="gluten-filter">Sense gluten<select id="gluten-filter"><option value="all">Desactivat</option><option value="ingredients">Aptes pels ingredients</option><option value="adapt">Adaptables</option><option value="unreviewed">Composició per revisar</option></select></label>
                             <label for="source-filter">Font<select id="source-filter"><option value="all">Totes les fonts</option></select></label>
                             <label for="recipe-sort">Ordena per
                                 <select id="recipe-sort"><option value="default">Ordre habitual</option><option value="time">Menys temps</option><option value="name">Nom · A–Z</option><option value="fridge">Més coincidències amb la nevera</option></select>
                             </label>
                         </div>
                         <button type="button" class="btn-outline" id="reset-recipe-filters">Neteja els filtres</button>
+                        <details class="gluten-filter-options">
+                            <summary id="gluten-filter-label">Sense gluten</summary>
+                            <div class="practical-filters">
+                                <select id="gluten-filter" aria-labelledby="gluten-filter-label">
+                                    <option value="all">Desactivat</option>
+                                    <option value="ingredients">Aptes pels ingredients</option>
+                                    <option value="adapt">Adaptables</option>
+                                    <option value="unreviewed">Composició per revisar</option>
+                                </select>
+                            </div>
+                        </details>
                         </div>
                         </div>
                         <p class="active-filter-summary" id="active-filter-summary" role="status" hidden></p>
