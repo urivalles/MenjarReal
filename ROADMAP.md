@@ -15,6 +15,8 @@
 
 L’inventari detalla les fitxes i les fonts del catàleg. [Inventari del receptari](RECEPTARI.md)
 
+- **Simplificació de la interfície, 26 de novembre de 2026.** S’han eliminat els textos introductoris redundants de cinc pantalles; s’ha actualitzat la versió de la memòria cau per distribuir la nova interfície. Comprovació visual al mòbil pendent.
+
 ## Pendent de completar
 
 | Tasca | Estat i pas per reprendre-la |
