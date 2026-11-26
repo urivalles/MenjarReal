@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let appRegistration = null;
     const iconHelp = document.getElementById('icon-help');
     const iconHelpButton = document.getElementById('open-icon-help-btn');
-    const iconStatus = document.getElementById('icon-update-status');
+    const updateCheckButton = document.getElementById('check-app-updates-btn');
+    const updateCheckStatus = document.getElementById('app-update-check-status');
     function showIconHelp(visible) {
         iconHelp.hidden = !visible;
         iconHelpButton.setAttribute('aria-expanded', String(visible));
@@ -21,13 +22,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     iconHelpButton.addEventListener('click', () => showIconHelp(iconHelp.hidden));
     document.getElementById('close-icon-help-btn').addEventListener('click', () => { showIconHelp(false); iconHelpButton.focus?.({ preventScroll: true }); });
-    document.getElementById('check-app-updates-btn').addEventListener('click', async () => {
-        if (!appRegistration) { iconStatus.textContent = 'Obre l’app publicada amb connexió i torna-ho a provar quan acabi de preparar-se.'; return; }
+    function waitForInstall(worker) {
+        if (!worker || ['installed', 'activated', 'redundant'].includes(worker.state)) return Promise.resolve(worker?.state);
+        return new Promise(resolve => {
+            const onChange = () => {
+                if (['installed', 'activated', 'redundant'].includes(worker.state)) {
+                    worker.removeEventListener('statechange', onChange);
+                    resolve(worker.state);
+                }
+            };
+            worker.addEventListener('statechange', onChange);
+            onChange();
+        });
+    }
+    updateCheckButton.addEventListener('click', async () => {
+        if (updateCheckButton.disabled) return;
+        updateCheckButton.disabled = true;
+        updateCheckStatus.textContent = 'Comprovant si hi ha una versió nova…';
         try {
+            if (!navigator.onLine) throw new Error('offline');
+            if (!appRegistration) {
+                appRegistration = await navigator.serviceWorker.getRegistration('./');
+            }
+            if (!appRegistration) throw new Error('registration');
+            // L'actualització pot estar instal·lant-se encara quan update() acaba.
             await appRegistration.update();
-            offerUpdate(appRegistration.waiting);
-            iconStatus.textContent = appRegistration.waiting ? 'Hi ha una actualització. Desa els formularis i prem «Actualitza l’app».' : 'Comprovació demanada. Si Chrome ofereix revisar el canvi d’icona al menú ⋮, cal acceptar-lo allà. No podem confirmar des d’aquí la icona de la pantalla d’inici.';
-        } catch { iconStatus.textContent = 'No s’ha pogut comprovar l’actualització. Revisa la connexió i torna-ho a provar.'; }
+            if (appRegistration.installing) await waitForInstall(appRegistration.installing);
+            const pending = appRegistration.waiting;
+            if (pending) {
+                offerUpdate(pending);
+                updateCheckStatus.textContent = 'Actualització disponible! Prem «Actualitza l’app» a l’avís que apareix a la pantalla.';
+                document.getElementById('app-options').open = false;
+                updateNotice.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+            } else {
+                updateCheckStatus.textContent = 'No s’ha detectat cap nova versió. Si acabes de publicar canvis, torna-ho a provar d’aquí una estona.';
+            }
+        } catch (error) {
+            updateCheckStatus.textContent = error.message === 'offline'
+                ? 'Sense connexió. Connecta’t a internet i torna-ho a provar.'
+                : 'No s’ha pogut comprovar la versió. Torna-ho a provar amb connexió.';
+        } finally {
+            updateCheckButton.disabled = false;
+        }
     });
 
     function showHelp(visible) {
@@ -105,6 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).then(registration => {
         appRegistration = registration;
+        // Força una comprovació inicial: no depenem només de la política automàtica del navegador.
+        registration.update().catch(() => {});
         offerUpdate(registration.waiting);
         function observe(worker) {
             if (!worker) return;
