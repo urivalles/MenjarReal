@@ -97,7 +97,7 @@
                     <div class="collection-intro">
                         <span class="eyebrow">TEMPORADA I REBOST</span>
                         <h2>Menjar bé, sense complicar-te</h2>
-                        <p>Els teus plats de sempre i idees noves per provar. Dinars, sopars i postres per guardar les receptes que t’agraden.</p>
+                        <p>Idees per a dinars i sopars, guarnicions, esmorzars, berenars i postres.</p>
                         <p class="collection-summary" id="collection-summary" aria-live="polite"></p>
                         <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
                     </div>
@@ -133,6 +133,18 @@
                             </button>
                         </div>
                         <div class="practical-filters">
+                            <label for="recipe-type-filter">Tipus<select id="recipe-type-filter"><option value="all">Tots els tipus</option></select></label>
+                            <label for="recipe-plate-filter">Què et falta al plat?
+                                <select id="recipe-plate-filter">
+                                    <option value="all">Qualsevol combinació</option>
+                                    <option value="veg-ready">Ja tinc verdura · hidrats i proteïna</option>
+                                    <option value="protein">Proteïna</option>
+                                    <option value="carbs">Hidrats</option>
+                                    <option value="veg">Verdura</option>
+                                </select>
+                            </label>
+                            <label for="recipe-label-filter">Etiqueta<select id="recipe-label-filter"><option value="all">Totes les etiquetes</option></select></label>
+                            <label for="myrealfood-list-filter">Llista de MyRealFood<select id="myrealfood-list-filter"><option value="all">Totes les llistes</option></select></label>
                             <label for="season-filter">Temporada
                                 <select id="season-filter">
                                     <option value="all">Totes les temporades</option>
@@ -559,7 +571,11 @@
                 </div>
                 <label for="custom-source">Font <input id="custom-source" maxlength="120" placeholder="Recepta pròpia"></label>
                 <label for="custom-source-url">Enllaç de la font <input id="custom-source-url" type="url" maxlength="2000" placeholder="https://…"></label>
-                <label for="custom-category">Tipus de recepta<select id="custom-category"><option value="main">Dinar o sopar</option><option value="dessert">Postres</option></select></label>
+                <label for="custom-category">Tipus de recepta<select id="custom-category">
+                    <option value="main">Dinar o sopar</option><option value="dessert">Postres</option>
+                    <option value="snack">Berenar o snack</option><option value="breakfast">Esmorzar</option>
+                    <option value="side">Guarnició o entrant</option><option value="base">Base o component</option>
+                </select></label>
                 <label class="planner-check"><input id="custom-pantry" type="checkbox"> Recepta de rebost · inclou-la a «Nevera buida»</label>
                 <div class="form-group">
                     <label for="custom-ingredients">Ingredients · un per línia</label>
@@ -649,6 +665,8 @@
     <!-- Scripts -->
     <script src="recipes.js"></script>
     <script src="seasonal-recipes.js"></script>
+    <script src="myrealfood-recipes.js"></script>
+    <script src="recipe-classification.js"></script>
     <script src="gluten-guide.js"></script>
     <script src="recipe-catalog.js"></script>
     <script src="weekly-planner.js"></script>

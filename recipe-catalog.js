@@ -4,7 +4,8 @@ const recipeCatalog = (() => {
         ...defaultRecipes.map(recipe => ({ ...recipe, collection: 'legacy' })),
         ...seasonalRecipes,
         ...dessertRecipes,
-        ...maydenRecipes
+        ...maydenRecipes,
+        ...myRealFoodRecipes
     ].map(recipe => ({ ...recipe, ...recipePhotos[recipe.id] }));
     const builtInIds = new Set(recipes.map(recipe => recipe.id));
 
@@ -34,6 +35,7 @@ const recipeCatalog = (() => {
             try { url = new URL(sourceUrl); } catch { throw new Error('L’enllaç de la font no és vàlid.'); }
             if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Utilitza un enllaç HTTPS per a la font.');
         }
+        const category = Object.hasOwn(recipeClassification.categories, value.category) ? value.category : 'main';
         return {
             sourceName: text(value.sourceName ?? '', 120), sourceUrl,
             id: value.id, custom: true, collection: 'mine', emoji: '🍽️',
@@ -42,8 +44,8 @@ const recipeCatalog = (() => {
             time: `${value.totalMinutes} min`, seasons: [...new Set(value.seasons)],
             ingredients, instructions: text(value.instructions, 15000, true),
             batchNote: text(value.batchNote || '', 1000), image, pantry: value.pantry === true,
-            category: value.category === 'dessert' ? 'dessert' : 'main',
-            mealTypes: value.category === 'dessert' ? ['Postres'] : ['Dinar', 'Sopar'], tags: ['Recepta personal']
+            category, mealTypes: recipeClassification.categories[category].map(type => recipeClassification.types[type]),
+            tags: ['Recepta personal']
         };
     }
 
@@ -133,16 +135,25 @@ const recipeCatalog = (() => {
 
     function select(options = {}) {
         const { query = '', difficulty = 'all', collection = 'all', season = 'all',
+            type = 'all', plate = 'all', label = 'all', sourceList = 'all', statuses = {},
             quick = false, batch = false, gluten = 'all', source = 'all', useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
         const term = normalize(query.trim());
         let selected = recipes.filter(recipe => {
             const kind = collectionOf(recipe, adopted);
-            const matchesCollection = collection === 'all' ? kind !== 'legacy' : collection === 'dessert' ? recipe.category === 'dessert' : collection === 'pantry' ? kind === 'mine' && recipe.pantry === true : kind === collection;
-            const matchesQuery = !term || normalize([recipe.title, recipe.description,
+            const profile = recipeClassification.profile(recipe);
+            const matchesCollection = collection === 'all' ? kind !== 'legacy' : collection === 'dessert' ? profile.types.includes('dessert') : collection === 'pantry' ? kind === 'mine' && recipe.pantry === true : kind === collection;
+            const matchesQuery = !term || normalize([recipe.title, recipe.originalTitle, recipe.description, recipe.author,
                 ...recipe.ingredients.map(ingredientName), ...(recipe.tags || [])].join(' ')).includes(term);
             const matchesGluten = gluten === 'all' || glutenGuide.review(recipe).status === gluten;
             const matchesSource = source === 'all' || sourceFor(recipe).key === source;
+            const matchesPlate = plate === 'all' || (plate === 'veg-ready'
+                ? !recipe.incomplete && profile.types.some(value => value === 'lunch' || value === 'dinner') &&
+                    profile.parts.includes('carbs') && profile.parts.includes('protein') && !profile.parts.includes('veg')
+                : profile.parts.includes(plate));
             return matchesCollection && matchesQuery && matchesGluten && matchesSource &&
+                (type === 'all' || profile.types.includes(type)) && matchesPlate &&
+                (label === 'all' || recipeClassification.labels(recipe, statuses[recipe.id])[label] === true) &&
+                (sourceList === 'all' || recipe.sourceLists?.includes(sourceList)) &&
                 (difficulty === 'all' || recipe.difficulty === difficulty) &&
                 (season === 'all' || (recipe.seasons || []).includes(season)) &&
                 (!quick || (recipe.totalMinutes || parseInt(recipe.time, 10)) <= 30) &&

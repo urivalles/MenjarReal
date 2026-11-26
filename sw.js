@@ -1,11 +1,11 @@
 // El build calcula una versió a partir del contingut per detectar cada canvi.
-const BUILD_VERSION = '1cb89f81f66135f6';
+const BUILD_VERSION = '174a3317382d63b4';
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `realfood-shell-${encodeURIComponent(new URL(SCOPE).pathname)}-`;
 const CACHE_NAME = CACHE_PREFIX + BUILD_VERSION;
 const APP_FILES = [
     './', 'index.html', 'styles.css', 'icons.css', 'recipes.js',
-    'seasonal-recipes.js', 'gluten-guide.js', 'recipe-catalog.js', 'weekly-planner.js', 'menu-import.js', 'menu-import-ui.js',
+    'seasonal-recipes.js', 'myrealfood-recipes.js', 'recipe-classification.js', 'gluten-guide.js', 'recipe-catalog.js', 'weekly-planner.js', 'menu-import.js', 'menu-import-ui.js',
     'shopping-list.js', 'app-data.js', 'app.js', 'tips-engine.js', 'tips-assistant.js', 'pwa.js', 'manifest.webmanifest',
     'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
     'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
@@ -23,7 +23,15 @@ const APP_FILES = [
     'photos/recipe-308.jpg', 'photos/recipe-309.jpg', 'photos/recipe-310.jpg',
     'photos/recipe-311.jpg',
     'photos/recipe-501.jpg', 'photos/recipe-502.jpg', 'photos/recipe-503.jpg', 'photos/recipe-504.jpg', 'photos/recipe-505.jpg',
-    'photos/recipe-506.jpg', 'photos/recipe-507.jpg', 'photos/recipe-508.jpg', 'photos/recipe-509.jpg', 'photos/recipe-510.jpg'
+    'photos/recipe-506.jpg', 'photos/recipe-507.jpg', 'photos/recipe-508.jpg', 'photos/recipe-509.jpg', 'photos/recipe-510.jpg',
+    'photos/myrealfood/601.jpg', 'photos/myrealfood/602.jpg', 'photos/myrealfood/603.jpg', 'photos/myrealfood/604.jpg',
+    'photos/myrealfood/605.jpg', 'photos/myrealfood/606.jpg', 'photos/myrealfood/607.jpg', 'photos/myrealfood/608.jpg',
+    'photos/myrealfood/609.jpg', 'photos/myrealfood/610.jpg', 'photos/myrealfood/611.jpg', 'photos/myrealfood/612.jpg',
+    'photos/myrealfood/613.jpg', 'photos/myrealfood/614.jpg', 'photos/myrealfood/615.jpg', 'photos/myrealfood/616.jpg',
+    'photos/myrealfood/617.jpg', 'photos/myrealfood/618.jpg', 'photos/myrealfood/619.jpg', 'photos/myrealfood/620.jpg',
+    'photos/myrealfood/621.jpg', 'photos/myrealfood/622.jpg', 'photos/myrealfood/623.jpg', 'photos/myrealfood/624.jpg',
+    'photos/myrealfood/625.jpg', 'photos/myrealfood/626.jpg', 'photos/myrealfood/627.jpg', 'photos/myrealfood/628.jpg',
+    'photos/myrealfood/629.jpg'
 ];
 const APP_URLS = new Set(APP_FILES.map(file => new URL(file, SCOPE).href));
 const INDEX_URL = new URL('index.html', SCOPE).href;

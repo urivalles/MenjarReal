@@ -70,6 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickFilter = document.getElementById('quick-filter');
     const glutenFilter = document.getElementById('gluten-filter');
     const sourceFilter = document.getElementById('source-filter');
+    const typeFilter = document.getElementById('recipe-type-filter');
+    const plateFilter = document.getElementById('recipe-plate-filter');
+    const labelFilter = document.getElementById('recipe-label-filter');
+    const sourceListFilter = document.getElementById('myrealfood-list-filter');
+    const classificationFilters = [typeFilter, plateFilter, labelFilter, sourceListFilter];
+    const addFilterOptions = (control, labels) => control.append(...Object.entries(labels)
+        .map(([id, label]) => new Option(label, id)));
+    addFilterOptions(typeFilter, recipeClassification.types);
+    addFilterOptions(labelFilter, recipeClassification.status);
+    addFilterOptions(sourceListFilter, Object.fromEntries(Object.entries(recipeClassification.sourceLists)
+        .filter(([id]) => recipes.some(recipe => recipe.sourceLists?.includes(id)))));
     const recipeResults = document.getElementById('recipe-results');
     const collectionSummary = document.getElementById('collection-summary');
     const catalogNotice = document.getElementById('catalog-notice');
@@ -250,7 +261,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Recipes Logic ---
     function collectionLabel(recipe) {
         const kind = recipeCatalog.collectionOf(recipe, adoptedRecipes);
-        return kind === 'mine' ? recipe.category === 'dessert' ? 'La meva recepta · Postres' : recipe.testedByUser ? 'La meva recepta · Provada per mi' : recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per provar' : 'Exemple anterior';
+        return kind === 'mine' ? recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per provar' : 'Exemple anterior';
+    }
+
+    function recipeTags(recipe, detail = false) {
+        const profile = recipeClassification.profile(recipe);
+        const labels = recipeClassification.labels(recipe, recipeStatuses[recipe.id]);
+        const uses = profile.types.includes('lunch') && profile.types.includes('dinner')
+            ? ['Dinar o sopar', ...profile.types.filter(type => type !== 'lunch' && type !== 'dinner').map(type => recipeClassification.types[type])]
+            : profile.types.map(type => recipeClassification.types[type]);
+        const badges = [...uses, ...Object.keys(labels)
+            .filter(key => labels[key] && (detail || key !== 'sourceFavorite')).map(key => recipeClassification.status[key])];
+        if (detail) {
+            badges.push(...(recipe.sourceLists || []).map(key => recipeClassification.sourceLists[key]));
+            if (recipe.publicInSource) badges.push('Pública a MyRealFood');
+        }
+        return badges.map(label => `<li>${escapeHtml(label)}</li>`).join('');
     }
 
     function coverHtml(recipe, large = false) {
@@ -315,9 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${coverHtml(recipe)}
                 <div class="recipe-content">
                     <h3 class="recipe-title">${escapeHtml(recipe.title)}</h3>
-                    <p class="recipe-card-time"><i class='bx bx-time' aria-hidden="true"></i> ${recipe.incomplete ? 'Fitxa pendent de completar' : recipe.time ? escapeHtml(recipe.time) + ' totals' : 'Temps segons el vídeo'}</p>
+                    <p class="recipe-card-time"><i class='bx bx-time' aria-hidden="true"></i> ${recipe.incomplete ? 'Fitxa pendent de completar' : recipe.time ? escapeHtml(recipe.time) + ' totals' : 'Temps per indicar'}</p>
+                    <ul class="recipe-tags" aria-label="Etiquetes">${recipeTags(recipe)}</ul>
                     <div class="recipe-actions">
-                        ${!recipe.incomplete && recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
+                        ${recipeClassification.canPlan(recipe) ? `<button type="button" class="btn-add-planner" data-id="${recipe.id}"><i class='bx bx-calendar-plus'></i> Afegir al menú</button>` : ''}
                         ${adoptionButton(recipe)}
                     </div>
                 </div>
@@ -354,6 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sourceFilter.value = sources.has(activeSource) ? activeSource : 'all';
         const filtered = recipeCatalog.select({
             query: searchInput.value, difficulty: activeDifficulty, collection: selectedCollection,
+            type: typeFilter.value, plate: plateFilter.value, label: labelFilter.value,
+            sourceList: sourceListFilter.value, statuses: recipeStatuses,
             season: seasonFilter.value, quick: quickFilter.checked, gluten: glutenFilter.value || 'all', source: sourceFilter.value,
             useFridge: useFridgeFilter, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences, sort: recipeSort.value || 'default'
         });
@@ -369,6 +398,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (quickFilter.checked) applied.push('Màxim 30 min');
         if (glutenFilter.value !== 'all') applied.push(glutenFilter.selectedOptions[0].textContent);
         if (sourceFilter.value !== 'all') applied.push(sources.get(sourceFilter.value));
+        for (const control of classificationFilters) {
+            if (control.value !== 'all') applied.push(control.selectedOptions[0].textContent);
+        }
         document.getElementById('gluten-filter-notice').hidden = !glutenFilter.value || glutenFilter.value === 'all';
         if (useFridgeFilter) applied.push('Nevera: ' + fridgeModeNames[fridgePreferences.mode]);
         const sortNames = { time: 'menys temps', name: 'nom A–Z', fridge: 'coincidències de nevera' };
@@ -390,9 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
     sourceFilter.addEventListener('change', filterRecipes);
     recipeSort.addEventListener('change', filterRecipes);
     favoritesOnly.addEventListener('change', filterRecipes);
+    classificationFilters.forEach(control => control.addEventListener('change', filterRecipes));
     document.getElementById('reset-recipe-filters').addEventListener('click', () => {
         selectedCollection = 'all'; seasonFilter.value = 'all'; seasonFilter.disabled = false; quickFilter.checked = false; recipeSort.value = 'default';
         glutenFilter.value = 'all'; sourceFilter.value = 'all';
+        classificationFilters.forEach(control => { control.value = 'all'; });
         filterByFridgeBtn.classList.remove('active'); filterByFridgeBtn.setAttribute('aria-pressed', 'false');
         collectionButtons.forEach(button => { const active = button.dataset.collection === 'all'; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
         filterChips.forEach(chip => { const active = chip.dataset.filter === 'all'; chip.classList.toggle('active', active); chip.setAttribute('aria-pressed', String(active)); });
@@ -581,6 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const defaultStatus = recipe.testedByUser === true ? 'tested' : 'pending';
         const personalNote = recipeNotes[recipe.id] || '';
         const instructions = recipe.instructions || 'Preparació pendent de confirmar.';
+        const plateParts = recipeClassification.profile(recipe).parts;
         const steps = instructions.trim().split(/(?:^|\n)\s*\d+[.)]\s+/).filter(step => step.trim()).map(step => step.trim());
         const declared = recipe.declaredNutrition;
         const number = new Intl.NumberFormat('ca');
@@ -592,7 +627,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ${coverHtml(recipe, true)}
             <span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
             <h2 class="modal-title" id="recipe-detail-title">${escapeHtml(recipe.title)}</h2>
-            <p>${escapeHtml(recipe.description)}</p>
+            ${recipe.description ? `<p>${escapeHtml(recipe.description)}</p>` : ''}
+            <ul class="recipe-tags" id="recipe-detail-tags" aria-label="Etiquetes">${recipeTags(recipe, true)}</ul>
+            ${plateParts.length ? `<p class="planner-help">Grups principals del plat · ${plateParts.map(part => recipeClassification.parts[part]).join(' · ')}</p>` : ''}
             ${gluten ? `<div class="modal-section detail-note"><h4>${escapeHtml(gluten.title)}</h4><p>${escapeHtml(gluten.note)}</p><details><summary>Etiquetes i preparació</summary><p>Comprova els productes i els opcionals que facis servir. Si cal evitar traces, també cal evitar el contacte amb gluten en utensilis, superfícies, aigua o oli compartits. Aquesta guia no certifica el plat ni canvia els ingredients de la compra.</p><ul class="detail-list">${glutenGuide.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul></details></div>` : ''}
             <div class="detail-facts">${recipe.time ? `<span>${escapeHtml(recipe.time)} totals</span>` : ''}
                 ${recipe.activeMinutes ? `<span>${recipe.activeMinutes} min de feina</span>` : ''}
@@ -658,12 +695,15 @@ document.addEventListener('DOMContentLoaded', () => {
             ${recipe.variations ? `<div class="modal-section"><h4>Alternatives fàcils</h4><ul class="detail-list">${recipe.variations.map(note => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div>` : ''}
             ${recipe.batchNote ? `<div class="modal-section"><h4>Per avançar feina</h4><p>${escapeHtml(recipe.batchNote)}</p></div>` : ''}
             <div class="modal-section detail-source"><h4>Font</h4><p>${escapeHtml(source.name)}</p>
-                ${source.links.length ? `<ul class="detail-list">${source.links.map(link => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title)}</a></li>`).join('')}</ul>` : recipe.incomplete ? '<p>Enllaç original pendent.</p>' : ''}
+                ${recipe.originalTitle ? `<p>Títol original · ${escapeHtml(recipe.originalTitle)}</p>` : ''}
+                ${recipe.author ? `<p>Autoria · ${escapeHtml(recipe.author)}</p>` : ''}
+                ${recipe.sourceReviewed ? '<p>Segell original · Receta Verificada PLUS</p>' : ''}
+                ${source.links.length ? `<ul class="detail-list">${source.links.map(link => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title)}</a></li>`).join('')}</ul>` : ''}
                 ${recipe.adaptationNote ? `<p>${escapeHtml(recipe.adaptationNote)}</p>` : ''}
                 <label for="recipe-status-select">Estat <select id="recipe-status-select"></select></label>
                 <p id="recipe-status-feedback" class="planner-feedback" role="status"></p>
             </div>
-            ${!recipe.incomplete && recipe.collection !== 'legacy' && recipe.category !== 'dessert' ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
+            ${recipeClassification.canPlan(recipe) ? '<button type="button" class="btn-primary btn-plan-detail">Afegir al menú</button>' : ''}
             ${adoptionButton(recipe)}
             ${recipe.custom ? `<button type="button" class="btn-edit-recipe btn-outline" data-id="${recipe.id}">Edita aquesta recepta</button>` : ''}
             ${recipe.photoCredit ? `<details class="photo-credit"><summary>Crèdits de la foto</summary><p>Foto de referència: ${escapeHtml(recipe.photoCredit.note)}<br>
@@ -705,7 +745,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 appData.update({ recipeStatuses: next });
                 recipeStatuses = next;
                 feedback.textContent = 'Estat desat.';
-                if (favoritesOnly.checked) filterRecipes();
+                modalBody.querySelector('#recipe-detail-tags').innerHTML = recipeTags(recipe, true);
+                filterRecipes();
             } catch (error) {
                 statusControl.value = recipeStatuses[recipe.id] || defaultStatus;
                 feedback.textContent = error.message;
@@ -1174,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>${escapeHtml(recipe.time)}${recipe.matchCount ? ` · Aprofita: ${names(recipe.matchedIngredients)}` : ''}</p>
                 <p class="fridge-recipe-missing">${recipe.missingCount ? `<strong>${recipe.missingCount === 1 ? 'Et falta' : 'Et falten'}</strong> ${names(recipe.missingIngredients)}` : 'Tens els ingredients principals anotats.'}</p>
                 <div class="fridge-recipe-actions"><button type="button" class="btn-outline fridge-open-recipe" data-id="${recipe.id}">Veure recepta</button>
-                ${recipe.category !== 'dessert' ? `<button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button>` : '<span class="planner-help">Postres</span>'}
+                ${recipeClassification.canPlan(recipe) ? `<button type="button" class="btn-primary fridge-plan-recipe" data-id="${recipe.id}">Afegir al menú</button>` : ''}
                 ${recipe.missingCount ? '<button type="button" class="btn-outline fridge-shop-missing">Afegeix el que falta a la compra</button>' : ''}</div>
                 ${recipe.missingCount ? '<p class="fridge-shopping-feedback" role="status"></p>' : ''}</div>`;
             row.querySelector('.fridge-shop-missing')?.addEventListener('click', () => {
@@ -1365,7 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openRecipePlan(recipeId) {
-        const recipe = recipes.find(item => item.id === recipeId && !item.incomplete && item.collection !== 'legacy' && item.category !== 'dessert');
+        const recipe = recipes.find(item => item.id === recipeId && recipeClassification.canPlan(item));
         if (!recipe) return;
         recipeToPlan = recipe;
         planRecipeTrigger = document.activeElement;
