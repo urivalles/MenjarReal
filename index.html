@@ -96,9 +96,6 @@
                 <!-- RECIPES VIEW -->
                 <section id="recipes-view" class="view active-view">
                     <div class="collection-intro">
-                        <span class="eyebrow">TEMPORADA I REBOST</span>
-                        <h2>Menjar bé, sense complicar-te</h2>
-                        <p>Idees per a dinars i sopars, guarnicions, esmorzars, berenars i postres.</p>
                         <p class="collection-summary" id="collection-summary" aria-live="polite"></p>
                         <div class="collection-intro-actions">
                             <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
@@ -203,7 +200,6 @@
                     <p id="fridge-status" class="planner-feedback" role="status"></p>
                     <div class="fridge-suggestions">
                         <div class="fridge-suggestions-header">
-                            <h3>Què puc cuinar amb això?</h3>
                             <button type="button" id="toggle-fridge-filters" class="filter-icon-button" aria-label="Filtres de la nevera" title="Filtres de la nevera" aria-controls="fridge-filter-panel" aria-expanded="false">
                                 <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>
                             </button>
@@ -225,7 +221,6 @@
                 <!-- PLANNER VIEW -->
                 <section id="planner-view" class="view">
                     <div class="planner-header">
-                        <div><span class="eyebrow">LA TEVA SETMANA, AL TEU RITME</span><h2>Què mengem aquesta setmana?</h2></div>
                         <div class="planner-header-actions">
                             <button class="btn-outline" id="planner-to-shopping-btn">Obre la llista de la compra</button>
                             <button class="btn-outline" id="clear-planner-btn">Buida el menú</button>
@@ -318,12 +313,7 @@
                 </section>
 
                 <!-- CONSELLS PERSONALS -->
-                <section id="tips-view" class="view" aria-labelledby="tips-title">
-                    <div class="collection-intro">
-                        <span class="eyebrow">UNA PAUSA PER ESCOLTAR-TE</span>
-                        <h2 id="tips-title">Consells per als moments difícils</h2>
-                        <p>Recordatoris personals per cuidar-te quan hi ha cansament, estrès o ganes de picar. No cal fer-ho perfecte.</p>
-                    </div>
+                <section id="tips-view" class="view" aria-label="Consells">
 
                     <section class="context-tips" aria-labelledby="context-tips-title">
                         <h3 id="context-tips-title">Què et passa?</h3>
@@ -449,8 +439,6 @@
                 <!-- SHOPPING LIST VIEW -->
                 <section id="shopping-view" class="view">
                     <div class="shopping-header">
-                        <h2>Llista de la Compra</h2>
-                        <p>Ingredients per al teu menú i el que vulguis afegir-hi. Pots ajustar cada línia abans d’anar a comprar.</p>
                         <button class="btn-primary" id="generate-shopping-btn" style="margin-top: 1rem;">
                             <i class='bx bx-refresh'></i> Recalcula els ingredients del menú
                         </button>
