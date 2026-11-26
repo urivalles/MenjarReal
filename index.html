@@ -56,12 +56,14 @@
             <header>
                 <div><p class="mobile-brand">MenjarReal</p><h1 id="page-title" tabindex="-1">El meu receptari</h1></div>
                 <details class="app-options" id="app-options">
-                    <summary>Opcions</summary>
+                    <summary aria-label="Opcions" title="Opcions"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05-1.87 1.87-.05-.05A1.7 1.7 0 0 0 16 18.4a1.7 1.7 0 0 0-1 .9V20h-6v-.7a1.7 1.7 0 0 0-1-.9 1.7 1.7 0 0 0-1.87.34l-.05.05-1.87-1.87.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.9-1H3v-4h.7a1.7 1.7 0 0 0 .9-1 1.7 1.7 0 0 0-.34-1.87l-.05-.05L6.08 5.2l.05.05A1.7 1.7 0 0 0 8 5.6a1.7 1.7 0 0 0 1-.9V4h6v.7a1.7 1.7 0 0 0 1 .9 1.7 1.7 0 0 0 1.87-.34l.05-.05 1.87 1.87-.05.05A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .9 1h.7v4h-.7a1.7 1.7 0 0 0-.9 1Z"/></svg><span class="sr-only">Opcions</span></summary>
                     <div class="header-actions">
                         <button type="button" class="btn-outline" data-open-tutorial aria-haspopup="dialog" aria-controls="tutorial-dialog">Tutorial</button>
                         <button type="button" class="btn-outline" id="open-data-btn">Les meves dades i còpies</button>
                         <button type="button" class="btn-outline" id="install-app-btn" aria-controls="install-help" aria-expanded="false">Instal·la al mòbil</button>
                         <button type="button" class="btn-outline" id="open-icon-help-btn" aria-controls="icon-help" aria-expanded="false">Icona de l’esquirol</button>
+                        <button type="button" class="btn-outline" id="check-app-updates-btn">Comprova actualitzacions</button>
+                        <p id="app-update-check-status" class="update-check-status" role="status" aria-live="polite"></p>
                     </div>
                 </details>
             </header>
@@ -87,8 +89,6 @@
                 <p>Aquesta és la icona publicada. La icona de la pantalla d’inici la gestiona Android i pot requerir una confirmació separada de l’actualització del contingut.</p>
                 <ol><li>Obre MenjarReal amb internet i prem «Comprova actualitzacions».</li><li>Si apareix «Actualitza l’app», desa els formularis i actualitza.</li><li>Al menú ⋮ de l’app o de Chrome, busca «Revisa l’actualització de l’app» (el nom pot variar) i accepta la nova icona si apareix.</li></ol>
                 <p>Si encara veus l’antiga, obre <a href="https://urivalles.github.io/MenjarReal/" target="_blank" rel="noopener noreferrer">l’adreça actual de MenjarReal</a> amb el mateix Chrome. Pot ser una drecera antiga. Abans de substituir-la o reinstal·lar, descarrega una còpia a Opcions → Les meves dades i còpies. No esborris les dades del lloc.</p>
-                <button type="button" class="btn-outline" id="check-app-updates-btn">Comprova actualitzacions</button>
-                <p id="icon-update-status" class="planner-feedback" role="status"></p>
                 <button type="button" class="btn-outline" id="close-icon-help-btn">Tanca</button>
             </section>
             <div class="views">
@@ -539,7 +539,7 @@
             <section class="tutorial-step" data-action="Obre Opcions" aria-labelledby="tutorial-install-title" hidden>
                 <h3 id="tutorial-install-title" tabindex="-1">Instal·la l’app i fes-la servir sense connexió</h3>
                 <ul>
-                    <li>Des del navegador del mòbil, obre <strong>Opcions</strong> i segueix la guia d’instal·lació del teu dispositiu. Obre l’app un primer cop amb internet perquè es prepari l’accés sense connexió.</li>
+                    <li>Des del navegador del mòbil, obre <strong>Opcions</strong> (icona d’engranatge) i segueix la guia d’instal·lació del teu dispositiu. Des d’aquí també pots prémer <strong>Comprova actualitzacions</strong> per cercar noves versions sense esperar l’avís automàtic.</li>
                     <li>Podràs fer servir les receptes incorporades, la nevera, el menú i la compra sense connexió. Les fotos per enllaç i les fonts externes necessiten internet.</li>
                     <li>Quan aparegui <strong>Actualitza l’app</strong>, desa els formularis oberts abans de prémer el botó. A <strong>Icona de l’esquirol</strong> trobaràs ajuda per actualitzar la icona.</li>
                 </ul>
