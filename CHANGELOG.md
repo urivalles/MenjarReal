@@ -30,3 +30,4 @@ Fites reconstruïdes a partir dels commits disponibles. Les entrades agrupen can
 - Els dos paràgrafs explicatius de Compra passen al pas corresponent del tutorial, per deixar més espai als ingredients i les accions. Versió de memòria cau actualitzada.
 
 - Eliminat el paràgraf introductori redundant «Explica breument com et trobes...» de Consells; es manté el formulari i el tutorial.
+- Opcions compactades en una icona d’engranatge amb etiqueta accessible; comprovació manual d’actualitzacions traslladada al menú i amb estat de resultat, conservant l’avís existent per activar les versions noves. La comprovació també es demana en obrir l’app. Versió de memòria cau actualitzada.\n
