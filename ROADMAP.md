@@ -19,7 +19,7 @@ L’inventari detalla les fitxes i les fonts del catàleg. [Inventari del recept
 
 - **Consells compactats, 26 de novembre de 2026.** Eliminada l'explicació inicial redundant. Comprovació visual al mòbil pendent.
 
-## Pendent de completar
+- **Actualitzacions i Opcions, 26 de novembre de 2026.** Menú compacte d’engranatge, comprovació manual amb resultat explícit i comprovació inicial. Cal validar el flux al mòbil i el cas d’una nova versió disponible.\n\n## Pendent de completar
 
 | Tasca | Estat i pas per reprendre-la |
 | --- | --- |
