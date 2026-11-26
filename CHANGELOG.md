@@ -28,3 +28,5 @@ Fites reconstruïdes a partir dels commits disponibles. Les entrades agrupen can
 
 - Interfície compactada: eliminació de capçaleres i textos redundants a Receptes, Nevera, Menú, Consells i Compra, sense retirar-ne els controls. Actualització de la versió de memòria cau de la PWA perquè els dispositius detectin els canvis.
 - Els dos paràgrafs explicatius de Compra passen al pas corresponent del tutorial, per deixar més espai als ingredients i les accions. Versió de memòria cau actualitzada.
+
+- Eliminat el paràgraf introductori redundant «Explica breument com et trobes...» de Consells; es manté el formulari i el tutorial.
