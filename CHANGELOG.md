@@ -27,3 +27,4 @@ Fites reconstruïdes a partir dels commits disponibles. Les entrades agrupen can
 - Tutorial dins de l’app amb vuit apartats, accés des de Receptes i Opcions, dreceres a les pantalles i consulta sense connexió.
 
 - Interfície compactada: eliminació de capçaleres i textos redundants a Receptes, Nevera, Menú, Consells i Compra, sense retirar-ne els controls. Actualització de la versió de memòria cau de la PWA perquè els dispositius detectin els canvis.
+- Els dos paràgrafs explicatius de Compra passen al pas corresponent del tutorial, per deixar més espai als ingredients i les accions. Versió de memòria cau actualitzada.
