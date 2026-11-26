@@ -10,6 +10,7 @@
 | Nevera i compra | Coincidència de receptes amb la nevera, incorporació a la compra dels ingredients que falten i quantitats recalculades des del menú. Les edicions manuals es conserven en recalcular la compra. |
 | Consells | Recordatoris contextuals amb entrada de text i dictat quan el navegador admet el reconeixement local en català. |
 | Instal·lació i dades | Aplicació web instal·lable amb funcionament sense connexió per als recursos incorporats. Dades per navegador i còpia JSON amb previsualització abans de restaurar. |
+| Tutorial | Guia de vuit apartats, accessible des de Receptes i Opcions, amb exemples i dreceres a les pantalles. Disponible sense connexió. |
 | Continuïtat | Instruccions, context, full de ruta i historial versionats a GitHub. |
 
 L’inventari detalla les fitxes i les fonts del catàleg. [Inventari del receptari](RECEPTARI.md)
@@ -24,5 +25,6 @@ L’inventari detalla les fitxes i les fonts del catàleg. [Inventari del recept
 
 ## Verificació i incidències
 
-- **Última ampliació funcional, 26 de novembre de 2026.** Es van provar els filtres al navegador, la generació dels 14 àpats i la recàrrega sense connexió. També es van comprovar amb dades de prova els àpats fixats, el límit de temps, els blocs de *batch cooking* i l’escalat d’ingredients de la compra. Es va verificar que GitHub Pages servia el catàleg nou.
+- **Ampliació del catàleg i del menú, 26 de novembre de 2026.** Es van provar els filtres al navegador, la generació dels 14 àpats i la recàrrega sense connexió. També es van comprovar amb dades de prova els àpats fixats, el límit de temps, els blocs de *batch cooking* i l’escalat d’ingredients de la compra. Es va verificar que GitHub Pages servia el catàleg nou.
 - **Revisió de continuïtat, 26 de novembre de 2026.** Es van comprovar les referències, les xifres del catàleg i l’abast documental del canvi.
+- **Tutorial, 26 de novembre de 2026.** Es van comprovar els vuit apartats, les dreceres, el retorn del focus, el format mòbil i d’escriptori i l’accés sense connexió a Chrome.

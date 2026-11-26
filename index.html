@@ -54,10 +54,11 @@
         <main class="main-content">
             <!-- Header -->
             <header>
-                <div><p class="mobile-brand">MenjarReal</p><h1 id="page-title">El meu receptari</h1></div>
+                <div><p class="mobile-brand">MenjarReal</p><h1 id="page-title" tabindex="-1">El meu receptari</h1></div>
                 <details class="app-options" id="app-options">
                     <summary>Opcions</summary>
                     <div class="header-actions">
+                        <button type="button" class="btn-outline" data-open-tutorial aria-haspopup="dialog" aria-controls="tutorial-dialog">Tutorial</button>
                         <button type="button" class="btn-outline" id="open-data-btn">Les meves dades i còpies</button>
                         <button type="button" class="btn-outline" id="install-app-btn" aria-controls="install-help" aria-expanded="false">Instal·la al mòbil</button>
                         <button type="button" class="btn-outline" id="open-icon-help-btn" aria-controls="icon-help" aria-expanded="false">Icona de l’esquirol</button>
@@ -99,7 +100,10 @@
                         <h2>Menjar bé, sense complicar-te</h2>
                         <p>Idees per a dinars i sopars, guarnicions, esmorzars, berenars i postres.</p>
                         <p class="collection-summary" id="collection-summary" aria-live="polite"></p>
-                        <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
+                        <div class="collection-intro-actions">
+                            <button type="button" class="btn-primary" id="add-custom-recipe-btn"><i class='bx bx-plus'></i> Nova recepta</button>
+                            <button type="button" class="btn-outline" data-open-tutorial aria-haspopup="dialog" aria-controls="tutorial-dialog">Tutorial</button>
+                        </div>
                     </div>
                     <div class="filters">
                         <div class="recipe-toolbar">
@@ -481,6 +485,95 @@
             </div>
         </main>
     </div>
+
+    <dialog id="tutorial-dialog" class="tutorial-dialog" aria-labelledby="tutorial-title">
+        <button type="button" id="close-tutorial" class="close-btn" aria-label="Tanca el tutorial">&times;</button>
+        <h2 id="tutorial-title" class="modal-title">Tutorial de MenjarReal</h2>
+        <div class="tutorial-chooser">
+            <label for="tutorial-section">Apartat</label>
+            <select id="tutorial-section" autofocus></select>
+        </div>
+
+        <div class="tutorial-content">
+            <section class="tutorial-step" data-view="recipes-view" data-action="Obre el receptari" aria-labelledby="tutorial-recipes-title">
+                <h3 id="tutorial-recipes-title" tabindex="-1">Troba una recepta</h3>
+                <ul>
+                    <li>Cerca pel nom del plat o per un ingredient, com ara «lluç». Obre l’embut de <strong>Filtres i ordre</strong> per triar tipus, temps, temporada o etiqueta.</li>
+                    <li>A <strong>Descobrir</strong>, prem <strong>Fes teva</strong> per afegir una recepta a <strong>Les meves</strong>. Si ja tens verdura feta, tria <strong>Ja tinc verdura · hidrats i proteïna</strong> a «Què et falta al plat?».</li>
+                    <li>Obre el filtre <strong>Sense gluten</strong> per consultar els estats de revisió i, a la fitxa, la nota sobre ingredients o adaptacions.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-view="recipes-view" data-action="Obre el receptari" aria-labelledby="tutorial-cook-title" hidden>
+                <h3 id="tutorial-cook-title" tabindex="-1">Cuina i guarda les teves receptes</h3>
+                <ul>
+                    <li>Obre una fitxa i ajusta les <strong>Racions</strong> per veure les quantitats. Si hi ha diversos passos, obre <strong>Cuina pas a pas</strong> i activa un temporitzador quan aparegui un temps al pas.</li>
+                    <li>A <strong>La meva nota</strong> pots apuntar què canviaries la pròxima vegada. A <strong>Estat</strong> pots marcar la recepta com a testada o preferida.</li>
+                    <li>Amb <strong>Nova recepta</strong> pots guardar ingredients, passos i una foto. Amb <strong>Afegir al menú</strong>, les receptes de dinar o sopar es poden posar en un àpat lliure.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-view="fridge-view" data-action="Obre la nevera" aria-labelledby="tutorial-fridge-title" hidden>
+                <h3 id="tutorial-fridge-title" tabindex="-1">Aprofita el que tens a la nevera</h3>
+                <ul>
+                    <li>Escriu els aliments que tens, per exemple «ous, tomàquet», i prem <strong>Afegeix</strong>.</li>
+                    <li>A <strong>Què puc cuinar amb això?</strong> veuràs què aprofita cada recepta i què et falta. Amb l’embut pots triar <strong>Només amb el que tinc</strong> o altres criteris de coincidència.</li>
+                    <li>Si vols fer una recepta i et falta un ingredient, prem <strong>Afegeix el que falta a la compra</strong>.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-view="planner-view" data-action="Obre el menú" aria-labelledby="tutorial-planner-title" hidden>
+                <h3 id="tutorial-planner-title" tabindex="-1">Planifica dinars i sopars</h3>
+                <ul>
+                    <li>A <strong>Preferències del menú</strong>, indica quantes persones sou, el temps màxim, la temporada i si vols cuinar per a diversos dies.</li>
+                    <li>Tria els dies i els àpats que vols omplir i prem <strong>Genera els àpats triats</strong>. El menú proposa receptes de «Les meves» i manté els àpats fixats.</li>
+                    <li>Amb <strong>Tria un àpat</strong> pots escollir un plat o anotar que menges fora o aprofites sobres. Amb <strong>Importa un menú</strong> pots enganxar text i revisar-lo abans de confirmar.</li>
+                    <li>A <strong>Menús desats</strong> pots donar un nom al menú actual i recuperar-lo més endavant.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-view="shopping-view" data-action="Obre la llista de la compra" aria-labelledby="tutorial-shopping-title" hidden>
+                <h3 id="tutorial-shopping-title" tabindex="-1">Prepara la llista de la compra</h3>
+                <ul>
+                    <li>La compra recull els ingredients dels àpats planificats i n’ajusta les quantitats quan canvies el nombre de persones.</li>
+                    <li>Afegeix productes a mà i ajusta les quantitats si ja en tens a casa. Marca el que has comprat i prem <strong>Treu els comprats</strong> quan vulguis retirar-los de la llista.</li>
+                    <li>Obre <strong>Copiar llista</strong> per endur-te la llista completa o només els pendents.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-view="tips-view" data-action="Obre els consells" aria-labelledby="tutorial-tips-title" hidden>
+                <h3 id="tutorial-tips-title" tabindex="-1">Consulta els consells</h3>
+                <ul>
+                    <li>Tria una situació o escriu com et trobes i prem <strong>Mostra’m consells</strong>. Els recordatoris es trien al dispositiu.</li>
+                    <li>Si el teu navegador admet el dictat local en català, també pots fer servir <strong>Dicta</strong>.</li>
+                    <li>Obre <strong>Consultar tots els consells</strong> per llegir-los per temes.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-action="Obre Opcions" aria-labelledby="tutorial-install-title" hidden>
+                <h3 id="tutorial-install-title" tabindex="-1">Instal·la l’app i fes-la servir sense connexió</h3>
+                <ul>
+                    <li>Des del navegador del mòbil, obre <strong>Opcions</strong> i segueix la guia d’instal·lació del teu dispositiu. Obre l’app un primer cop amb internet perquè es prepari l’accés sense connexió.</li>
+                    <li>Podràs fer servir les receptes incorporades, la nevera, el menú i la compra sense connexió. Les fotos per enllaç i les fonts externes necessiten internet.</li>
+                    <li>Quan aparegui <strong>Actualitza l’app</strong>, desa els formularis oberts abans de prémer el botó. A <strong>Icona de l’esquirol</strong> trobaràs ajuda per actualitzar la icona.</li>
+                </ul>
+            </section>
+
+            <section class="tutorial-step" data-action="Obre les meves dades" data-open-data aria-labelledby="tutorial-data-title" hidden>
+                <h3 id="tutorial-data-title" tabindex="-1">Fes una còpia de les teves dades</h3>
+                <ul>
+                    <li>Les dades es desen al navegador que estàs fent servir. A <strong>Opcions → Les meves dades i còpies</strong>, prem <strong>Descarrega una còpia completa</strong> per guardar-les en un fitxer JSON.</li>
+                    <li>Per portar-les a un altre dispositiu, obre-hi MenjarReal, tria el fitxer i revisa la previsualització. La restauració substitueix les dades d’aquell navegador quan la confirmes.</li>
+                </ul>
+            </section>
+
+            <button type="button" id="tutorial-go" class="btn-outline tutorial-go"></button>
+        </div>
+        <div class="tutorial-navigation">
+            <button type="button" id="tutorial-previous" class="btn-outline">Anterior</button>
+            <button type="button" id="tutorial-next" class="btn-primary">Següent</button>
+        </div>
+    </dialog>
 
     <dialog id="menu-import-dialog" class="menu-import-dialog" aria-labelledby="menu-import-title" aria-describedby="menu-import-local">
         <button type="button" id="close-menu-import" class="close-btn" aria-label="Tanca la importació">&times;</button>

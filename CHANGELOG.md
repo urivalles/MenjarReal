@@ -24,3 +24,4 @@ Fites reconstruïdes a partir dels commits disponibles. Les entrades agrupen can
 - Integració de 29 fitxes de MyRealFood amb fotos, navegació per tipus de recepta i filtre per completar un plat quan ja hi ha verdura. Primer inventari del receptari. Commit `4c9592e`.
 - Incorporació de vuit receptes ràpides de peix i vuit guarnicions. Etiqueta «Testada» unificada, «Dia festiu» per energia per ració i planificador amb més varietat de proteïnes. Primer resum de preferències revisat i aprovat. Commit `8494c70`.
 - Metodologia compartida per continuar la feina des de Visual Studio Code, Codex Cloud o ChatGPT al mòbil. `AGENTS.md`, `CONTEXT.md`, `ROADMAP.md` i aquest historial documenten el projecte a GitHub. Canvi exclusivament documental.
+- Tutorial dins de l’app amb vuit apartats, accés des de Receptes i Opcions, dreceres a les pantalles i consulta sense connexió.

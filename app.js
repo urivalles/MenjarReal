@@ -257,6 +257,53 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('popstate', () => showView(window.location?.hash.slice(1)));
     window.addEventListener('hashchange', () => showView(window.location?.hash.slice(1)));
 
+    const tutorial = document.getElementById('tutorial-dialog');
+    const tutorialContent = tutorial.querySelector('.tutorial-content');
+    const tutorialSections = [...tutorial.querySelectorAll('.tutorial-step')];
+    const tutorialSelect = document.getElementById('tutorial-section');
+    const tutorialPrevious = document.getElementById('tutorial-previous');
+    const tutorialNext = document.getElementById('tutorial-next');
+    const tutorialGo = document.getElementById('tutorial-go');
+    let tutorialStep = 0;
+    tutorialSelect.replaceChildren(...tutorialSections.map((section, index) =>
+        new Option(`${index + 1}. ${section.querySelector('h3').textContent}`)));
+
+    function showTutorialStep(index, focusHeading = false) {
+        tutorialStep = index;
+        tutorialSections.forEach((section, position) => { section.hidden = position !== index; });
+        tutorialSelect.selectedIndex = index;
+        tutorialPrevious.disabled = index === 0;
+        tutorialNext.textContent = index === tutorialSections.length - 1 ? 'Acaba' : 'Següent';
+        tutorialGo.textContent = tutorialSections[index].dataset.action;
+        tutorialContent.scrollTop = 0;
+        if (focusHeading) tutorialSections[index].querySelector('h3').focus({ preventScroll: true });
+    }
+
+    document.querySelectorAll('[data-open-tutorial]').forEach(button => button.addEventListener('click', () => {
+        showTutorialStep(tutorialStep);
+        tutorial.showModal();
+    }));
+    document.getElementById('close-tutorial').addEventListener('click', () => tutorial.close());
+    tutorialSelect.addEventListener('change', () => showTutorialStep(tutorialSelect.selectedIndex));
+    tutorialPrevious.addEventListener('click', () => showTutorialStep(tutorialStep - 1, true));
+    tutorialNext.addEventListener('click', () => {
+        if (tutorialStep === tutorialSections.length - 1) tutorial.close();
+        else showTutorialStep(tutorialStep + 1, true);
+    });
+    tutorialGo.addEventListener('click', () => {
+        const section = tutorialSections[tutorialStep];
+        tutorial.close();
+        if (section.dataset.view) {
+            showView(section.dataset.view, true);
+            pageTitle.focus();
+        } else {
+            const appOptions = document.getElementById('app-options');
+            appOptions.open = true;
+            if (section.hasAttribute('data-open-data')) openDataBtn.click();
+            else appOptions.querySelector('summary').focus();
+        }
+    });
+
     // --- Recipes Logic ---
     function collectionLabel(recipe) {
         const kind = recipeCatalog.collectionOf(recipe, adoptedRecipes);
