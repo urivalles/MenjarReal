@@ -5,7 +5,8 @@ const recipeCatalog = (() => {
         ...seasonalRecipes,
         ...dessertRecipes,
         ...maydenRecipes,
-        ...myRealFoodRecipes
+        ...myRealFoodRecipes,
+        ...everydayRecipes
     ].map(recipe => ({ ...recipe, ...recipePhotos[recipe.id] }));
     const builtInIds = new Set(recipes.map(recipe => recipe.id));
 
@@ -59,6 +60,7 @@ const recipeCatalog = (() => {
     const normalize = value => String(value ?? '').normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const ingredientName = ingredient => typeof ingredient === 'string' ? ingredient : ingredient.item;
+    const minutesFor = recipe => recipe.totalMinutes || parseInt(recipe.time, 10) || Infinity;
 
     function matchesIngredient(ingredient, food) {
         const singular = { fasols: 'fesol', fasol: 'fesol', fesols: 'fesol', ous: 'ou', tomaquets: 'tomaquet', patates: 'patata', pastanagues: 'pastanaga',
@@ -117,7 +119,7 @@ const recipeCatalog = (() => {
         return { key: normalize(name), name, links };
     }
 
-    const statusLabels = { pending: 'Pendent de provar', tested: 'Provada', favorite: 'Preferida' };
+    const statusLabels = { pending: 'Pendent de provar', tested: 'Testada', favorite: 'Preferida' };
 
     function stepTimerOptions(step) {
         const text = step.replace(/\b(\d{1,3})\s*(?:hores?|h)\s*(?:i\s+)?(\d{1,2})\s*(?:minuts?|mins?)\b/gi,
@@ -135,7 +137,7 @@ const recipeCatalog = (() => {
 
     function select(options = {}) {
         const { query = '', difficulty = 'all', collection = 'all', season = 'all',
-            type = 'all', plate = 'all', label = 'all', sourceList = 'all', statuses = {},
+            type = 'all', plate = 'all', label = 'all', statuses = {},
             quick = false, batch = false, gluten = 'all', source = 'all', useFridge = false, fridge = [], adopted = [], fridgeOptions = fridgeDefaults(), sort = 'default' } = options;
         const term = normalize(query.trim());
         let selected = recipes.filter(recipe => {
@@ -149,14 +151,13 @@ const recipeCatalog = (() => {
             const matchesPlate = plate === 'all' || (plate === 'veg-ready'
                 ? !recipe.incomplete && profile.types.some(value => value === 'lunch' || value === 'dinner') &&
                     profile.parts.includes('carbs') && profile.parts.includes('protein') && !profile.parts.includes('veg')
-                : profile.parts.includes(plate));
+                : plate === 'fish' ? profile.protein === 'fish' : profile.parts.includes(plate));
             return matchesCollection && matchesQuery && matchesGluten && matchesSource &&
                 (type === 'all' || profile.types.includes(type)) && matchesPlate &&
                 (label === 'all' || recipeClassification.labels(recipe, statuses[recipe.id])[label] === true) &&
-                (sourceList === 'all' || recipe.sourceLists?.includes(sourceList)) &&
                 (difficulty === 'all' || recipe.difficulty === difficulty) &&
                 (season === 'all' || (recipe.seasons || []).includes(season)) &&
-                (!quick || (recipe.totalMinutes || parseInt(recipe.time, 10)) <= 30) &&
+                (!quick || minutesFor(recipe) <= 30) &&
                 (!batch || Boolean(recipe.batchNote));
         });
         if (useFridge || sort === 'fridge') {
@@ -164,13 +165,10 @@ const recipeCatalog = (() => {
             if (useFridge) selected = selected.filter(recipe => !recipe.incomplete && recipe.accepted);
             selected.sort((a, b) => b.matchCount - a.matchCount || a.missingCount - b.missingCount);
         }
-        if (sort === 'time') {
-            const minutes = recipe => recipe.totalMinutes || parseInt(recipe.time, 10) || Infinity;
-            selected.sort((a, b) => minutes(a) - minutes(b));
-        }
+        if (sort === 'time') selected.sort((a, b) => minutesFor(a) - minutesFor(b));
         if (sort === 'name') selected.sort((a, b) => a.title.localeCompare(b.title, 'ca'));
         return selected;
     }
 
-    return { recipes, normalize, sourceFor, statusLabels, stepTimerOptions, ingredientName, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
+    return { recipes, normalize, sourceFor, statusLabels, stepTimerOptions, ingredientName, minutesFor, matchesIngredient, collectionOf, select, customRecipe, replaceCustomRecipes, fridgeDefaults, fridgeSettings, fridgeMatch };
 })();

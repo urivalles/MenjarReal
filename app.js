@@ -73,14 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const typeFilter = document.getElementById('recipe-type-filter');
     const plateFilter = document.getElementById('recipe-plate-filter');
     const labelFilter = document.getElementById('recipe-label-filter');
-    const sourceListFilter = document.getElementById('myrealfood-list-filter');
-    const classificationFilters = [typeFilter, plateFilter, labelFilter, sourceListFilter];
+    const classificationFilters = [typeFilter, plateFilter, labelFilter];
+    const festiveNotice = document.getElementById('festive-notice');
+    festiveNotice.textContent = `Dia festiu · ${recipeClassification.festiveThreshold} kcal o més per ració segons les dades disponibles. És un llindar orientatiu del receptari.`;
     const addFilterOptions = (control, labels) => control.append(...Object.entries(labels)
         .map(([id, label]) => new Option(label, id)));
     addFilterOptions(typeFilter, recipeClassification.types);
     addFilterOptions(labelFilter, recipeClassification.status);
-    addFilterOptions(sourceListFilter, Object.fromEntries(Object.entries(recipeClassification.sourceLists)
-        .filter(([id]) => recipes.some(recipe => recipe.sourceLists?.includes(id)))));
     const recipeResults = document.getElementById('recipe-results');
     const collectionSummary = document.getElementById('collection-summary');
     const catalogNotice = document.getElementById('catalog-notice');
@@ -264,18 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return kind === 'mine' ? recipe.pantry ? 'La meva recepta · Rebost' : 'La meva recepta' : kind === 'recommended' ? 'Per provar' : 'Exemple anterior';
     }
 
-    function recipeTags(recipe, detail = false) {
+    function recipeTags(recipe) {
         const profile = recipeClassification.profile(recipe);
         const labels = recipeClassification.labels(recipe, recipeStatuses[recipe.id]);
         const uses = profile.types.includes('lunch') && profile.types.includes('dinner')
             ? ['Dinar o sopar', ...profile.types.filter(type => type !== 'lunch' && type !== 'dinner').map(type => recipeClassification.types[type])]
             : profile.types.map(type => recipeClassification.types[type]);
-        const badges = [...uses, ...Object.keys(labels)
-            .filter(key => labels[key] && (detail || key !== 'sourceFavorite')).map(key => recipeClassification.status[key])];
-        if (detail) {
-            badges.push(...(recipe.sourceLists || []).map(key => recipeClassification.sourceLists[key]));
-            if (recipe.publicInSource) badges.push('Pública a MyRealFood');
-        }
+        const badges = [...uses, ...Object.keys(recipeClassification.status)
+            .filter(key => labels[key]).map(key => recipeClassification.status[key])];
         return badges.map(label => `<li>${escapeHtml(label)}</li>`).join('');
     }
 
@@ -382,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = recipeCatalog.select({
             query: searchInput.value, difficulty: activeDifficulty, collection: selectedCollection,
             type: typeFilter.value, plate: plateFilter.value, label: labelFilter.value,
-            sourceList: sourceListFilter.value, statuses: recipeStatuses,
+            statuses: recipeStatuses,
             season: seasonFilter.value, quick: quickFilter.checked, gluten: glutenFilter.value || 'all', source: sourceFilter.value,
             useFridge: useFridgeFilter, fridge: myFridge, adopted: adoptedRecipes, fridgeOptions: fridgePreferences, sort: recipeSort.value || 'default'
         });
@@ -402,6 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (control.value !== 'all') applied.push(control.selectedOptions[0].textContent);
         }
         document.getElementById('gluten-filter-notice').hidden = !glutenFilter.value || glutenFilter.value === 'all';
+        festiveNotice.hidden = labelFilter.value !== 'festive';
         if (useFridgeFilter) applied.push('Nevera: ' + fridgeModeNames[fridgePreferences.mode]);
         const sortNames = { time: 'menys temps', name: 'nom A–Z', fridge: 'coincidències de nevera' };
         if (sortNames[recipeSort.value]) applied.push('Ordre: ' + sortNames[recipeSort.value]);
@@ -612,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
         releaseRecipeTimer?.();
         const gluten = glutenFilter.value === 'all' ? null : glutenGuide.review(recipe);
         const source = recipeCatalog.sourceFor(recipe);
-        const defaultStatus = recipe.testedByUser === true ? 'tested' : 'pending';
+        const defaultStatus = recipeClassification.defaultStatus(recipe);
         const personalNote = recipeNotes[recipe.id] || '';
         const instructions = recipe.instructions || 'Preparació pendent de confirmar.';
         const plateParts = recipeClassification.profile(recipe).parts;
@@ -628,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="recipe-collection ${recipeCatalog.collectionOf(recipe, adoptedRecipes)}">${collectionLabel(recipe)}</span>
             <h2 class="modal-title" id="recipe-detail-title">${escapeHtml(recipe.title)}</h2>
             ${recipe.description ? `<p>${escapeHtml(recipe.description)}</p>` : ''}
-            <ul class="recipe-tags" id="recipe-detail-tags" aria-label="Etiquetes">${recipeTags(recipe, true)}</ul>
+            <ul class="recipe-tags" id="recipe-detail-tags" aria-label="Etiquetes">${recipeTags(recipe)}</ul>
             ${plateParts.length ? `<p class="planner-help">Grups principals del plat · ${plateParts.map(part => recipeClassification.parts[part]).join(' · ')}</p>` : ''}
             ${gluten ? `<div class="modal-section detail-note"><h4>${escapeHtml(gluten.title)}</h4><p>${escapeHtml(gluten.note)}</p><details><summary>Etiquetes i preparació</summary><p>Comprova els productes i els opcionals que facis servir. Si cal evitar traces, també cal evitar el contacte amb gluten en utensilis, superfícies, aigua o oli compartits. Aquesta guia no certifica el plat ni canvia els ingredients de la compra.</p><ul class="detail-list">${glutenGuide.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a></li>`).join('')}</ul></details></div>` : ''}
             <div class="detail-facts">${recipe.time ? `<span>${escapeHtml(recipe.time)} totals</span>` : ''}
@@ -659,6 +655,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>${number.format(declared.kcal)} kcal${unit} · ${number.format(declared.protein)} g${unit} de proteïnes${extraNutrients}.
                 ${escapeHtml(declared.base || 'Base de la declaració pendent de confirmar')}.</p></div>` : ''}
             ${recipe.nutritionNote ? `<div class="modal-section detail-note"><h4>Nutrició orientativa · sense verificar</h4><p>${escapeHtml(recipe.nutritionNote)}</p></div>` : ''}
+            ${recipe.estimatedEnergy ? `<div class="modal-section detail-note"><h4>Energia orientativa</h4>
+                <p>Unes ${number.format(recipe.estimatedEnergy.kcal)} kcal per ració. ${escapeHtml(recipe.estimatedEnergy.note)}</p>
+                <p><a href="https://fdc.nal.usda.gov/download-datasets/" target="_blank" rel="noopener noreferrer">USDA FoodData Central · SR Legacy</a></p></div>` : ''}
             <div class="modal-section">
                 <h4>Preparació</h4>
                 ${steps.length >= 2 ? `<details class="recipe-step-mode">
@@ -745,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 appData.update({ recipeStatuses: next });
                 recipeStatuses = next;
                 feedback.textContent = 'Estat desat.';
-                modalBody.querySelector('#recipe-detail-tags').innerHTML = recipeTags(recipe, true);
+                modalBody.querySelector('#recipe-detail-tags').innerHTML = recipeTags(recipe);
                 filterRecipes();
             } catch (error) {
                 statusControl.value = recipeStatuses[recipe.id] || defaultStatus;
@@ -1620,12 +1619,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ].join(' · ');
         plannerControls.season.querySelector?.('option[value="auto"]')?.replaceChildren(`Estació actual · ${season}`);
         const pool = weeklyPlannerEngine.eligible(settings, adoptedRecipes);
-        const ownCount = weeklyPlannerEngine.ownRecipes(adoptedRecipes).length;
-        plannerPoolInfo.textContent = pool.length ? `${pool.length} de ${ownCount} receptes teves disponibles${settings.seasonEnabled ? ` · ${season}` : ' · Totes les estacions'}.` :
-            'Cap recepta teva compleix els filtres. Prova de desactivar la temporada, ampliar el temps o adoptar més receptes. No s’ompliran àpats amb receptes fora dels filtres.';
+        plannerPoolInfo.textContent = pool.length ? `${pool.length} receptes disponibles per generar${settings.seasonEnabled ? ` · ${season}` : ' · Totes les estacions'}.` :
+            'Cap plat compleix els filtres del menú automàtic. Pots ampliar el temps, canviar la temporada o incorporar plats de «Descobrir».';
         generatePlannerBtn.disabled = !pool.length;
         plannerModeHelp.textContent = settings.batchDays ? `Blocs de ${settings.batchDays} ${settings.batchDays === 1 ? 'dia' : 'dies'}: proposem un dinar i un sopar per bloc, amb repeticions per avançar feina. ${settings.batchDays === 1 ? 'Amb un dia no es repeteixen plats entre dies expressament.' : ''} Les decisions fixades i els canvis individuals poden trencar el bloc.` :
-            'Dia a dia: prioritzem plats diferents, alternem la proteïna principal i evitem repetir el mateix plat en dies seguits quan la llista ho permet. La nevera només es compara per nom, sense comprovar existències ni caducitats.';
+            'Dia a dia: alternem les fonts de proteïna i donem preferència als plats amb verdura, hidrats i proteïna. Pots triar els plats de dia festiu manualment.';
         weeklyPlannerEngine.days.forEach(dayKey => {
             const dayEl = document.createElement('div');
             dayEl.className = 'planner-day';

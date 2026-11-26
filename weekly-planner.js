@@ -58,22 +58,20 @@ const weeklyPlannerEngine = (() => {
         const options = settingsFor(settings);
         const season = options.season === 'auto' ? currentSeason(date) : options.season;
         return ownRecipes(adopted).filter(recipe =>
+            !recipeClassification.profile(recipe).types.includes('side') && !recipeClassification.isFestive(recipe) &&
             (!options.seasonEnabled || (recipe.seasons || []).includes(season)) &&
-            (!options.maxMinutes || (recipe.totalMinutes || parseInt(recipe.time, 10)) <= options.maxMinutes));
+            (!options.maxMinutes || recipeCatalog.minutesFor(recipe) <= options.maxMinutes));
     }
 
     function proteinGroup(recipe) {
-        for (const ingredient of recipe.ingredients) {
-            const name = recipeCatalog.normalize(recipeCatalog.ingredientName(ingredient));
-            if (/tofu/.test(name)) return 'tofu';
-            if (/seitan/.test(name)) return 'seitan';
-            if (/ous?\b/.test(name)) return 'egg';
-            if (/salmo|lluc|bacalla|peix|tonyina|sardina/.test(name)) return 'fish';
-            if (/pollastre|gall dindi|carn|llom|porc/.test(name)) return 'meat';
-            if (/cigrons|llenties|mongeta|fesols|fasols/.test(name)) return 'legumes';
-            if (/paneer|formatge|cottage|parmesa/.test(name)) return 'dairy';
-        }
-        return 'other';
+        const protein = recipeClassification.profile(recipe).protein;
+        return protein === 'seafood' ? 'fish' : protein || 'other';
+    }
+
+    function weekdayPreference(recipe) {
+        const { parts } = recipeClassification.profile(recipe);
+        const fullPlate = ['carbs', 'protein', 'veg'].every(part => parts.includes(part));
+        return Math.min(recipeCatalog.minutesFor(recipe) / 8, 7) - (fullPlate ? 7 : 0);
     }
 
     function snapshot(slots) {
@@ -85,7 +83,7 @@ const weeklyPlannerEngine = (() => {
             .map(day => [day.lunch.id, day.dinner.id]);
     }
 
-    function pickRecipe(pool, { assigned, sameDayIds = [], previousDayIds = [], previousPairs = [], oldIds = [], fridge = [], preferFridge = false, exclude = null, random = Math.random }) {
+    function pickRecipe(pool, { assigned, sameDayIds = [], nearbyIds = [], previousPairs = [], oldIds = [], fridge = [], preferFridge = false, exclude = null, random = Math.random }) {
         let candidates = pool.filter(recipe => recipe.id !== exclude);
         if (!candidates.length) return null;
         const distinct = candidates.filter(recipe => !sameDayIds.includes(recipe.id));
@@ -95,21 +93,29 @@ const weeklyPlannerEngine = (() => {
         if (newPairs.length) candidates = newPairs;
         const usage = new Map();
         const groups = new Map();
+        const varieties = new Map();
+        const byId = new Map(recipeCatalog.recipes.map(recipe => [recipe.id, recipe]));
         for (const slot of assigned) {
             usage.set(slot.id, (usage.get(slot.id) || 0) + 1);
-            const recipe = recipeCatalog.recipes.find(item => item.id === slot.id);
-            if (recipe) groups.set(proteinGroup(recipe), (groups.get(proteinGroup(recipe)) || 0) + 1);
+            const recipe = byId.get(slot.id);
+            if (!recipe) continue;
+            const group = proteinGroup(recipe);
+            groups.set(group, (groups.get(group) || 0) + 1);
+            if (recipe.proteinVariety) varieties.set(recipe.proteinVariety, (varieties.get(recipe.proteinVariety) || 0) + 1);
         }
-        const sameDayGroups = sameDayIds.map(id => recipeCatalog.recipes.find(recipe => recipe.id === id)).filter(Boolean).map(proteinGroup);
+        const groupsFor = ids => new Set(ids.map(id => byId.get(id)).filter(Boolean).map(proteinGroup));
+        const sameDayGroups = groupsFor(sameDayIds);
+        const nearbyGroups = groupsFor(nearbyIds);
         return candidates.map(recipe => {
             const group = proteinGroup(recipe);
-            const meaningful = recipe.ingredients.filter(ingredient => !/^(oli|sal|pebre|aigua)/.test(recipeCatalog.normalize(recipeCatalog.ingredientName(ingredient))));
-            const matches = meaningful.filter(ingredient => fridge.some(food => recipeCatalog.matchesIngredient(ingredient, food))).length;
-            const fridgeBonus = preferFridge && meaningful.length ? matches / meaningful.length * 12 : 0;
+            const groupCount = groups.get(group) || 0;
+            const varietyBonus = (group === 'fish' || group === 'legumes') && groupCount < 3 ? 12 : 0;
+            const match = preferFridge ? recipeCatalog.fridgeMatch(recipe, fridge) : null;
+            const fridgeBonus = match?.matchCount ? 12 * match.matchCount / (match.matchCount + match.missingCount) : 0;
             const score = (usage.get(recipe.id) || 0) * 100 +
-                (previousDayIds.includes(recipe.id) ? 35 : 0) +
-                (sameDayGroups.includes(group) ? 18 : 0) +
-                (groups.get(group) || 0) * 3 + (oldIds.includes(recipe.id) ? 8 : 0) - fridgeBonus + random() * 5;
+                (nearbyIds.includes(recipe.id) ? 35 : 0) + (sameDayGroups.has(group) ? 24 : 0) +
+                (nearbyGroups.has(group) ? 9 : 0) + groupCount * 5 + (varieties.get(recipe.proteinVariety) || 0) * 11 +
+                (oldIds.includes(recipe.id) ? 8 : 0) + weekdayPreference(recipe) - varietyBonus - fridgeBonus + random() * 4;
             return { recipe, score };
         }).sort((a, b) => a.score - b.score)[0].recipe;
     }
@@ -140,9 +146,10 @@ const weeklyPlannerEngine = (() => {
                 if (!blockTargets.length) continue;
                 const sameDayIds = blockTargets.flatMap(day => meals.filter(other => other !== meal)
                     .map(other => state.days[day][other]).filter(slot => slot?.kind === 'recipe').map(slot => slot.id));
-                const previousDayIds = start > 0 ? snapshot([state.days[days[start - 1]]]).map(slot => slot.id) : [];
+                const neighbors = [days[start - 1], days[start + block.length]].filter(Boolean);
+                const nearbyIds = snapshot(neighbors.map(day => state.days[day])).map(slot => slot.id);
                 const recipe = pickRecipe(pool, {
-                    assigned: snapshot(Object.values(state.days)), sameDayIds, previousDayIds,
+                    assigned: snapshot(Object.values(state.days)), sameDayIds, nearbyIds,
                     previousPairs: recipePairs(days.slice(0, start).map(day => state.days[day])),
                     oldIds: blockTargets.map(day => original.days[day][meal]?.id).filter(Number.isInteger),
                     fridge, preferFridge: state.settings.preferFridge, random
@@ -164,10 +171,11 @@ const weeklyPlannerEngine = (() => {
         const current = state.days[day][meal];
         const others = days.flatMap(key => meals.filter(kind => key !== day || kind !== meal).map(kind => state.days[key][kind])).filter(slot => slot?.kind === 'recipe');
         const dayIndex = days.indexOf(day);
+        const neighbors = [days[dayIndex - 1], days[dayIndex + 1]].filter(Boolean);
         const recipe = pickRecipe(pool, {
             assigned: others,
             sameDayIds: snapshot([state.days[day]]).filter(slot => slot !== current).map(slot => slot.id),
-            previousDayIds: dayIndex ? snapshot([state.days[days[dayIndex - 1]]]).map(slot => slot.id) : [],
+            nearbyIds: snapshot(neighbors.map(key => state.days[key])).map(slot => slot.id),
             previousPairs: recipePairs(days.filter(key => key !== day).map(key => state.days[key])),
             exclude: current?.kind === 'recipe' ? current.id : null,
             fridge: options.fridge || [], preferFridge: state.settings.preferFridge, random: options.random
@@ -193,5 +201,5 @@ const weeklyPlannerEngine = (() => {
         return [...groups.values()];
     }
 
-    return { days, meals, defaults, currentSeason, settingsFor, normalizeState, ownRecipes, eligible, proteinGroup, generate, replaceMeal, preparations };
+    return { days, meals, defaults, currentSeason, settingsFor, normalizeState, ownRecipes, eligible, proteinGroup, weekdayPreference, generate, replaceMeal, preparations };
 })();

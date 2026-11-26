@@ -78,14 +78,14 @@ const menuImportEngine = (() => {
         const value = normalized(text);
         const definitions = {
             'proteïna:tofu': /\btofu\b/, 'proteïna:seitan': /\bseitan\b/,
-            'proteïna:ou': /\bous?\b/, 'proteïna:peix': /\b(salmo|lluc|bacalla|peix|tonyina|sardina)\b/,
+            'proteïna:ou': /\bous?\b/, 'proteïna:peix': /\b(salmo|lluc|bacalla|peix|tonyina|sardines?|verat|orada|seitons?|truita de riu|sipia|pop|calamars?|llagostins?)\b/,
             'proteïna:carn': /\b(pollastre|carn|gall dindi|llom|porc)\b/, 'proteïna:lactis': /\b(cottage|paneer|parmesa|formatge)\b/,
-            llegums: /\b(cigrons?|llenties|mongetes?|fesols?|fasols?|edamame)\b/,
+            llegums: /\b(cigrons?|llenties|mongetes? blanques?|mongeta blanca|fesols?|fasols?|edamame|faves)\b/,
             'verdura:fulles': /\b(espinacs|bledes|col|kale)\b/,
             'verdura:crucíferes': /\b(broquil|coliflor)\b/,
             'verdura:bolets': /\b(bolets?|xampinyons?)\b/,
             'verdura:arrels': /\b(pastanagues?|carbassa)\b/,
-            'verdura:altres': /\b(carbasso|pebrots?|tomaquets?|esparrecs)\b/,
+            'verdura:altres': /\b(carbasso|pebrots?|tomaquets?|esparrecs|alberginies?|mongeta verda|enciam)\b/,
             'verdura:ceba': /\b(ceba|porro)\b/,
             cereals: /\b(arros|pa|noodles|pasta)\b/, tubercles: /\b(patates?|moniato|nyoquis)\b/
         };
@@ -117,7 +117,7 @@ const menuImportEngine = (() => {
                     const usage = existing.filter(slot => slot.kind === 'recipe' && slot.id === item.id).length;
                     const variety = groups.reduce((sum, group) => sum + ((counts.get(group) || 0) ? Math.min(counts.get(group), 4) * 2 : -5), 0);
                     const overlap = state.settings.preferFridge ? recipeCatalog.fridgeMatch(item, fridge).matchCount : 0;
-                    return { recipe: item, score: usage * 100 + variety - overlap };
+                    return { recipe: item, score: usage * 100 + variety + weeklyPlannerEngine.weekdayPreference(item) - overlap };
                 }).sort((a, b) => a.score - b.score || a.recipe.id - b.recipe.id)[0].recipe;
                 for (const day of targets) {
                     const entry = { day, meal, title: recipe.title, recipeId: recipe.id, replace: false,

@@ -4,14 +4,10 @@ const recipeClassification = (() => {
         dessert: 'Postres', side: 'Guarnició o entrant', base: 'Base o component'
     };
     const parts = { carbs: 'Hidrats', protein: 'Proteïna', veg: 'Verdura' };
-    const sourceLists = {
-        favorite: 'Les meves favorites', today: 'Avui', snacks: 'Capritxos/snacks', easy: 'Fàcils i pràctiques',
-        dinner: 'Sopars', festive: 'Dia festiu', later: 'Quan puguis', hits: 'Triomfs'
-    };
     const status = {
-        reviewed: 'Revisada per MyRealFood', created: 'Feta per mi', tested: 'Provada per mi',
-        favorite: 'Preferida', sourceFavorite: 'Preferida a MyRealFood'
+        tested: 'Testada', reviewed: 'Revisada per MyRealFood', festive: 'Dia festiu'
     };
+    const festiveThreshold = 700;
     const mains = ['lunch', 'dinner'];
     const categories = {
         main: mains, dessert: ['dessert'], breakfast: ['breakfast'], snack: ['snack'], side: ['side'], base: ['base']
@@ -53,20 +49,50 @@ const recipeClassification = (() => {
         return Object.keys(rules).filter(part => ingredients.some(item => rules[part].test(item)));
     }
 
+    function inferredProtein(recipe) {
+        const names = recipe.ingredients.map(item => typeof item === 'string' ? item : item.item)
+            .join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const groups = [
+            ['fish', /\b(salmo|lluc|bacalla|peix|tonyina|sardines?|verat|orada|seitons?|truita de riu)\b/],
+            ['seafood', /\b(sipia|pop|calamar|llagostins?|gambes?|musclos?)\b/],
+            ['tofu', /\b(tofu|tempeh)\b/], ['seitan', /\bseitan\b/],
+            ['poultry', /\b(pollastre|gall dindi)\b/], ['meat', /\b(carn|llom|porc|vedella|pernil)\b/],
+            ['legumes', /\b(cigro|cigrons|llenties|mongeta blanca|fesols|fasols|edamame|faves)\b/],
+            ['egg', /\b(ous?|clares)\b/], ['dairy', /\b(paneer|formatge|cottage|mozzarella|burrata|ricotta)\b/]
+        ];
+        return groups.find(([, pattern]) => pattern.test(names))?.[0];
+    }
+
     function profile(recipe) {
         if (recipe.types) return { types: recipe.types, parts: recipe.parts || [], protein: recipe.protein };
         const [plateParts, protein, uses] = existing[recipe.id] || [];
-        return { types: uses || categories[recipe.category] || mains, parts: plateParts || inferredParts(recipe), protein };
+        return { types: uses || categories[recipe.category] || mains, parts: plateParts || inferredParts(recipe),
+            protein: recipe.custom ? inferredProtein(recipe) : protein };
+    }
+
+    function defaultStatus(recipe) {
+        const tested = recipe.testedByUser === true || recipe.createdByUser === true || recipe.custom === true ||
+            recipe.sourceLists?.includes('hits') || (recipe.sourceName === 'Recepta pròpia' && recipe.collection === 'mine');
+        return tested ? 'tested' : 'pending';
+    }
+
+    function energyPerServing(recipe) {
+        if (recipe.estimatedEnergy) return recipe.estimatedEnergy.kcal;
+        const declared = recipe.declaredNutrition;
+        if (declared?.basis === 'serving') return declared.kcal;
+        if (declared?.basis === 'total' && recipe.servings) return declared.kcal / recipe.servings;
+        return null;
+    }
+
+    function isFestive(recipe) {
+        return energyPerServing(recipe) >= festiveThreshold;
     }
 
     function labels(recipe, savedStatus) {
         return {
             reviewed: recipe.sourceReviewed === true,
-            created: recipe.createdByUser === true || recipe.custom === true ||
-                (recipe.sourceName === 'Recepta pròpia' && recipe.collection === 'mine'),
-            tested: savedStatus === 'tested' || (savedStatus !== 'pending' && recipe.testedByUser === true),
-            favorite: savedStatus === 'favorite',
-            sourceFavorite: Boolean(recipe.sourceLists?.length)
+            tested: savedStatus === 'tested' || (savedStatus !== 'pending' && defaultStatus(recipe) === 'tested'),
+            festive: isFestive(recipe)
         };
     }
 
@@ -75,5 +101,5 @@ const recipeClassification = (() => {
             profile(recipe).types.some(type => mains.includes(type));
     }
 
-    return { types, parts, sourceLists, status, categories, proteinNames, profile, labels, canPlan };
+    return { types, parts, status, categories, proteinNames, profile, defaultStatus, labels, canPlan, isFestive, festiveThreshold };
 })();

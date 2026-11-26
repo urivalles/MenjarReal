@@ -138,13 +138,13 @@
                                 <select id="recipe-plate-filter">
                                     <option value="all">Qualsevol combinació</option>
                                     <option value="veg-ready">Ja tinc verdura · hidrats i proteïna</option>
+                                    <option value="fish">Peix</option>
                                     <option value="protein">Proteïna</option>
                                     <option value="carbs">Hidrats</option>
                                     <option value="veg">Verdura</option>
                                 </select>
                             </label>
                             <label for="recipe-label-filter">Etiqueta<select id="recipe-label-filter"><option value="all">Totes les etiquetes</option></select></label>
-                            <label for="myrealfood-list-filter">Llista de MyRealFood<select id="myrealfood-list-filter"><option value="all">Totes les llistes</option></select></label>
                             <label for="season-filter">Temporada
                                 <select id="season-filter">
                                     <option value="all">Totes les temporades</option>
@@ -180,6 +180,7 @@
                     <aside id="pantry-help" class="app-notice" hidden><strong>Sense res preparat i la nevera gairebé buida?</strong> Aquí tens receptes teves amb una base de rebost i complements senzills, com ous. «Nevera buida» és una col·lecció: no comprova què tens al rebost. Desactiva «Usar Nevera» si vols veure-les totes.</aside>
                     <p class="catalog-notice" id="catalog-notice" role="status" hidden></p>
                     <p id="gluten-filter-notice" class="app-notice" hidden>Consulta la nota de cada recepta. Revisa les etiquetes i evita les traces si escau. Per a les receptes adaptades, ajusta els ingredients a la llista de la compra.</p>
+                    <p id="festive-notice" class="app-notice" hidden></p>
                     <div class="recipes-grid" id="recipes-container">
                         <!-- Recipes will be injected here by JS -->
                     </div>
@@ -666,6 +667,7 @@
     <script src="recipes.js"></script>
     <script src="seasonal-recipes.js"></script>
     <script src="myrealfood-recipes.js"></script>
+    <script src="everyday-recipes.js"></script>
     <script src="recipe-classification.js"></script>
     <script src="gluten-guide.js"></script>
     <script src="recipe-catalog.js"></script>

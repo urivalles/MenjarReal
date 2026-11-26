@@ -217,6 +217,7 @@ const myRealFoodRecipes = [
         id: 620, title: 'Pizza amb base de carbassó', originalTitle: 'Pizza con base de calabacín',
         author: 'tonpetitchef', totalMinutes: 30, servings: 1, lists: ['festive'],
         types: ['lunch', 'dinner'], parts: ['carbs', 'protein', 'veg'], protein: 'egg',
+        estimatedEnergy: { kcal: 770, note: 'Estimació amb les quantitats de la fitxa, ricotta sencera i 5 g d’oli.' },
         ingredients: [['Carbassó', '500 g'], ['Farina de civada', '60 g'], ['Tomàquets cherry', '60 g'], ['Ou', '50 g'],
             ['Ricotta', '50 g'], ['Nous pacanes', '30 g'], ['Espinacs', '20 g'], ['Alfàbrega seca', '5 g'],
             ['Orenga', '5 g'], ['Pebre negre', '3 g'], ['Sal', '1 g'], ['Oli d’oliva verge extra', 'Una mica']],

@@ -505,7 +505,7 @@ const seasonalRecipes = [
         adaptationNote: 'Desenvolupament propi de la combinació que has proposat. Recepta pendent de la teva prova de cuina.'
     }),
     seasonalRecipe({
-        id: 105, title: 'Lluç al forn amb patata, porro i xampinyons', collection: 'mine', emoji: '🐟',
+        id: 105, title: 'Lluç al forn amb patata, porro i xampinyons', collection: 'mine', emoji: '🐟', proteinVariety: 'lluc',
         description: 'Peix blanc i verdures en una safata. Avancem la patata al microones per reduir el temps de forn.',
         totalMinutes: 30, activeMinutes: 12, equipment: ['Forn', 'Microones'],
         tags: ['Peix', 'Safata al forn'], sourceIds: ['fish'],
@@ -529,7 +529,7 @@ const seasonalRecipes = [
         adaptationNote: 'La teva paellada, inspirada en la combinació de bolets i ou de Good Food; sense formatge i amb més verdura.'
     }),
     seasonalRecipe({
-        id: 107, title: 'Salmó a la planxa amb patata ràpida i xampinyons', collection: 'mine', emoji: '🍽️',
+        id: 107, title: 'Salmó a la planxa amb patata ràpida i xampinyons', collection: 'mine', emoji: '🍽️', proteinVariety: 'salmo',
         description: 'La teva combinació de salmó i patata, amb xampinyons en lloc d’espàrrecs per a la tardor-hivern.',
         totalMinutes: 25, activeMinutes: 15, equipment: ['Paella', 'Microones'],
         tags: ['Peix', 'Sense forn'], sourceIds: [],
@@ -722,7 +722,7 @@ const maydenRecipes = [
     {
         id: 501, title: 'Espaguetis asiàtics cremosos amb pollastre i verdures',
         description: 'Espaguetis amb pollastre, portobellos, carbassó i pèsols. La soja, la salsa d’ostres i el ssamjang donen sabor a la salsa, lligada amb un formatget.',
-        kcal: 920, protein: 69, base: 'Total del plat', carbs: 142, fiber: 19, fat: 8, video: 'gJFRNOxKGnk', servings: 2, time: '20 min',
+        kcal: 920, protein: 69, basis: 'total', base: 'Total del plat', carbs: 142, fiber: 19, fat: 8, video: 'gJFRNOxKGnk', servings: 2, time: '20 min',
         ingredients: [['Espaguetis', '120 g'], ['Espinacs congelats', '100 g'], ['Pèsols congelats', '100 g'], ['Carbassó', '120 g'],
             ['Xampinyons portobello', '75 g'], ['Ceba morada', '75 g'], ['Panotxa de blat de moro', '75 g'], ['Pit de pollastre', '150 g'],
             ['Salsa de soja', '20 ml'], ['Salsa d’ostres', '10 ml'], ['Ssamjang', '20 g'], ['Curri', 'Al gust'],
@@ -733,7 +733,7 @@ const maydenRecipes = [
     {
         id: 502, title: 'Entrepà de tonyina, ou i alvocat',
         description: 'Pa integral amb un farcit cremós de tonyina, ou dur, alvocat i formatge cottage, aixafats amb una forquilla.',
-        kcal: 596, protein: 54, base: 'Per un entrepà sencer', carbs: 39, fiber: 10, fat: 25, video: '26QAJ-sjIGo',
+        kcal: 596, protein: 54, basis: 'total', base: 'Per un entrepà sencer', carbs: 39, fiber: 10, fat: 25, video: '26QAJ-sjIGo', proteinVariety: 'tonyina',
         servings: 1, time: '15 min', yieldLabel: 'Ingredients per a 1 entrepà',
         ingredients: [['Ous', '2 unitats'], ['Tonyina clara al natural', '2 llaunes'], ['Alvocat madur', '1/2 unitat'],
             ['Cottage 0% de greix', '30–40 g'], ['Pa de motlle integral', '2 llesques'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust']],
@@ -752,7 +752,7 @@ const maydenRecipes = [
     {
         id: 504, title: 'Quiche proteica d’espinacs i mozzarella',
         description: 'Una tortilla integral fa de base per als ous, els espinacs, els tomàquets cherry i el pernil cuit. Es cou amb mozzarella per sobre, al forn o a la fregidora d’aire.',
-        kcal: 504, protein: 45, base: 'Per la quiche sencera', carbs: 19, fat: 26, video: 'epC4h3q4PHs',
+        kcal: 504, protein: 45, basis: 'total', base: 'Per la quiche sencera', carbs: 19, fat: 26, video: 'epC4h3q4PHs',
         servings: 2, time: '35 min', yieldLabel: 'Ingredients per a 1 quiche (2 racions orientatives)',
         ingredients: [['Tortilla de blat integral', '1 unitat'], ['Ous', '3 unitats'], ['Tomàquets cherry', '1 grapat'], ['Espinacs frescos', '1 grapat'],
             ['Pernil cuit extra (mín. 95% carn)', '60 g'], ['Mozzarella fresca', '60 g'], ['Sal', 'Al gust'], ['Pebre negre', 'Al gust'], ['Nou moscada', '1 pessic']],
@@ -772,7 +772,7 @@ const maydenRecipes = [
     {
         id: 506, title: 'Pasta cremosa amb vedella a l’all',
         description: 'Pasta amb vedella picada a l’all i una salsa cremosa de tomàquet i pebrot rostits, cottage i parmesà. La recepta dona per a cinc carmanyoles.',
-        kcal: 775, protein: 67, base: 'Per ració o carmanyola', carbs: 84, fiber: 6, fat: 19, video: 'N5JwrY7llVg',
+        kcal: 775, protein: 67, basis: 'serving', base: 'Per ració o carmanyola', carbs: 84, fiber: 6, fat: 19, video: 'N5JwrY7llVg',
         servings: 5, time: '60 min', yieldLabel: 'Ingredients per a 5 carmanyoles',
         ingredients: [['Oli d’oliva verge extra en esprai', 'Sense quantitat indicada'], ['Tomàquet', '4 unitats'],
             ['Tomàquets cherry', '100 g'], ['Pebrot vermell', '2 unitats'], ['All', '1 cabeça'], ['Alfàbrega', 'Al gust'],
@@ -820,7 +820,7 @@ const maydenRecipes = [
         preparation: '1. Talla la ceba i els pebrots a daus petits i sofregeix-los en una paella amb una mica d’oli.\n2. Incorpora-hi el tomàquet, la sal i les espècies. Quan la salsa hagi reduït una mica, afegeix els cigrons escorreguts i escalfa’ls.\n3. Fes dos clots i trenca-hi els ous. Tapa la paella i cou-los a foc suau fins que quallin.',
         dataNote: 'Ingredients de la descripció del vídeo. Les dues racions, el temps i la manera de quallar els ous són orientatius de MenjarReal.'
     }
-].map(({ kcal, protein, unit, base, carbs, fiber, fat, video, ingredients = [], preparation, ...recipe }) => ({
+].map(({ kcal, protein, unit, base, basis, carbs, fiber, fat, video, ingredients = [], preparation, ...recipe }) => ({
     ...recipe,
     image: `photos/recipe-${recipe.id}.jpg`,
     photoNote: 'Imatge de referència generada amb IA.',
@@ -830,5 +830,5 @@ const maydenRecipes = [
     ingredients: ingredients.map(([item, qty]) => ({ item, qty })),
     instructions: preparation,
     sourceUrl: video ? 'https://www.youtube.com/watch?v=' + video : '',
-    declaredNutrition: { kcal, protein, unit, base, carbs, fiber, fat }
+    declaredNutrition: { kcal, protein, unit, base, basis, carbs, fiber, fat }
 }));
